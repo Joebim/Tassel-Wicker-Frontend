@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { contactService } from '@/services/contactService';
+import Image from 'next/image';
 import { useToastStore } from '@/store/toastStore';
 
 export default function Contact() {
@@ -18,24 +18,40 @@ export default function Contact() {
         e.preventDefault();
         setIsSubmitting(true);
 
-        const result = await contactService.sendEmail(formData);
-
-        if (result.success) {
-            addToast({
-                type: 'success',
-                title: 'Message Sent',
-                message: 'Thank you for your message! We\'ll get back to you soon.',
+        try {
+            const response = await fetch('/api/contact', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(formData),
             });
-            setFormData({ name: '', email: '', phone: '', message: '' });
-        } else {
+
+            const result = await response.json();
+
+            if (result.success) {
+                addToast({
+                    type: 'success',
+                    title: 'Message Sent',
+                    message: 'Thank you for your message! We\'ll get back to you soon.',
+                });
+                setFormData({ name: '', email: '', phone: '', message: '' });
+            } else {
+                addToast({
+                    type: 'error',
+                    title: 'Failed to Send',
+                    message: result.error || 'Failed to send message. Please try again.',
+                });
+            }
+        } catch {
             addToast({
                 type: 'error',
                 title: 'Failed to Send',
-                message: result.error || 'Failed to send message. Please try again.',
+                message: 'An unexpected error occurred. Please try again.',
             });
+        } finally {
+            setIsSubmitting(false);
         }
-
-        setIsSubmitting(false);
     };
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -49,10 +65,12 @@ export default function Contact() {
         <div className="relative w-full overflow-hidden pb-20">
             {/* Background Image */}
             <div className="absolute inset-0 z-0">
-                <img
+                <Image
                     src="https://res.cloudinary.com/dygrsvya5/image/upload/q_auto:low/v1761149638/_2MK9323_vyzwqm.jpg"
                     alt="Contact Background"
-                    className="w-full h-full object-cover"
+                    fill
+                    className="object-cover"
+                    priority
                 />
                 {/* Overlay */}
                 <div className="absolute inset-0 bg-black/50"></div>
@@ -67,7 +85,7 @@ export default function Contact() {
                             CONTACT US
                         </h1>
                         <p className="text-white/80 text-sm md:text-base font-extralight uppercase tracking-wide">
-                            WE'D LOVE TO HEAR FROM YOU
+                            WE&apos;D LOVE TO HEAR FROM YOU
                         </p>
                     </div>
 
@@ -117,15 +135,15 @@ export default function Contact() {
 
                         {/* Message */}
                         <div>
-                            <input
-                                type="text"
+                            <textarea
                                 id="message"
                                 name="message"
                                 value={formData.message}
                                 onChange={handleChange}
                                 required
+                                rows={5}
                                 placeholder="HOW CAN WE HELP *"
-                                className="w-full px-6 py-4 bg-transparent border-2 border-white/60 text-white placeholder-white/80 font-extralight uppercase tracking-wide focus:outline-none focus:border-brand-cream transition-all duration-300"
+                                className="w-full px-6 py-4 bg-transparent border-2 border-white/60 text-white placeholder-white/80 font-extralight uppercase tracking-wide focus:outline-none focus:border-brand-cream transition-all duration-300 resize-none"
                             />
                         </div>
 
