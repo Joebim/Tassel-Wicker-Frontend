@@ -3,7 +3,7 @@
 // Disable static generation - this page needs to check URL params dynamically
 export const dynamic = 'force-dynamic';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { motion } from 'framer-motion';
@@ -11,7 +11,7 @@ import { LuCheck, LuArrowRight, LuShoppingBag } from 'react-icons/lu';
 import { useCartStore } from '@/store/cartStore';
 import { useToastStore } from '@/store/toastStore';
 
-export default function PaymentSuccess() {
+function PaymentSuccessContent() {
     const searchParams = useSearchParams();
     const { clearCart } = useCartStore();
     const [hasClearedCart, setHasClearedCart] = useState(false);
@@ -170,5 +170,19 @@ export default function PaymentSuccess() {
                 </motion.div>
             </div>
         </div>
+    );
+}
+
+export default function PaymentSuccess() {
+    return (
+        <Suspense fallback={
+            <div className="min-h-screen bg-luxury-white text-luxury-black flex items-center justify-center">
+                <div className="text-center">
+                    <p className="text-luxury-cool-grey font-extralight">Loading...</p>
+                </div>
+            </div>
+        }>
+            <PaymentSuccessContent />
+        </Suspense>
     );
 }
