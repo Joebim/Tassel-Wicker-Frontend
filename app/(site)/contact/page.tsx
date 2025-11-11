@@ -37,17 +37,19 @@ export default function Contact() {
                 });
                 setFormData({ name: '', email: '', phone: '', message: '' });
             } else {
+                console.error('Contact form error:', result);
                 addToast({
                     type: 'error',
                     title: 'Failed to Send',
                     message: result.error || 'Failed to send message. Please try again.',
                 });
             }
-        } catch {
+        } catch (error) {
+            console.error('Network error:', error);
             addToast({
                 type: 'error',
                 title: 'Failed to Send',
-                message: 'An unexpected error occurred. Please try again.',
+                message: 'Network error. Please check your connection and try again.',
             });
         } finally {
             setIsSubmitting(false);

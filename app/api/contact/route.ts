@@ -1,5 +1,5 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { Resend } from 'resend';
+import { NextRequest, NextResponse } from "next/server";
+import { Resend } from "resend";
 
 // Initialize Resend lazily to avoid build-time errors
 function getResend() {
@@ -32,8 +32,8 @@ function createEmailTemplate(formData: {
                 <table role="presentation" style="max-width: 600px; width: 100%; border-collapse: collapse; background-color: #fffdf6; border: 1px solid #e6e6e6;">
                     <!-- Header -->
                     <tr>
-                        <td style="padding: 40px 40px 30px; text-align: center; background-color: #4c062c;">
-                            <h1 style="margin: 0; color: #fff6bd; font-size: 28px; font-weight: 200; letter-spacing: 2px; text-transform: uppercase;">
+                        <td style="padding: 40px 40px 30px; text-align: center; background-color: #000000;">
+                            <h1 style="margin: 0; color: #ffffff; font-size: 28px; font-weight: 200; letter-spacing: 2px; text-transform: uppercase;">
                                 Tassel & Wicker
                             </h1>
                             <p style="margin: 10px 0 0; color: #fff6bd; font-size: 14px; font-weight: 200; letter-spacing: 1px; text-transform: uppercase;">
@@ -128,7 +128,7 @@ export async function POST(request: NextRequest) {
     // Validate required fields
     if (!name || !email || !phone || !message) {
       return NextResponse.json(
-        { success: false, error: 'All fields are required' },
+        { success: false, error: "All fields are required" },
         { status: 400 }
       );
     }
@@ -137,49 +137,91 @@ export async function POST(request: NextRequest) {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
       return NextResponse.json(
-        { success: false, error: 'Invalid email address' },
+        { success: false, error: "Invalid email address" },
         { status: 400 }
       );
     }
 
     // Check if Resend API key is configured
+    if (!process.env.RESEND_API_KEY) {
+      console.error(
+        "RESEND_API_KEY is not configured in environment variables"
+      );
+      return NextResponse.json(
+        {
+          success: false,
+          error:
+            "Email service is not configured. Please set RESEND_API_KEY in your environment variables.",
+        },
+        { status: 500 }
+      );
+    }
+
     const resend = getResend();
     if (!resend) {
-      console.error('RESEND_API_KEY is not configured');
+      console.error("Failed to initialize Resend client");
       return NextResponse.json(
-        { success: false, error: 'Email service is not configured' },
+        { success: false, error: "Failed to initialize email service" },
         { status: 500 }
       );
     }
 
     // Send email using Resend
-    const { data, error } = await resend.emails.send({
-      from: 'Tassel & Wicker <onboarding@resend.dev>', // Update this with your verified domain
-      to: 'info@tasselandwicker.com',
-      replyTo: email,
-      subject: `New Contact Form Submission from ${name}`,
-      html: createEmailTemplate({ name, email, phone, message }),
-    });
+    try {
+      const { data, error } = await resend.emails.send({
+        from: "Tassel & Wicker <onboarding@resend.dev>", // Use onboarding@resend.dev for testing, update with verified domain later
+        to: "tasselandwicker@gmail.com",
+        replyTo: email,
+        subject: `New Contact Form Submission from ${name}`,
+        html: createEmailTemplate({ name, email, phone, message }),
+      });
 
-    if (error) {
-      console.error('Resend error:', error);
+      if (error) {
+        console.error("Resend error:", JSON.stringify(error, null, 2));
+        return NextResponse.json(
+          {
+            success: false,
+            error: error.message || "Failed to send email. Please try again.",
+            details: error,
+          },
+          { status: 500 }
+        );
+      }
+
+      return NextResponse.json({
+        success: true,
+        message: "Contact form submitted successfully",
+        emailId: data?.id,
+      });
+    } catch (resendError) {
+      console.error("Resend send error:", resendError);
+      const errorMessage =
+        resendError instanceof Error
+          ? resendError.message
+          : "Failed to send email";
       return NextResponse.json(
-        { success: false, error: 'Failed to send email. Please try again.' },
+        {
+          success: false,
+          error: errorMessage,
+          details:
+            resendError instanceof Error
+              ? resendError.stack
+              : String(resendError),
+        },
         { status: 500 }
       );
     }
-
-    return NextResponse.json({
-      success: true,
-      message: 'Contact form submitted successfully',
-      emailId: data?.id,
-    });
   } catch (error) {
-    console.error('Contact form error:', error);
+    console.error("Contact form error:", error);
+    const errorMessage =
+      error instanceof Error ? error.message : "Failed to submit contact form";
     return NextResponse.json(
-      { success: false, error: 'Failed to submit contact form' },
+      {
+        success: false,
+        error: errorMessage,
+        details: error instanceof Error ? error.stack : String(error),
+      },
       { status: 500 }
     );
   }
 }
-

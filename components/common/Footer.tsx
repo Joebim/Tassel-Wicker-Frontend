@@ -1,12 +1,73 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
 import { FaInstagram, FaPinterestP } from "react-icons/fa";
 import { LuMail } from 'react-icons/lu';
 import LogoAnimated from '@/assets/images/brand/tassel-wicker-logo-animated.svg';
+import { useToastStore } from '@/store/toastStore';
 
 const Footer: React.FC = () => {
+    const [email, setEmail] = useState('');
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const { addToast } = useToastStore();
+
+    const handleNewsletterSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+
+        if (!email.trim()) {
+            addToast({
+                type: 'error',
+                title: 'Email Required',
+                message: 'Please enter your email address.',
+            });
+            return;
+        }
+
+        setIsSubmitting(true);
+
+        try {
+            const response = await fetch('/api/newsletter', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    email: email.trim(),
+                    locale: 'en',
+                    fields: [],
+                }),
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                addToast({
+                    type: 'success',
+                    title: 'Subscribed!',
+                    message: 'Thank you for subscribing to our newsletter!',
+                });
+                setEmail('');
+            } else {
+                console.error('Newsletter subscription error:', result);
+                addToast({
+                    type: 'error',
+                    title: 'Subscription Failed',
+                    message: result.error || 'Failed to subscribe. Please try again.',
+                });
+            }
+        } catch (error) {
+            console.error('Network error:', error);
+            addToast({
+                type: 'error',
+                title: 'Subscription Failed',
+                message: 'Network error. Please check your connection and try again.',
+            });
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
+
     return (
         <footer className="bg-luxury-black text-luxury-white">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
@@ -96,16 +157,27 @@ const Footer: React.FC = () => {
                         <p className="text-luxury-warm-grey text-sm mb-6 font-extralight uppercase">
                             Subscribe to our newsletter for the latest updates and exclusive offers.
                         </p>
-                        <div className="flex">
+                        <form onSubmit={handleNewsletterSubmit} className="flex">
                             <input
                                 type="email"
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
                                 placeholder="Enter your email"
-                                className="flex-1 px-4 py-3 bg-luxury-charcoal border border-luxury-warm-grey/30 rounded-l-xl focus:outline-none focus:ring-2 focus:ring-brand-cream focus:border-brand-cream text-luxury-white placeholder-luxury-warm-grey font-extralight"
+                                disabled={isSubmitting}
+                                required
+                                className="flex-1 px-4 py-3 bg-luxury-charcoal border border-luxury-warm-grey/30 rounded-l-xl focus:outline-none focus:ring-2 focus:ring-brand-cream focus:border-brand-cream text-luxury-white placeholder-luxury-warm-grey font-extralight disabled:opacity-50 disabled:cursor-not-allowed"
                             />
-                            <button className="px-6 py-3 bg-brand-purple text-luxury-white rounded-r-xl hover:bg-brand-purple-light transition-colors duration-200 font-extralight uppercase">
-                                Subscribe
+                            <button
+                                type="submit"
+                                disabled={isSubmitting}
+                                className="px-6 py-3 bg-brand-purple text-luxury-white rounded-r-xl hover:bg-brand-purple-light transition-colors duration-200 font-extralight uppercase disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                                {isSubmitting ? 'Subscribing...' : 'Subscribe'}
                             </button>
-                        </div>
+                        </form>
+                        <p className="text-luxury-warm-grey text-xs mt-4 font-extralight">
+                            We respect your privacy. Unsubscribe at any time.
+                        </p>
                     </div>
                 </div>
 
