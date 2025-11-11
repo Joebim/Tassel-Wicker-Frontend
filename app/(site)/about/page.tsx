@@ -1,6 +1,7 @@
 'use client';
 
 import { useRef } from 'react';
+import Image from 'next/image';
 import { LuChevronDown } from 'react-icons/lu';
 import { motion, useInView } from 'framer-motion';
 import dynamic from 'next/dynamic';
@@ -47,10 +48,12 @@ export default function About() {
       {/* HERO */}
       <div className="relative h-screen w-full overflow-hidden">
         <div className="absolute inset-0 z-0">
-          <img
+          <Image
             src="https://res.cloudinary.com/dygrsvya5/image/upload/q_auto:low/v1761542804/IMAGE_NINE_cdzxti.jpg"
             alt="About Header"
-            className="w-full h-full object-cover"
+            fill
+            className="object-cover"
+            priority
           />
           <div className="absolute inset-0 bg-black opacity-40" />
         </div>
@@ -154,11 +157,13 @@ export default function About() {
                 variants={itemVariants}
                 whileHover={{ scale: 1.02 }}
                 transition={{ duration: 0.3 }}
+                className="relative w-full h-[600px]"
               >
-                <img
+                <Image
                   src="https://res.cloudinary.com/dygrsvya5/image/upload/q_auto:low/v1761542826/ABOUT_PAGE_IMAGE_v9jgbs.jpg"
                   alt="My Why"
-                  className="w-full object-cover h-[600px]"
+                  fill
+                  className="object-cover"
                 />
               </motion.div>
             </div>
@@ -169,12 +174,13 @@ export default function About() {
                 variants={itemVariants}
                 whileHover={{ scale: 1.02 }}
                 transition={{ duration: 0.3 }}
-                className="lg:order-1 order-2"
+                className="lg:order-1 order-2 relative w-full h-[600px]"
               >
-                <img
+                <Image
                   src="https://res.cloudinary.com/dygrsvya5/image/upload/v1761149640/_2MK9308_dcgky8.jpg"
                   alt="Signature Celebration Basket"
-                  className="w-full object-cover h-[600px]"
+                  fill
+                  className="object-cover"
                 />
               </motion.div>
 

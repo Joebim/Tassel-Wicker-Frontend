@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
+import Image from 'next/image';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/navigation';
 import { LuArrowLeft } from 'react-icons/lu';
@@ -66,11 +67,13 @@ export default function ToteBagDetail() {
             <div className="grid grid-cols-1 lg:grid-cols-2 min-h-screen">
                 {/* Left: Image */}
                 <div className="bg-luxury-cream-light relative flex items-center justify-center p-12">
-                    <div className="relative">
-                        <img
+                    <div className="relative w-full max-w-full h-[600px]">
+                        <Image
                             src={product.image}
                             alt={product.name}
-                            className="max-w-full max-h-[600px] object-contain"
+                            fill
+                            className="object-contain"
+                            sizes="(max-width: 768px) 100vw, 50vw"
                         />
                     </div>
                 </div>
