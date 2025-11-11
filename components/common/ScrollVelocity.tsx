@@ -148,7 +148,12 @@ function VelocityText({
     const spans = [];
     for (let i = 0; i < numCopies!; i++) {
         spans.push(
-            <span className={className} key={i} ref={i === 0 ? copyRef : null}>
+            <span
+                className={className}
+                key={i}
+                ref={i === 0 ? copyRef : null}
+                style={{ marginRight: '150px' }}
+            >
                 {children}
             </span>
         );

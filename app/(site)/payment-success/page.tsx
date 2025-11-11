@@ -1,17 +1,43 @@
 'use client';
 
-import { useEffect } from 'react';
+// Disable static generation - this page needs to check URL params dynamically
+export const dynamic = 'force-dynamic';
+
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { LuCheck, LuArrowRight, LuShoppingBag } from 'react-icons/lu';
+import { useCartStore } from '@/store/cartStore';
+import { useToastStore } from '@/store/toastStore';
 
 export default function PaymentSuccess() {
-    // Scroll to top when component mounts
+    const searchParams = useSearchParams();
+    const { clearCart } = useCartStore();
+    const [hasClearedCart, setHasClearedCart] = useState(false);
+    
+    const paymentIntent = searchParams?.get('payment_intent');
+    const paymentIntentClientSecret = searchParams?.get('payment_intent_client_secret');
+
+    // Clear cart and show success message when payment is confirmed
     useEffect(() => {
         if (typeof window !== 'undefined') {
             window.scrollTo(0, 0);
+            
+            // Clear cart on successful payment (only once)
+            // Check if we have payment intent parameters (Stripe redirects with these)
+            // or if we're on the success page (fallback for non-redirect payments)
+            if (!hasClearedCart && (paymentIntent || paymentIntentClientSecret || window.location.pathname === '/payment-success')) {
+                clearCart();
+                setHasClearedCart(true);
+                useToastStore.getState().addToast({
+                    type: 'success',
+                    title: 'Payment Successful',
+                    message: 'Your order has been placed successfully!',
+                });
+            }
         }
-    }, []);
+    }, [paymentIntent, paymentIntentClientSecret, clearCart, hasClearedCart]);
 
     return (
         <div className="min-h-screen bg-luxury-white text-luxury-black flex items-center justify-center">

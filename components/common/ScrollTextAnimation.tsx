@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useRef } from 'react';
 import { motion, useInView } from 'framer-motion';
 
 interface ScrollTextAnimationProps {
@@ -24,28 +24,23 @@ const ScrollTextAnimation = ({
     once = true,
     amount = 0.3
 }: ScrollTextAnimationProps) => {
-    const [mounted, setMounted] = useState(false);
     const ref = useRef<HTMLDivElement>(null);
     
-    // Always call hooks (React rules)
+    // useInView hook - always call it (React rules)
     const isInView = useInView(ref, { once, amount });
-
-    useEffect(() => {
-        setMounted(true);
-    }, []);
 
     const getInitialPosition = () => {
         switch (direction) {
             case 'up':
-                return { y: distance, opacity: 1 };
+                return { y: distance, opacity: 0 };
             case 'down':
-                return { y: -distance, opacity: 1 };
+                return { y: -distance, opacity: 0 };
             case 'left':
-                return { x: distance, opacity: 1 };
+                return { x: distance, opacity: 0 };
             case 'right':
-                return { x: -distance, opacity: 1 };
+                return { x: -distance, opacity: 0 };
             default:
-                return { y: distance, opacity: 1 };
+                return { y: distance, opacity: 0 };
         }
     };
 
@@ -64,30 +59,27 @@ const ScrollTextAnimation = ({
         }
     };
 
-    // Return a simple div during SSR to prevent hydration mismatches
-    // Don't use motion components during SSR
-    if (!mounted || typeof window === 'undefined') {
-        return (
-            <div className={className}>
-                {children}
-            </div>
-        );
-    }
-
+    // Always render the same structure to keep ref consistent
     return (
         <div ref={ref} className="overflow-hidden relative inline-block w-fit pb-[10px]">
-            <motion.div
-                className={className}
-                initial={getInitialPosition()}
-                animate={isInView ? getAnimatePosition() : getInitialPosition()}
-                transition={{
-                    duration,
-                    delay,
-                    ease: [0.25, 0.1, 0.25, 1]
-                }}
-            >
-                {children}
-            </motion.div>
+            {typeof window !== 'undefined' ? (
+                <motion.div
+                    className={className}
+                    initial={getInitialPosition()}
+                    animate={isInView ? getAnimatePosition() : getInitialPosition()}
+                    transition={{
+                        duration,
+                        delay,
+                        ease: [0.25, 0.1, 0.25, 1]
+                    }}
+                >
+                    {children}
+                </motion.div>
+            ) : (
+                <div className={className}>
+                    {children}
+                </div>
+            )}
         </div>
     );
 };

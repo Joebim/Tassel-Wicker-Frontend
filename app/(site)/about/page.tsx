@@ -8,7 +8,6 @@ import dynamic from 'next/dynamic';
 
 const CircularText = dynamic(() => import('@/components/common/CircularText'), { ssr: false });
 const ScrollTextAnimation = dynamic(() => import('@/components/common/ScrollTextAnimation'), { ssr: false });
-const ScrollVelocity = dynamic(() => import('@/components/common/ScrollVelocity'), { ssr: false });
 
 import VideoCard from '@/components/about/VideoCard';
 
@@ -277,18 +276,6 @@ export default function About() {
           </div>
         </motion.section>
 
-        {/* SCROLL TEXT */}
-        <div className="py-14 bg-amber-50">
-          <ScrollVelocity
-            texts={[
-              <span key="scroll" className="font-extralight">
-                COMMITTED TO ELEVATED LIVING.
-              </span>,
-            ]}
-            velocity={100}
-            className="custom-scroll-text"
-          />
-        </div>
       </div>
     </div>
   );

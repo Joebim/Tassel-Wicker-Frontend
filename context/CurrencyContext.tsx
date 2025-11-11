@@ -32,6 +32,14 @@ export function CurrencyProvider({ children }: { children: ReactNode }) {
     }
   }, [isLocationDetected, detectLocation]);
 
+  // Fetch exchange rates on mount and when currency changes
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const { fetchExchangeRates } = useCurrencyStore.getState();
+      fetchExchangeRates();
+    }
+  }, [currency]);
+
   // Re-detect location when user logs in (in case they're in a different location)
   useEffect(() => {
     if (user && typeof window !== 'undefined') {

@@ -75,6 +75,7 @@ const PaymentForm: React.FC<{
                         },
                     },
                 },
+                redirect: 'if_required', // Only redirect if required by payment method
             });
 
             if (confirmError) {
@@ -82,6 +83,7 @@ const PaymentForm: React.FC<{
                 setIsProcessing(false);
             } else {
                 // Payment succeeded, will redirect to return_url
+                // Cart will be cleared in payment-success page
                 onSuccess();
             }
         } catch (err) {
@@ -98,6 +100,35 @@ const PaymentForm: React.FC<{
                 <PaymentElement 
                     options={{
                         layout: 'tabs',
+                        // Show wallet payment methods prominently (Apple Pay, Google Pay)
+                        wallets: {
+                            applePay: 'auto',
+                            googlePay: 'auto',
+                        },
+                        // Business information for Apple Pay/Google Pay
+                        business: {
+                            name: 'Tassel & Wicker',
+                        },
+                        // Terms and conditions
+                        terms: {
+                            card: 'always',
+                        },
+                        // Fields configuration
+                        fields: {
+                            billingDetails: {
+                                name: 'auto',
+                                email: 'auto',
+                                phone: 'auto',
+                                address: {
+                                    country: 'auto',
+                                    line1: 'auto',
+                                    line2: 'auto',
+                                    city: 'auto',
+                                    state: 'auto',
+                                    postalCode: 'auto',
+                                },
+                            },
+                        },
                     }}
                 />
             </div>

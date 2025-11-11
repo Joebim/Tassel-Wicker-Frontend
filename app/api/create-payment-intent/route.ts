@@ -43,12 +43,16 @@ export async function POST(request: NextRequest) {
     const divisor = targetCurrency === 'jpy' ? 1 : 100;
     const amountInSmallestUnit = Math.round(finalAmount * divisor);
 
-    // Create payment intent
+    // Create payment intent with multiple payment methods enabled
+    // Using automatic_payment_methods enables all available payment methods automatically
+    // This includes: cards, Link, Apple Pay, Google Pay, and region-specific methods
     const paymentIntent = await stripe.paymentIntents.create({
       amount: amountInSmallestUnit,
       currency: targetCurrency,
       automatic_payment_methods: {
         enabled: true,
+        // Allow redirect-based payment methods (e.g., iDEAL, Bancontact, Sofort)
+        allow_redirects: 'always',
       },
       metadata: {
         ...metadata,

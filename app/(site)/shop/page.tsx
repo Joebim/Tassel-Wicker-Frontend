@@ -197,10 +197,10 @@ export default function Shop() {
       <div className="py-14 bg-amber-50">
         <ScrollVelocity
           texts={[
-            <span key="scroll-text" className='font-extralight'>
+            <span key="scroll-text" className='font-extralight text-black'>
               {' '}WHERE INTENTION MEETS CURATION BECAUSE IT&apos;S THE{' '}
               <span className="line-through decoration-3 decoration-black">THOUGHT</span>{' '}
-              GIFT THAT COUNTS.
+              GIFT THAT COUNTS
             </span>
           ]}
           velocity={100}
