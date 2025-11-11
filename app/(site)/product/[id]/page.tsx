@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 import { LuArrowLeft, LuArrowRight, LuChevronLeft, LuChevronRight } from 'react-icons/lu';
 import { useInView, motion } from 'framer-motion';
 import ScrollTextAnimation from '@/components/common/ScrollTextAnimation';
@@ -65,11 +66,13 @@ const BasketItem: React.FC<{
         >
             {/* Item Image */}
             <div className="bg-luxury-cream-light relative flex items-center justify-center p-12">
-                <div className="relative">
-                    <img
+                <div className="relative w-full max-w-lg h-[400px]">
+                    <Image
                         src={item.image}
                         alt={item.name}
-                        className="max-w-full max-h-[400px] object-contain"
+                        fill
+                        className="object-contain"
+                        sizes="(max-width: 768px) 100vw, 50vw"
                     />
 
                     {/* Vertical Text - Left */}
@@ -447,12 +450,15 @@ export default function ProductDetail() {
                                     {allImages.map((image, index) => (
                                         <div
                                             key={index}
-                                            className="min-w-full h-full flex items-center justify-center shrink-0"
+                                            className="min-w-full h-full flex items-center justify-center shrink-0 relative"
                                         >
-                                            <img
+                                            <Image
                                                 src={image}
                                                 alt={`${product.name} - ${product.variants?.[index]?.name || 'Image ' + (index + 1)}`}
+                                                width={600}
+                                                height={600}
                                                 className="max-w-full max-h-[600px] object-contain"
+                                                priority={index === 0}
                                             />
                                         </div>
                                     ))}
@@ -527,10 +533,12 @@ export default function ProductDetail() {
                                                 }`}
                                             aria-label={`Select ${variant.name} variant`}
                                         >
-                                            <img
+                                            <Image
                                                 src={variant.image}
                                                 alt={variant.name}
-                                                className="w-full h-full object-cover"
+                                                fill
+                                                className="object-cover"
+                                                sizes="80px"
                                             />
                                             {/* Selection indicator overlay */}
                                             {index === selectedVariantIndex && (

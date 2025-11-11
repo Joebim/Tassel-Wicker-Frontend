@@ -1,4 +1,5 @@
 import React from 'react';
+import Image from 'next/image';
 import { LuHeart, LuGift, LuStar } from 'react-icons/lu';
 
 const BrandStory: React.FC = () => {
@@ -58,11 +59,13 @@ const BrandStory: React.FC = () => {
 
                     {/* Image */}
                     <div className="relative">
-                        <div className="aspect-square rounded-lg overflow-hidden shadow-2xl">
-                            <img
+                        <div className="aspect-square rounded-lg overflow-hidden shadow-2xl relative">
+                            <Image
                                 src="/images/lifestyle/brand-story.jpg"
                                 alt="Tassel & Wicker Brand Story"
-                                className="w-full h-full object-cover"
+                                fill
+                                className="object-cover"
+                                sizes="(max-width: 768px) 100vw, 50vw"
                             />
                         </div>
 

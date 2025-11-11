@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import Image from 'next/image';
 import { motion } from 'framer-motion';
 import ScrollTextAnimation from '@/components/common/ScrollTextAnimation';
 import CircularText from '@/components/common/CircularText';
@@ -85,10 +86,13 @@ export default function CorporateBespoke() {
             {/* Hero */}
             <section className="relative h-screen w-full overflow-hidden">
                 <div className="absolute inset-0 z-0">
-                    <img
+                    <Image
                         src="https://res.cloudinary.com/dygrsvya5/image/upload/q_auto:low/v1761542829/IMAGE_THREE_fuxzxd.jpg"
                         alt="Corporate and bespoke service"
-                        className="w-full h-full object-cover"
+                        fill
+                        className="object-cover"
+                        priority
+                        sizes="100vw"
                     />
                     <div className="absolute inset-0 bg-black opacity-50"></div>
                 </div>

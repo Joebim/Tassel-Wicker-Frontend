@@ -2,6 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { LuHeart, LuShoppingBag } from 'react-icons/lu';
 import { useCart } from '@/context/CartContext';
 import type { Product } from '@/types/product';
@@ -22,11 +23,13 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, viewMode }) => {
         return (
             <div className="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300 overflow-hidden">
                 <div className="flex">
-                    <div className="w-48 h-48 shrink-0">
-                        <img
+                    <div className="w-48 h-48 shrink-0 relative">
+                        <Image
                             src={product.images[0]}
                             alt={product.name}
-                            className="w-full h-full object-cover"
+                            fill
+                            className="object-cover"
+                            sizes="192px"
                         />
                     </div>
                     <div className="flex-1 p-6">
@@ -81,11 +84,13 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, viewMode }) => {
 
     return (
         <div className="group bg-white rounded-lg shadow-sm hover:shadow-lg transition-all duration-300 overflow-hidden">
-            <div className="relative overflow-hidden">
-                <img
+            <div className="relative overflow-hidden h-64">
+                <Image
                     src={product.images[0]}
                     alt={product.name}
-                    className="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-300"
+                    fill
+                    className="object-cover group-hover:scale-105 transition-transform duration-300"
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                 />
                 <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                     <button className="bg-white p-2 rounded-full shadow-md hover:bg-gray-50 transition-colors duration-200">

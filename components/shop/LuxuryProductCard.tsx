@@ -2,6 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { LuArrowRight } from 'react-icons/lu';
 import type { ProductDataItem, ShopProduct } from '@/types/productData';
 import { getDefaultImage, getDefaultPrice } from '@/utils/productHelpers';
@@ -51,10 +52,12 @@ const LuxuryProductCard: React.FC<LuxuryProductCardProps> = ({ product, onAddToC
             <div className="bg-luxury-white overflow-hidden transition-all duration-300">
                 {/* Image Container */}
                 <div className="relative h-[400px] overflow-hidden">
-                    <img
+                    <Image
                         src={defaultImage}
                         alt={product.name}
-                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                        fill
+                        className="object-cover transition-transform duration-500 group-hover:scale-105"
+                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                     />
 
                     {/* Custom hover overlay for "Build Your Basket" */}

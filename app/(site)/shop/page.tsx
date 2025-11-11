@@ -1,6 +1,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
+import Image from 'next/image';
 import { LuFilter, LuGrip, LuList, LuChevronDown } from 'react-icons/lu';
 import LuxuryFilter from '@/components/shop/LuxuryFilter';
 import LuxuryProductCard from '@/components/shop/LuxuryProductCard';
@@ -78,10 +79,13 @@ export default function Shop() {
     <div className="min-h-screen bg-luxury-white">
       <div className="relative h-screen w-full overflow-hidden">
         <div className="absolute inset-0 z-0">
-          <img
+          <Image
             src="https://res.cloudinary.com/dygrsvya5/image/upload/q_auto:low/v1761524366/PROPOSED_HEADER_IMAGE_FOR_PRODUCT_PAGE_mdcg8y.jpg"
             alt="Shop Header"
-            className="w-full h-full object-cover"
+            fill
+            className="object-cover"
+            priority
+            sizes="100vw"
           />
           <div className="absolute inset-0 bg-black opacity-40"></div>
         </div>
