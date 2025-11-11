@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useMemo } from 'react';
+import { useCallback, useEffect, useMemo, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { LuArrowLeft, LuArrowRight } from 'react-icons/lu';
 import { useCustomBasketStore, type CustomBasketItem } from '@/store/customBasketStore';
@@ -9,7 +9,7 @@ import { getDefaultVariant } from '@/utils/productHelpers';
 import { shopProducts } from '@/utils/productData';
 import type { ShopProduct, ShopProductItem } from '@/types/productData';
 
-export default function LearnMore() {
+function LearnMoreContent() {
     const searchParams = useSearchParams();
     const router = useRouter();
     const productId = searchParams.get('productId');
@@ -379,5 +379,17 @@ export default function LearnMore() {
                 </div>
             )}
         </div>
+    );
+}
+
+export default function LearnMore() {
+    return (
+        <Suspense fallback={
+            <div className="min-h-screen bg-luxury-white flex items-center justify-center">
+                <div className="text-luxury-cool-grey font-extralight">Loading...</div>
+            </div>
+        }>
+            <LearnMoreContent />
+        </Suspense>
     );
 }

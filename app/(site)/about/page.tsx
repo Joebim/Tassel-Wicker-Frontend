@@ -3,39 +3,34 @@
 import { useRef } from 'react';
 import { LuChevronDown } from 'react-icons/lu';
 import { motion, useInView } from 'framer-motion';
-import CircularText from '@/components/common/CircularText';
-import ScrollTextAnimation from '@/components/common/ScrollTextAnimation';
-import ScrollVelocity from '@/components/common/ScrollVelocity';
+import dynamic from 'next/dynamic';
+
+const CircularText = dynamic(() => import('@/components/common/CircularText'), { ssr: false });
+const ScrollTextAnimation = dynamic(() => import('@/components/common/ScrollTextAnimation'), { ssr: false });
+const ScrollVelocity = dynamic(() => import('@/components/common/ScrollVelocity'), { ssr: false });
+
 import VideoCard from '@/components/about/VideoCard';
 
 export default function About() {
+  // ---------------------------------------------------------------
+  // Animation variants (unchanged)
+  // ---------------------------------------------------------------
   const headingVariants = {
     hidden: { opacity: 0, y: 40 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: { duration: 0.8 }
-    }
+    visible: { opacity: 1, y: 0, transition: { duration: 0.8 } },
   };
 
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,
-      transition: {
-        staggerChildren: 0.1,
-        delayChildren: 0.2
-      }
-    }
+      transition: { staggerChildren: 0.1, delayChildren: 0.2 },
+    },
   };
 
   const itemVariants = {
     hidden: { opacity: 0, y: 30 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: { duration: 0.6 }
-    }
+    visible: { opacity: 1, y: 0, transition: { duration: 0.6 } },
   };
 
   const ourStoryRef = useRef(null);
@@ -44,8 +39,12 @@ export default function About() {
   const builtForRef = useRef(null);
   const builtForInView = useInView(builtForRef, { once: true, amount: 0.3 });
 
+  // ---------------------------------------------------------------
+  // JSX (unchanged except the imported components)
+  // ---------------------------------------------------------------
   return (
     <div className="bg-white">
+      {/* HERO */}
       <div className="relative h-screen w-full overflow-hidden">
         <div className="absolute inset-0 z-0">
           <img
@@ -53,7 +52,7 @@ export default function About() {
             alt="About Header"
             className="w-full h-full object-cover"
           />
-          <div className="absolute inset-0 bg-black opacity-40"></div>
+          <div className="absolute inset-0 bg-black opacity-40" />
         </div>
 
         <div className="flex items-end relative justify-between z-10 text-left h-full w-full p-12">
@@ -73,12 +72,15 @@ export default function About() {
               TASSEL & WICKER
             </ScrollTextAnimation>
           </div>
+
           <div className="relative">
             <button
               type="button"
               onClick={() => {
                 if (typeof window !== 'undefined') {
-                  document.getElementById('about-content')?.scrollIntoView({ behavior: 'smooth' });
+                  document
+                    .getElementById('about-content')
+                    ?.scrollIntoView({ behavior: 'smooth' });
                 }
               }}
               className="relative"
@@ -90,15 +92,21 @@ export default function About() {
                 onHover="speedUp"
                 className="w-[120px] h-[120px] text-[12px] leading-0.5"
               />
-              <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-                <LuChevronDown size={24} className="cursor-pointer text-white animate-bounce" aria-hidden="true" />
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+                <LuChevronDown
+                  size={24}
+                  className="cursor-pointer text-white animate-bounce"
+                  aria-hidden="true"
+                />
               </div>
             </button>
           </div>
         </div>
       </div>
 
+      {/* CONTENT */}
       <div id="about-content">
+        {/* OUR STORY */}
         <motion.section
           ref={ourStoryRef}
           className="py-30 bg-white"
@@ -107,6 +115,7 @@ export default function About() {
           variants={containerVariants}
         >
           <div className="max-w-7xl mx-auto px-8 sm:px-12 lg:px-16 space-y-24">
+            {/* Row 1 */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
               <motion.div variants={itemVariants}>
                 <motion.div className="mb-8" variants={itemVariants}>
@@ -115,7 +124,7 @@ export default function About() {
                     initial={{ width: 0 }}
                     animate={ourStoryInView ? { width: 64 } : { width: 0 }}
                     transition={{ duration: 0.6, delay: 0.2 }}
-                  ></motion.div>
+                  />
                   <motion.h2
                     className="text-5xl font-extralight text-gray-900 leading-tight"
                     variants={headingVariants}
@@ -125,13 +134,22 @@ export default function About() {
                     </ScrollTextAnimation>
                   </motion.h2>
                 </motion.div>
-                <motion.p className="text-lg text-gray-600 mb-6 leading-relaxed font-extralight" variants={itemVariants}>
+
+                <motion.p
+                  className="text-lg text-gray-600 mb-6 leading-relaxed font-extralight"
+                  variants={itemVariants}
+                >
                   Tassel & Wicker was created from a love for the little things that make life feel elevated and intentional. My vision is for it to become a symbol of thoughtfulness—a reminder to celebrate everyday moments and surround ourselves with pieces that bring joy and meaning.
                 </motion.p>
-                <motion.p className="text-lg text-gray-600 leading-relaxed font-extralight" variants={itemVariants}>
+
+                <motion.p
+                  className="text-lg text-gray-600 leading-relaxed font-extralight"
+                  variants={itemVariants}
+                >
                   Through every product and experience, I hope to inspire a way of living that feels genuine, joyful, and deeply considered.
                 </motion.p>
               </motion.div>
+
               <motion.div
                 variants={itemVariants}
                 whileHover={{ scale: 1.02 }}
@@ -145,6 +163,7 @@ export default function About() {
               </motion.div>
             </div>
 
+            {/* Row 2 */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
               <motion.div
                 variants={itemVariants}
@@ -158,18 +177,31 @@ export default function About() {
                   className="w-full object-cover h-[600px]"
                 />
               </motion.div>
+
               <motion.div className="lg:order-2 order-1" variants={itemVariants}>
                 <motion.div className="mb-6" variants={itemVariants}>
-                  <motion.p className="text-lg text-gray-600 mb-6 leading-relaxed font-extralight" variants={itemVariants}>
+                  <motion.p
+                    className="text-lg text-gray-600 mb-6 leading-relaxed font-extralight"
+                    variants={itemVariants}
+                  >
                     Our story starts with a collection of signature celebration baskets, the first step toward our envisioned line of home and lifestyle pieces.
                   </motion.p>
-                  <motion.p className="text-lg text-gray-600 mb-6 leading-relaxed font-extralight" variants={itemVariants}>
+
+                  <motion.p
+                    className="text-lg text-gray-600 mb-6 leading-relaxed font-extralight"
+                    variants={itemVariants}
+                  >
                     Through our celebration baskets, I invite you to reimagine how you express appreciation—not as a routine gesture, but as a chance to delight, honor individuality, and create moments that linger.
                   </motion.p>
-                  <motion.p className="text-lg text-gray-600 leading-relaxed font-extralight" variants={itemVariants}>
+
+                  <motion.p
+                    className="text-lg text-gray-600 leading-relaxed font-extralight"
+                    variants={itemVariants}
+                  >
                     Here&apos;s to celebrating the little moments that matter most.
                   </motion.p>
                 </motion.div>
+
                 <motion.div className="mt-8 pt-8 border-t border-gray-300" variants={itemVariants}>
                   <p className="text-lg text-gray-600 leading-relaxed font-extralight mb-2">
                     With love and intention,
@@ -186,6 +218,7 @@ export default function About() {
           </div>
         </motion.section>
 
+        {/* BUILT FOR */}
         <motion.section
           ref={builtForRef}
           className="py-30 bg-luxury-charcoal"
@@ -201,10 +234,13 @@ export default function About() {
               >
                 <ScrollTextAnimation delay={0.2} duration={0.8}>
                   IT&apos;S THE{' '}
-                  <span className="line-through decoration-5 decoration-white">THOUGHT</span>{' '}
+                  <span className="line-through decoration-5 decoration-white">
+                    THOUGHT
+                  </span>{' '}
                   GIFT
                 </ScrollTextAnimation>
               </motion.h2>
+
               <motion.h2
                 className="text-5xl font-extralight text-white"
                 variants={headingVariants}
@@ -220,7 +256,7 @@ export default function About() {
                 'https://res.cloudinary.com/dygrsvya5/video/upload/v1762582893/VIDEO_1_qemvjg.mp4',
                 'https://res.cloudinary.com/dygrsvya5/video/upload/v1762582835/VIDEO_2_rybtlw.mp4',
                 'https://res.cloudinary.com/dygrsvya5/video/upload/v1762582847/VIDEO_3_yitmo6.mp4',
-                'https://res.cloudinary.com/dygrsvya5/video/upload/v1762582806/VIDEO_4_lxnmu0.mp4'
+                'https://res.cloudinary.com/dygrsvya5/video/upload/v1762582806/VIDEO_4_lxnmu0.mp4',
               ].map((video, idx) => (
                 <motion.div
                   key={idx}
@@ -235,9 +271,14 @@ export default function About() {
           </div>
         </motion.section>
 
+        {/* SCROLL TEXT */}
         <div className="py-14 bg-amber-50">
           <ScrollVelocity
-            texts={[<span key="scroll" className='font-extralight'>COMMITTED TO ELEVATED LIVING.</span>]}
+            texts={[
+              <span key="scroll" className="font-extralight">
+                COMMITTED TO ELEVATED LIVING.
+              </span>,
+            ]}
             velocity={100}
             className="custom-scroll-text"
           />
@@ -246,4 +287,3 @@ export default function About() {
     </div>
   );
 }
-

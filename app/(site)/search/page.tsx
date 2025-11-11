@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo, useEffect, useCallback } from 'react';
+import { useState, useMemo, useEffect, useCallback, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { LuSearch, LuArrowLeft, LuX, LuFilter } from 'react-icons/lu';
 import LuxuryProductCard from '@/components/shop/LuxuryProductCard';
@@ -9,7 +9,7 @@ import { getAllProducts, shopProducts } from '@/utils/productData';
 import { getDefaultImage, getDefaultPrice } from '@/utils/productHelpers';
 import type { ProductDataItem, ShopProduct } from '@/types/productData';
 
-export default function Search() {
+function SearchContent() {
     const searchParams = useSearchParams();
     const router = useRouter();
     const [searchTerm, setSearchTerm] = useState(() => searchParams.get('search') || '');
@@ -323,5 +323,17 @@ export default function Search() {
                 </div>
             </div>
         </div>
+    );
+}
+
+export default function Search() {
+    return (
+        <Suspense fallback={
+            <div className="min-h-screen bg-luxury-white pt-12 flex items-center justify-center">
+                <div className="text-luxury-cool-grey font-extralight">Loading...</div>
+            </div>
+        }>
+            <SearchContent />
+        </Suspense>
     );
 }

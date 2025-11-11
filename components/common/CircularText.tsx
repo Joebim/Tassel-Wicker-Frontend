@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
-import { motion, useAnimation, useMotionValue, MotionValue } from 'motion/react';
-import type { Transition } from 'motion/react';
+import { motion, useAnimation, useMotionValue, MotionValue } from 'framer-motion';
+import type { Transition } from 'framer-motion';
 
 import './CircularText.css';
 interface CircularTextProps {

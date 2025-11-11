@@ -67,7 +67,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, viewMode }) => {
                         </div>
                         <div className="flex space-x-2">
                             <Link
-                                to={`/product/${product.id}`}
+                                href={`/product/${product.id}`}
                                 className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 py-2 px-4 rounded-md transition-colors duration-200 text-center"
                             >
                                 View Details
@@ -134,7 +134,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, viewMode }) => {
                         <span>Add to Cart</span>
                     </button>
                     <Link
-                        to={`/product/${product.id}`}
+                        href={`/product/${product.id}`}
                         className="bg-gray-100 hover:bg-gray-200 text-gray-700 py-2 px-4 rounded-md transition-colors duration-200 flex items-center justify-center"
                     >
                         View

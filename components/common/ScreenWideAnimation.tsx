@@ -102,12 +102,12 @@ const ScreenWideAnimation: React.FC<ScreenWideAnimationProps> = ({
         }
 
         // Different timing based on version
-        let headerTimer: number;
-        let backgroundTimer: number;
-        let blurTimer: number;
-        let blurReductionTimer: number;
-        let blurReductionTimer2: number;
-        let blurReductionTimer3: number;
+        let headerTimer: ReturnType<typeof setTimeout>;
+        let backgroundTimer: ReturnType<typeof setTimeout>;
+        let blurTimer: ReturnType<typeof setTimeout>;
+        let blurReductionTimer: ReturnType<typeof setTimeout>;
+        let blurReductionTimer2: ReturnType<typeof setTimeout>;
+        let blurReductionTimer3: ReturnType<typeof setTimeout>;
 
         // Switch to static logo after animation completes (4.2 seconds)
         const logoTimer = setTimeout(() => {

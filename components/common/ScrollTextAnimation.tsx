@@ -1,4 +1,6 @@
-import React, { useRef } from 'react';
+'use client';
+
+import React, { useRef, useState, useEffect } from 'react';
 import { motion, useInView } from 'framer-motion';
 
 interface ScrollTextAnimationProps {
@@ -22,8 +24,15 @@ const ScrollTextAnimation = ({
     once = true,
     amount = 0.3
 }: ScrollTextAnimationProps) => {
-    const ref = useRef(null);
+    const [mounted, setMounted] = useState(false);
+    const ref = useRef<HTMLDivElement>(null);
+    
+    // Always call hooks (React rules)
     const isInView = useInView(ref, { once, amount });
+
+    useEffect(() => {
+        setMounted(true);
+    }, []);
 
     const getInitialPosition = () => {
         switch (direction) {
@@ -54,6 +63,16 @@ const ScrollTextAnimation = ({
                 return { y: 0, opacity: 1 };
         }
     };
+
+    // Return a simple div during SSR to prevent hydration mismatches
+    // Don't use motion components during SSR
+    if (!mounted || typeof window === 'undefined') {
+        return (
+            <div className={className}>
+                {children}
+            </div>
+        );
+    }
 
     return (
         <div ref={ref} className="overflow-hidden relative inline-block w-fit pb-[10px]">

@@ -29,9 +29,9 @@ const LogoAnimation: React.FC<LogoAnimationProps> = ({
         setShowHeader(false);
 
         // Different timing based on version
-        let logoTimer: number;
-        let headerTimer: number;
-        let completionTimer: number;
+        let logoTimer: ReturnType<typeof setTimeout>;
+        let headerTimer: ReturnType<typeof setTimeout>;
+        let completionTimer: ReturnType<typeof setTimeout>;
 
         if (version === 'v3') {
             // V3 specific timing

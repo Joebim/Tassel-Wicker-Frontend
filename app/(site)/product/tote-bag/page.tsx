@@ -1,12 +1,17 @@
 'use client';
 
 import { useEffect } from 'react';
-import Link from 'next/link';
+import dynamic from 'next/dynamic';
 import { useRouter } from 'next/navigation';
 import { LuArrowLeft } from 'react-icons/lu';
 import { useCartStore } from '@/store/cartStore';
-import ScrollTextAnimation from '@/components/common/ScrollTextAnimation';
 import { usePrice } from '@/hooks/usePrice';
+
+// Dynamic import – NO SSR
+const ScrollTextAnimation = dynamic(
+    () => import('@/components/common/ScrollTextAnimation'),
+    { ssr: false }
+);
 
 export default function ToteBagDetail() {
     const router = useRouter();
@@ -26,15 +31,11 @@ export default function ToteBagDetail() {
             weight: '300 GSM'
         }
     };
-    
-    // Format price with currency conversion
+
     const { formattedPrice } = usePrice(product.price);
 
-    // Scroll to top when component mounts
     useEffect(() => {
-        if (typeof window !== 'undefined') {
-            window.scrollTo(0, 0);
-        }
+        window.scrollTo(0, 0);
     }, []);
 
     const handleAddToCart = () => {
@@ -63,7 +64,7 @@ export default function ToteBagDetail() {
 
             {/* Main Product Section */}
             <div className="grid grid-cols-1 lg:grid-cols-2 min-h-screen">
-                {/* Left Panel - Product Image */}
+                {/* Left: Image */}
                 <div className="bg-luxury-cream-light relative flex items-center justify-center p-12">
                     <div className="relative">
                         <img
@@ -74,16 +75,17 @@ export default function ToteBagDetail() {
                     </div>
                 </div>
 
-                {/* Right Panel - Product Details */}
+                {/* Right: Details */}
                 <div className="pr-12 flex flex-col justify-center">
                     <div className="max-w-md">
                         <ScrollTextAnimation
                             className="text-6xl font-extralight text-luxury-black mb-8 leading-tight uppercase"
                             delay={0.2}
                             duration={1.2}
-                        >{product.name}</ScrollTextAnimation>
+                        >
+                            {product.name}
+                        </ScrollTextAnimation>
 
-                        {/* Product Type & Price */}
                         <div className="mb-8">
                             <div className="text-luxury-charcoal text-xl font-extralight mb-2 uppercase">
                                 {product.category}
@@ -93,17 +95,14 @@ export default function ToteBagDetail() {
                             </div>
                         </div>
 
-                        {/* Separator Line */}
                         <div className="w-16 h-px bg-luxury-charcoal mb-8"></div>
 
-                        {/* Description */}
                         <div className="mb-8">
                             <p className="text-luxury-cool-grey leading-relaxed font-extralight">
                                 {product.description}
                             </p>
                         </div>
 
-                        {/* Composition Section */}
                         <div className="mb-8">
                             <h2 className="text-luxury-black text-xl font-extralight mb-4 uppercase">
                                 Composition
@@ -113,10 +112,8 @@ export default function ToteBagDetail() {
                             </p>
                         </div>
 
-                        {/* Separator Line */}
                         <div className="w-16 h-px bg-luxury-charcoal mb-8"></div>
 
-                        {/* Dimensions Section */}
                         <div className="mb-8">
                             <h2 className="text-luxury-black text-xl font-extralight mb-4 uppercase">
                                 Dimensions

@@ -162,23 +162,7 @@ export const useCustomBasketStore = create<CustomBasketStore>()(
     {
       name: "custom-basket-storage",
       skipHydration: true, // Skip hydration to prevent SSR mismatches
-      storage: {
-        getItem: (name: string) => {
-          const str = createClientSessionStorage().getItem(name);
-          if (!str) return null;
-          try {
-            return JSON.parse(str);
-          } catch {
-            return null;
-          }
-        },
-        setItem: (name: string, value: unknown) => {
-          createClientSessionStorage().setItem(name, JSON.stringify(value));
-        },
-        removeItem: (name: string) => {
-          createClientSessionStorage().removeItem(name);
-        },
-      },
+      storage: createClientSessionStorage(),
     }
   )
 );
