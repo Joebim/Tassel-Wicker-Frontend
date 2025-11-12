@@ -57,17 +57,17 @@ export default function About() {
           <div className="absolute inset-0 bg-black opacity-40" />
         </div>
 
-        <div className="flex items-end relative justify-between z-10 text-left h-full w-full p-12">
-          <div className="flex flex-col text-white max-w-3xl">
+        <div className="relative z-10 h-full w-full p-6 sm:p-10 lg:p-12 flex flex-col items-start justify-end lg:flex-row lg:items-end lg:justify-between gap-10">
+          <div className="flex flex-col text-white max-w-3xl text-center lg:text-left">
             <ScrollTextAnimation
-              className="md:text-[110px] text-5xl font-extralight tracking-wide uppercase leading-none"
+              className="text-[33px] sm:text-[130px] lg:text-[170px] font-extralight tracking-wide uppercase leading-none"
               delay={0.2}
               duration={1.2}
             >
               ABOUT
             </ScrollTextAnimation>
             <ScrollTextAnimation
-              className="md:text-[110px] whitespace-nowrap text-5xl font-extralight tracking-wide uppercase leading-none"
+              className="text-[33px] sm:text-[130px] lg:text-[170px] whitespace-nowrap font-extralight tracking-wide uppercase leading-none"
               delay={0.4}
               duration={1.2}
             >
@@ -92,7 +92,7 @@ export default function About() {
                 text="ABOUT US • ABOUT US • ABOUT US • "
                 spinDuration={15}
                 onHover="speedUp"
-                className="w-[120px] h-[120px] text-[12px] leading-0.5"
+                className="w-[100px] h-[100px] text-[12px] leading-0.5"
               />
               <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
                 <LuChevronDown

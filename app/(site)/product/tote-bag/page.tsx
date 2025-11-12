@@ -67,12 +67,12 @@ export default function ToteBagDetail() {
             <div className="grid grid-cols-1 lg:grid-cols-2 min-h-screen">
                 {/* Left: Image */}
                 <div className="bg-luxury-cream-light relative flex items-center justify-center p-12">
-                    <div className="relative w-full max-w-full h-[600px]">
+                    <div className="relative w-full max-w-full  h-[400px] sm:h-[600px]">
                         <Image
                             src={product.image}
                             alt={product.name}
                             fill
-                            className="object-contain"
+                            className="object-cover"
                             sizes="(max-width: 768px) 100vw, 50vw"
                         />
                     </div>
@@ -82,7 +82,7 @@ export default function ToteBagDetail() {
                 <div className="pr-12 flex flex-col justify-center">
                     <div className="max-w-md">
                         <ScrollTextAnimation
-                            className="text-6xl font-extralight text-luxury-black mb-8 leading-tight uppercase"
+                            className="text-4xl sm:text-[130px] lg:text-[170px] font-extralight tracking-wide uppercase leading-none text-luxury-black mb-8"
                             delay={0.2}
                             duration={1.2}
                         >

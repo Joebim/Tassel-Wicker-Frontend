@@ -48,7 +48,7 @@ const BasketItem: React.FC<{
     product: { name: string; category: string; price: number; description: string; image: string };
     productId: string;
     index: number;
-}> = ({ item, product, productId, index }) => {
+}> = ({ item, productId, index }) => {
     const ref = useRef(null);
     const isInView = useInView(ref, { once: false, amount: 0.3 });
 
@@ -65,13 +65,13 @@ const BasketItem: React.FC<{
             }}
         >
             {/* Item Image */}
-            <div className="bg-luxury-cream-light relative flex items-center justify-center p-12">
+            <div className="bg-luxury-cream-light relative flex items-center justify-center p-6 sm:p-12">
                 <div className="relative w-full max-w-lg h-[400px]">
                     <Image
                         src={item.image}
                         alt={item.name}
                         fill
-                        className="object-contain"
+                        className="object-cover"
                         sizes="(max-width: 768px) 100vw, 50vw"
                     />
 
@@ -83,7 +83,7 @@ const BasketItem: React.FC<{
             </div>
 
             {/* Item Details */}
-            <div className="p-12 flex flex-col justify-center">
+            <div className="p-6 sm:p-12 flex flex-col justify-center">
                 <div className="max-w-md">
                     {/* Item Title */}
                     <h2 className="text-4xl font-extralight text-luxury-black mb-6 leading-tight uppercase">
@@ -142,7 +142,7 @@ export default function ProductDetail() {
     const currentVariant = product?.variants && product.variants.length > 0
         ? product.variants[selectedVariantIndex]
         : getDefaultVariant(product || {} as ProductDataItem);
-    
+
     // Format price with currency conversion
     const { formattedPrice } = usePrice(currentVariant.price);
 
@@ -156,7 +156,11 @@ export default function ProductDetail() {
     // Update image index when variant changes
     useEffect(() => {
         if (product?.variants && product.variants.length > 0) {
-            setCurrentImageIndex(selectedVariantIndex);
+            // Use setTimeout to avoid synchronous setState in effect
+            const timer = setTimeout(() => {
+                setCurrentImageIndex(selectedVariantIndex);
+            }, 0);
+            return () => clearTimeout(timer);
         }
     }, [selectedVariantIndex, product]);
 
@@ -191,7 +195,7 @@ export default function ProductDetail() {
     const handleCategoryNavigate = useCallback(() => {
         if (!product?.category) return;
         router.push(`/search?category=${encodeURIComponent(product.category)}`);
-    }, [product?.category, router]);
+    }, [product, router]);
 
     const productDetails: ProductDetails | undefined = (product as { details?: ProductDetails })?.details;
 
@@ -436,7 +440,7 @@ export default function ProductDetail() {
                         {/* Carousel Container */}
                         <div className="relative overflow-hidden rounded-lg">
                             {/* Carousel Track */}
-                            <div className="relative h-[600px] overflow-hidden">
+                            <div className="relative h-[400px] sm:h-[600px] overflow-hidden">
                                 <motion.div
                                     className="flex h-full"
                                     animate={{
@@ -457,7 +461,7 @@ export default function ProductDetail() {
                                                 alt={`${product.name} - ${product.variants?.[index]?.name || 'Image ' + (index + 1)}`}
                                                 width={600}
                                                 height={600}
-                                                className="max-w-full max-h-[600px] object-contain"
+                                                className="max-w-full max-h-[400px] sm:max-h-[600px] object-cover"
                                                 priority={index === 0}
                                             />
                                         </div>

@@ -90,17 +90,17 @@ export default function Shop() {
           <div className="absolute inset-0 bg-black opacity-40"></div>
         </div>
 
-        <div className="relative z-10 h-full w-full p-6 sm:p-10 lg:p-12 flex flex-col lg:flex-row lg:items-end lg:justify-between gap-10">
+        <div className="relative z-10 h-full w-full p-6 sm:p-10 lg:p-12 flex flex-col items-start justify-end lg:flex-row lg:items-end lg:justify-between gap-10">
           <div className="flex flex-col text-white max-w-3xl text-center lg:text-left">
             <ScrollTextAnimation
-              className="text-4xl sm:text-5xl lg:text-[110px] font-extralight tracking-wide uppercase leading-none"
+              className="text-5xl sm:text-5xl lg:text-[110px] font-extralight tracking-wide uppercase leading-none"
               delay={0.2}
               duration={1.2}
             >
               OUR
             </ScrollTextAnimation>
             <ScrollTextAnimation
-              className="text-4xl sm:text-5xl lg:text-[110px] font-extralight tracking-wide uppercase leading-none"
+              className="text-5xl sm:text-5xl lg:text-[110px] font-extralight tracking-wide uppercase leading-none"
               delay={0.2}
               duration={1.2}
             >

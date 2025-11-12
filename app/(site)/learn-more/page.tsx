@@ -15,17 +15,17 @@ function LearnMoreContent() {
     const router = useRouter();
     const productId = searchParams.get('productId');
     const itemId = searchParams.get('itemId');
-    
+
     const { currentBasket, addItem: addCustomBasketItem, queueItem } = useCustomBasketStore();
     const addToast = useToastStore((state) => state.addToast);
 
     // Find product and item from query parameters
     const { product, item } = useMemo(() => {
         if (!productId) return { product: undefined, item: undefined };
-        
+
         const foundProduct = shopProducts.find(p => p.id === productId) as ShopProduct | undefined;
         if (!foundProduct || !foundProduct.items) return { product: foundProduct, item: undefined };
-        
+
         // Find item by ID or index
         let foundItem: ShopProductItem | undefined;
         if (itemId) {
@@ -36,7 +36,7 @@ function LearnMoreContent() {
                 foundItem = foundProduct.items[Number(itemId)];
             }
         }
-        
+
         return { product: foundProduct, item: foundItem };
     }, [productId, itemId]);
 
@@ -270,6 +270,13 @@ function LearnMoreContent() {
         );
     };
 
+    // Get the item image from its default variant (must be called before early return)
+    const itemImage = useMemo(() => {
+        if (!item) return '';
+        const defaultVariant = getDefaultVariant(item);
+        return defaultVariant.image;
+    }, [item]);
+
     if (!product || !item) {
         return (
             <div className="min-h-screen bg-luxury-white flex items-center justify-center">
@@ -285,12 +292,6 @@ function LearnMoreContent() {
             </div>
         );
     }
-
-    // Get the item image from its default variant
-    const itemImage = useMemo(() => {
-        const defaultVariant = getDefaultVariant(item);
-        return defaultVariant.image;
-    }, [item]);
 
     return (
         <div className="min-h-screen bg-luxury-white text-luxury-black">
@@ -308,13 +309,13 @@ function LearnMoreContent() {
             {/* Main Content - Top Section */}
             <div className="grid grid-cols-1 lg:grid-cols-2 min-h-screen">
                 {/* Left Panel - Product Image */}
-                <div className="bg-luxury-cream-light relative flex items-center justify-center p-12">
-                    <div className="relative max-w-lg w-full h-[600px]">
+                <div className="bg-luxury-cream-light relative flex items-center justify-center p-6  sm:p-12">
+                    <div className="relative max-w-lg w-full  h-[400px] sm:h-[600px]">
                         <Image
                             src={itemImage}
                             alt={item.name}
                             fill
-                            className="object-contain"
+                            className="object-cover"
                             sizes="(max-width: 768px) 100vw, 50vw"
                         />
 
@@ -325,7 +326,7 @@ function LearnMoreContent() {
                 </div>
 
                 {/* Right Panel - Basic Product Details */}
-                <div className="p-12 flex flex-col justify-center">
+                <div className="p-6 sm:p-12 flex flex-col justify-center">
                     <div className="max-w-2xl">
                         {/* Product Title */}
                         <h1 className="text-4xl font-extralight text-luxury-black mb-8 leading-tight uppercase">

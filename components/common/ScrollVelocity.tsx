@@ -73,12 +73,19 @@ function VelocityText({
     stiffness,
     numCopies,
     velocityMapping,
-    parallaxClassName,
-    scrollerClassName,
+    parallaxClassName = 'parallax',
+    scrollerClassName = 'scroller',
     parallaxStyle,
     scrollerStyle
 }: VelocityTextProps) {
+    const [isMounted, setIsMounted] = useState(false);
     const baseX = useMotionValue(0);
+    
+    useEffect(() => {
+        setIsMounted(true);
+    }, []);
+
+    // Always call hooks unconditionally (React rules), but they'll handle SSR gracefully
     const scrollOptions = scrollContainerRef ? { container: scrollContainerRef } : {};
     const { scrollY } = useScroll(scrollOptions);
     const scrollVelocity = useVelocity(scrollY);
@@ -103,7 +110,7 @@ function VelocityText({
     }
 
     const x = useTransform(baseX, v => {
-        if (copyWidth === 0) return '0px';
+        if (!isMounted || copyWidth === 0) return '0px';
         return `${wrap(-copyWidth, 0, v)}px`;
     });
 
@@ -111,9 +118,9 @@ function VelocityText({
     const lastTimeRef = useRef<number>(0);
     const animationFrameRef = useRef<number | null>(null);
 
-    // Use animation frame only on client side
+    // Use animation frame only on client side after mount
     useEffect(() => {
-        if (typeof window === 'undefined') return;
+        if (!isMounted || typeof window === 'undefined') return;
 
         const animate = (timestamp: number) => {
             if (lastTimeRef.current === 0) {
@@ -143,10 +150,11 @@ function VelocityText({
                 cancelAnimationFrame(animationFrameRef.current);
             }
         };
-    }, [baseVelocity, velocityFactor, baseX]);
+    }, [isMounted, baseVelocity, velocityFactor, baseX]);
 
+    // Always render the same number of spans to prevent hydration mismatch
     const spans = [];
-    for (let i = 0; i < numCopies!; i++) {
+    for (let i = 0; i < (numCopies ?? 6); i++) {
         spans.push(
             <span
                 className={className}
@@ -159,9 +167,14 @@ function VelocityText({
         );
     }
 
+    // Always render the same structure to prevent hydration mismatch
+    // The x transform will be applied by Framer Motion, which handles SSR gracefully
     return (
-        <div className={parallaxClassName} style={parallaxStyle}>
-            <motion.div className={scrollerClassName} style={{ x, ...scrollerStyle }}>
+        <div className={parallaxClassName || 'parallax'} style={parallaxStyle}>
+            <motion.div 
+                className={scrollerClassName || 'scroller'} 
+                style={{ x, ...scrollerStyle }}
+            >
                 {spans}
             </motion.div>
         </div>
@@ -182,23 +195,14 @@ const ScrollVelocity: React.FC<ScrollVelocityProps> = ({
     parallaxStyle,
     scrollerStyle
 }) => {
-    // Initialize mounted state - true on client, false on server
-    const mounted = typeof window !== 'undefined';
+    const [isMounted, setIsMounted] = useState(false);
 
-    // Return simple fallback during SSR/build to prevent build errors
-    if (!mounted) {
-        return (
-            <section>
-                {texts.map((text, index: number) => (
-                    <div key={index} className={className}>
-                        {typeof text === 'string' ? text : String(text)}
-                        {' '}
-                    </div>
-                ))}
-            </section>
-        );
-    }
+    useEffect(() => {
+        setIsMounted(true);
+    }, []);
 
+    // Always render the same structure to prevent hydration mismatch
+    // Render VelocityText wrapper on both server and client, but disable animations during SSR
     return (
         <section>
             {texts.map((text, index: number) => (

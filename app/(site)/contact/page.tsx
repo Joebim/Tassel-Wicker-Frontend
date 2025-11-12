@@ -82,7 +82,7 @@ export default function Contact() {
             <div className="relative z-10 h-full flex flex-col items-center justify-center px-4 sm:px-6 lg:px-8">
                 <div className="w-full max-w-xl">
                     {/* Header */}
-                    <div className="flex flex-col items-center justify-center text-center my-14">
+                    <div className="flex flex-col items-center justify-center text-center mb-14 mt-25">
                         <h1 className="text-white text-4xl md:text-6xl font-extralight uppercase tracking-wide mb-4">
                             CONTACT US
                         </h1>

@@ -96,24 +96,24 @@ export default function CorporateBespoke() {
                     />
                     <div className="absolute inset-0 bg-black opacity-50"></div>
                 </div>
-                <div className="relative z-10 h-full w-full flex flex-col lg:flex-row lg:items-end lg:justify-between gap-10 px-6 sm:px-10 lg:px-12 pb-12">
-                    <div className="max-w-5xl text-white text-center lg:text-left">
+                <div className="relative z-10 h-full w-full flex flex-col items-start justify-end lg:flex-row lg:items-end lg:justify-between gap-10 px-6 sm:px-10 lg:px-12 pb-12">
+                    <div className="max-w-5xl text-white text-left lg:text-left">
                         <ScrollTextAnimation
-                            className="text-4xl sm:text-5xl lg:text-[90px] font-extralight uppercase leading-none tracking-wide"
+                            className="text-[30px] sm:text-[130px] lg:text-[170px] font-extralight tracking-wide uppercase leading-none"
                             delay={0.3}
                             duration={1.2}
                         >
                             CORPORATE
                         </ScrollTextAnimation>
                         <ScrollTextAnimation
-                            className="text-4xl sm:text-5xl lg:text-[90px] font-extralight uppercase leading-none tracking-wide"
+                            className="text-[30px] sm:text-[130px] lg:text-[170px] font-extralight tracking-wide uppercase leading-none"
                             delay={0.5}
                             duration={1.2}
                         >
                             & BESPOKE SERVICE
                         </ScrollTextAnimation>
                     </div>
-                    <div className="relative hidden sm:block">
+                    <div className="relative">
                         <button
                             type="button"
                             onClick={() => {
@@ -128,7 +128,7 @@ export default function CorporateBespoke() {
                                 text="DISCOVER MORE • DISCOVER MORE • DISCOVER MORE • "
                                 spinDuration={15}
                                 onHover="speedUp"
-                                className="w-[120px] h-[120px] text-[12px] leading-0.5"
+                                className="w-[100px] h-[100px] text-[12px] leading-0.5"
                             />
                             <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
                                 <LuChevronDown size={24} className="text-white animate-bounce" aria-hidden="true" />

@@ -15,7 +15,7 @@ function PaymentSuccessContent() {
     const searchParams = useSearchParams();
     const { clearCart } = useCartStore();
     const [hasClearedCart, setHasClearedCart] = useState(false);
-    
+
     const paymentIntent = searchParams?.get('payment_intent');
     const paymentIntentClientSecret = searchParams?.get('payment_intent_client_secret');
 
@@ -23,18 +23,22 @@ function PaymentSuccessContent() {
     useEffect(() => {
         if (typeof window !== 'undefined') {
             window.scrollTo(0, 0);
-            
+
             // Clear cart on successful payment (only once)
             // Check if we have payment intent parameters (Stripe redirects with these)
             // or if we're on the success page (fallback for non-redirect payments)
             if (!hasClearedCart && (paymentIntent || paymentIntentClientSecret || window.location.pathname === '/payment-success')) {
                 clearCart();
-                setHasClearedCart(true);
-                useToastStore.getState().addToast({
-                    type: 'success',
-                    title: 'Payment Successful',
-                    message: 'Your order has been placed successfully!',
-                });
+                // Use setTimeout to avoid synchronous setState in effect
+                const timer = setTimeout(() => {
+                    setHasClearedCart(true);
+                    useToastStore.getState().addToast({
+                        type: 'success',
+                        title: 'Payment Successful',
+                        message: 'Your order has been placed successfully!',
+                    });
+                }, 0);
+                return () => clearTimeout(timer);
             }
         }
     }, [paymentIntent, paymentIntentClientSecret, clearCart, hasClearedCart]);
@@ -84,24 +88,24 @@ function PaymentSuccessContent() {
                         className="bg-luxury-cream-light p-8"
                     >
                         <h2 className="text-2xl font-extralight text-luxury-black mb-6 uppercase">
-                            What's Next?
+                            What&apos;s Next?
                         </h2>
 
                         <div className="space-y-4 text-left">
                             <div className="flex items-start gap-4">
-                                <div className="w-8 h-8 bg-brand-purple/10 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                                <div className="w-8 h-8 bg-brand-purple/10 rounded-full flex items-center justify-center shrink-0 mt-1">
                                     <span className="text-brand-purple font-extralight text-sm">1</span>
                                 </div>
                                 <div>
                                     <h3 className="font-extralight text-luxury-black mb-1">Order Confirmation</h3>
                                     <p className="text-luxury-cool-grey font-extralight text-sm">
-                                        You'll receive an email confirmation with your order details within the next few minutes.
+                                        You&apos;ll receive an email confirmation with your order details within the next few minutes.
                                     </p>
                                 </div>
                             </div>
 
                             <div className="flex items-start gap-4">
-                                <div className="w-8 h-8 bg-brand-purple/10 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                                <div className="w-8 h-8 bg-brand-purple/10 rounded-full flex items-center justify-center shrink-0 mt-1">
                                     <span className="text-brand-purple font-extralight text-sm">2</span>
                                 </div>
                                 <div>
@@ -113,7 +117,7 @@ function PaymentSuccessContent() {
                             </div>
 
                             <div className="flex items-start gap-4">
-                                <div className="w-8 h-8 bg-brand-purple/10 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                                <div className="w-8 h-8 bg-brand-purple/10 rounded-full flex items-center justify-center shrink-0 mt-1">
                                     <span className="text-brand-purple font-extralight text-sm">3</span>
                                 </div>
                                 <div>

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useRef } from 'react';
+import React, { useRef, useEffect, useState, useLayoutEffect } from 'react';
 import { motion, useInView } from 'framer-motion';
 
 interface ScrollTextAnimationProps {
@@ -25,10 +25,18 @@ const ScrollTextAnimation = ({
     amount = 0.3
 }: ScrollTextAnimationProps) => {
     const ref = useRef<HTMLDivElement>(null);
+    const motionRef = useRef<HTMLDivElement>(null);
+    const [isMounted, setIsMounted] = useState(false);
+    const [hasAnimated, setHasAnimated] = useState(false);
     
     // useInView hook - always call it (React rules)
     const isInView = useInView(ref, { once, amount });
 
+    useEffect(() => {
+        setIsMounted(true);
+    }, []);
+
+    // Get initial and animate positions
     const getInitialPosition = () => {
         switch (direction) {
             case 'up':
@@ -59,27 +67,45 @@ const ScrollTextAnimation = ({
         }
     };
 
-    // Always render the same structure to keep ref consistent
+    // Track when animation should start - only after mount
+    useEffect(() => {
+        if (isMounted && isInView && !hasAnimated) {
+            // Small delay to ensure hydration is complete
+            const timer = setTimeout(() => {
+                setHasAnimated(true);
+            }, 50);
+            return () => clearTimeout(timer);
+        }
+    }, [isMounted, isInView, hasAnimated]);
+
+    // Always render the same structure to prevent hydration mismatch
+    // On SSR, render with no animation. After mount and in view, animate
+    const initialPos = getInitialPosition();
+    const finalPos = getAnimatePosition();
+
     return (
-        <div ref={ref} className="overflow-hidden relative inline-block w-fit pb-[10px]">
-            {typeof window !== 'undefined' ? (
-                <motion.div
-                    className={className}
-                    initial={getInitialPosition()}
-                    animate={isInView ? getAnimatePosition() : getInitialPosition()}
-                    transition={{
-                        duration,
-                        delay,
-                        ease: [0.25, 0.1, 0.25, 1]
-                    }}
-                >
-                    {children}
-                </motion.div>
-            ) : (
-                <div className={className}>
-                    {children}
-                </div>
-            )}
+        <div ref={ref} className="overflow-hidden relative inline-block w-fit pb-[10px]" suppressHydrationWarning>
+            <motion.div
+                ref={motionRef}
+                className={className}
+                initial={false}
+                animate={isMounted && hasAnimated && isInView ? finalPos : false}
+                transition={isMounted && hasAnimated && isInView ? {
+                    duration,
+                    delay,
+                    ease: [0.25, 0.1, 0.25, 1]
+                } : { duration: 0 }}
+                style={!isMounted ? undefined : (hasAnimated && isInView ? undefined : {
+                    opacity: initialPos.opacity ?? 1,
+                    transform: initialPos.x !== undefined 
+                        ? `translateX(${initialPos.x}px)` 
+                        : initialPos.y !== undefined 
+                        ? `translateY(${initialPos.y}px)` 
+                        : 'none'
+                })}
+            >
+                {children}
+            </motion.div>
         </div>
     );
 };

@@ -2,6 +2,7 @@
 
 import { useState, useMemo, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 import { LuArrowLeft, LuSearch, LuX, LuShoppingCart } from 'react-icons/lu';
 import { useCustomBasketStore, type CustomBasketItem } from '@/store/customBasketStore';
@@ -42,7 +43,11 @@ export default function BuildYourBasket() {
 
     useEffect(() => {
         if (currentBasket) {
-            setShowOverlay(false);
+            // Use setTimeout to avoid synchronous setState in effect
+            const timer = setTimeout(() => {
+                setShowOverlay(false);
+            }, 0);
+            return () => clearTimeout(timer);
         }
     }, [currentBasket]);
 
@@ -120,7 +125,7 @@ export default function BuildYourBasket() {
     }, []);
 
     return (
-        <div className="relative min-h-screen bg-luxury-white pt-12">
+        <div className="relative min-h-screen bg-luxury-white">
             {/* Intro Overlay */}
             <AnimatePresence>
                 {showOverlay && !currentBasket && (
@@ -133,7 +138,7 @@ export default function BuildYourBasket() {
                     >
                         <div className="max-w-3xl text-center">
                             <h2 className="text-3xl md:text-4xl font-extralight uppercase tracking-[0.35em] text-luxury-charcoal mb-6">
-                                Create a celebration basket that's uniquely yours
+                                Create a celebration basket that&apos;s uniquely yours
                             </h2>
                             <p className="text-luxury-cool-grey font-extralight text-lg leading-relaxed mb-8">
                                 Choose from our range of handpicked products and build a personalised basket for any occasion.
@@ -160,14 +165,18 @@ export default function BuildYourBasket() {
                 )}
             </AnimatePresence>
 
-            {/* Back Button Overlay */}
-            <button
-                onClick={() => router.back()}
-                className="absolute top-4 sm:top-6 md:top-8 left-4 sm:left-6 z-50 inline-flex items-center gap-2 rounded-full border border-luxury-warm-grey/40 bg-white/85 px-3 sm:px-4 py-2 text-luxury-charcoal backdrop-blur-md transition-colors duration-200 hover:border-brand-purple hover:text-brand-purple"
-            >
-                <LuArrowLeft size={18} />
-                <span className="font-extralight uppercase tracking-wide text-xs sm:text-sm">Back</span>
-            </button>
+            {/* Back Button - Sticky at top */}
+            <div className="sticky top-0 z-50 bg-luxury-white/95 backdrop-blur-sm border-b border-luxury-warm-grey/10">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+                    <button
+                        onClick={() => router.back()}
+                        className="inline-flex items-center gap-2 rounded-full border border-luxury-warm-grey/40 bg-white/85 px-3 sm:px-4 py-2 text-luxury-charcoal backdrop-blur-md transition-colors duration-200 hover:border-brand-purple hover:text-brand-purple"
+                    >
+                        <LuArrowLeft size={18} />
+                        <span className="font-extralight uppercase tracking-wide text-xs sm:text-sm">Back</span>
+                    </button>
+                </div>
+            </div>
 
             {/* Basket Selection Section */}
             {!currentBasket && (
@@ -191,11 +200,13 @@ export default function BuildYourBasket() {
                                 className="border border-luxury-warm-grey/20 rounded-lg overflow-hidden cursor-pointer hover:border-brand-purple/50 transition-all duration-300"
                                 onClick={() => handleBasketTypeSelect('natural')}
                             >
-                                <div className="aspect-square overflow-hidden">
-                                    <img
+                                <div className="aspect-square overflow-hidden relative">
+                                    <Image
                                         src="https://res.cloudinary.com/dygrsvya5/image/upload/q_auto:low/v1761523697/WICKER_BASKET_jy5cs6.jpg"
                                         alt="Natural Wicker Basket"
-                                        className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                                        fill
+                                        className="object-cover hover:scale-105 transition-transform duration-300"
+                                        sizes="(max-width: 768px) 100vw, 50vw"
                                     />
                                 </div>
                                 <div className="p-6">
@@ -215,11 +226,13 @@ export default function BuildYourBasket() {
                                 className="border border-luxury-warm-grey/20 rounded-lg overflow-hidden cursor-pointer hover:border-brand-purple/50 transition-all duration-300"
                                 onClick={() => handleBasketTypeSelect('black')}
                             >
-                                <div className="aspect-square overflow-hidden">
-                                    <img
+                                <div className="aspect-square overflow-hidden relative">
+                                    <Image
                                         src="https://res.cloudinary.com/dygrsvya5/image/upload/q_auto:low/v1761523728/BLACK_WICKER_BASKET_xhdnno.jpg"
                                         alt="Black Wicker Basket"
-                                        className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                                        fill
+                                        className="object-cover hover:scale-105 transition-transform duration-300"
+                                        sizes="(max-width: 768px) 100vw, 50vw"
                                     />
                                 </div>
                                 <div className="p-6">
@@ -354,11 +367,13 @@ export default function BuildYourBasket() {
                                                 }`}
                                         >
                                             <div className="flex items-start gap-3">
-                                                <div className="w-16 h-16 rounded-lg overflow-hidden shrink-0">
-                                                    <img
+                                                <div className="w-16 h-16 rounded-lg overflow-hidden shrink-0 relative">
+                                                    <Image
                                                         src={currentImage}
                                                         alt={product.name}
-                                                        className="w-full h-full object-cover"
+                                                        fill
+                                                        className="object-cover"
+                                                        sizes="64px"
                                                     />
                                                 </div>
                                                 <div className="flex-1 min-w-0">
@@ -451,11 +466,13 @@ export default function BuildYourBasket() {
                                     <div className="space-y-3">
                                         {currentBasket.selectedItems.map((item) => (
                                             <div key={item.id} className="flex items-center gap-3 p-3 bg-luxury-warm-grey/5 rounded-lg">
-                                                <div className="w-12 h-12 rounded-lg overflow-hidden shrink-0">
-                                                    <img
+                                                <div className="w-12 h-12 rounded-lg overflow-hidden shrink-0 relative">
+                                                    <Image
                                                         src={item.image}
                                                         alt={item.name}
-                                                        className="w-full h-full object-cover"
+                                                        fill
+                                                        className="object-cover"
+                                                        sizes="48px"
                                                     />
                                                 </div>
                                                 <div className="flex-1 min-w-0">
