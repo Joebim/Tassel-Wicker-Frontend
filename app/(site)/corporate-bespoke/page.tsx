@@ -99,14 +99,14 @@ export default function CorporateBespoke() {
                 <div className="relative z-10 h-full w-full flex flex-col items-start justify-end lg:flex-row lg:items-end lg:justify-between gap-10 px-6 sm:px-10 lg:px-12 pb-12">
                     <div className="max-w-5xl text-white text-left lg:text-left">
                         <ScrollTextAnimation
-                            className="text-[30px] sm:text-[130px] lg:text-[170px] font-extralight tracking-wide uppercase leading-none"
+                            className="text-4xl sm:text-[90px] font-extralight tracking-wide uppercase leading-none"
                             delay={0.3}
                             duration={1.2}
                         >
                             CORPORATE
                         </ScrollTextAnimation>
                         <ScrollTextAnimation
-                            className="text-[30px] sm:text-[130px] lg:text-[170px] font-extralight tracking-wide uppercase leading-none"
+                            className="text-4xl sm:text-[90px] font-extralight tracking-wide uppercase leading-none"
                             delay={0.5}
                             duration={1.2}
                         >

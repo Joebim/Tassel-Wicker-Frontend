@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useRef, useEffect, useState, useLayoutEffect } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import { motion, useInView } from 'framer-motion';
 
 interface ScrollTextAnimationProps {
@@ -28,12 +28,16 @@ const ScrollTextAnimation = ({
     const motionRef = useRef<HTMLDivElement>(null);
     const [isMounted, setIsMounted] = useState(false);
     const [hasAnimated, setHasAnimated] = useState(false);
-    
+
     // useInView hook - always call it (React rules)
     const isInView = useInView(ref, { once, amount });
 
     useEffect(() => {
-        setIsMounted(true);
+        // Use setTimeout to avoid synchronous setState warning
+        const timer = setTimeout(() => {
+            setIsMounted(true);
+        }, 0);
+        return () => clearTimeout(timer);
     }, []);
 
     // Get initial and animate positions
@@ -79,30 +83,23 @@ const ScrollTextAnimation = ({
     }, [isMounted, isInView, hasAnimated]);
 
     // Always render the same structure to prevent hydration mismatch
-    // On SSR, render with no animation. After mount and in view, animate
+    // On SSR, render with initial position. After mount and in view, animate
     const initialPos = getInitialPosition();
     const finalPos = getAnimatePosition();
+    const shouldAnimate = isMounted && hasAnimated && isInView;
 
     return (
         <div ref={ref} className="overflow-hidden relative inline-block w-fit pb-[10px]" suppressHydrationWarning>
             <motion.div
                 ref={motionRef}
                 className={className}
-                initial={false}
-                animate={isMounted && hasAnimated && isInView ? finalPos : false}
-                transition={isMounted && hasAnimated && isInView ? {
+                initial={initialPos}
+                animate={shouldAnimate ? finalPos : initialPos}
+                transition={shouldAnimate ? {
                     duration,
                     delay,
                     ease: [0.25, 0.1, 0.25, 1]
-                } : { duration: 0 }}
-                style={!isMounted ? undefined : (hasAnimated && isInView ? undefined : {
-                    opacity: initialPos.opacity ?? 1,
-                    transform: initialPos.x !== undefined 
-                        ? `translateX(${initialPos.x}px)` 
-                        : initialPos.y !== undefined 
-                        ? `translateY(${initialPos.y}px)` 
-                        : 'none'
-                })}
+                } : { duration: 0, delay: 0 }}
             >
                 {children}
             </motion.div>

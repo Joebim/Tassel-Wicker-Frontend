@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef } from 'react';
+import { useRef, useEffect, useState } from 'react';
 import Image from 'next/image';
 import { LuChevronDown } from 'react-icons/lu';
 import { motion, useInView } from 'framer-motion';
@@ -20,8 +20,9 @@ export default function About() {
     visible: { opacity: 1, y: 0, transition: { duration: 0.8 } },
   };
 
+  // Container variants with fallback to ensure content is visible
   const containerVariants = {
-    hidden: { opacity: 0 },
+    hidden: { opacity: 0.01 }, // Use 0.01 instead of 0 to ensure it can animate
     visible: {
       opacity: 1,
       transition: { staggerChildren: 0.1, delayChildren: 0.2 },
@@ -33,11 +34,50 @@ export default function About() {
     visible: { opacity: 1, y: 0, transition: { duration: 0.6 } },
   };
 
-  const ourStoryRef = useRef(null);
-  const ourStoryInView = useInView(ourStoryRef, { once: true, amount: 0.3 });
+  const ourStoryRef = useRef<HTMLElement>(null);
+  const ourStoryInView = useInView(ourStoryRef, { once: true, amount: 0.1, margin: '-100px' });
+  const [ourStoryVisible, setOurStoryVisible] = useState(false);
 
-  const builtForRef = useRef(null);
-  const builtForInView = useInView(builtForRef, { once: true, amount: 0.3 });
+  const builtForRef = useRef<HTMLElement>(null);
+  const builtForInView = useInView(builtForRef, { once: true, amount: 0.1, margin: '-100px' });
+  const [builtForVisible, setBuiltForVisible] = useState(false);
+
+  // Check if elements are in view on mount and after scroll
+  useEffect(() => {
+    const checkInView = () => {
+      if (typeof window === 'undefined') return;
+
+      if (ourStoryRef.current) {
+        const rect = ourStoryRef.current.getBoundingClientRect();
+        const isVisible = rect.top < window.innerHeight * 1.5 && rect.bottom > -window.innerHeight * 0.5;
+        if (isVisible && !ourStoryVisible) {
+          setOurStoryVisible(true);
+        }
+      }
+      if (builtForRef.current) {
+        const rect = builtForRef.current.getBoundingClientRect();
+        const isVisible = rect.top < window.innerHeight * 1.5 && rect.bottom > -window.innerHeight * 0.5;
+        if (isVisible && !builtForVisible) {
+          setBuiltForVisible(true);
+        }
+      }
+    };
+
+    // Check after a short delay to ensure DOM is ready
+    const timer = setTimeout(() => {
+      checkInView();
+    }, 100);
+
+    // Check on scroll
+    window.addEventListener('scroll', checkInView, { passive: true });
+    window.addEventListener('resize', checkInView);
+
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener('scroll', checkInView);
+      window.removeEventListener('resize', checkInView);
+    };
+  }, [ourStoryVisible, builtForVisible]);
 
   // ---------------------------------------------------------------
   // JSX (unchanged except the imported components)
@@ -60,14 +100,14 @@ export default function About() {
         <div className="relative z-10 h-full w-full p-6 sm:p-10 lg:p-12 flex flex-col items-start justify-end lg:flex-row lg:items-end lg:justify-between gap-10">
           <div className="flex flex-col text-white max-w-3xl text-center lg:text-left">
             <ScrollTextAnimation
-              className="text-[33px] sm:text-[130px] lg:text-[170px] font-extralight tracking-wide uppercase leading-none"
+              className="text-[33px] sm:text-[100px] font-extralight tracking-wide uppercase leading-none"
               delay={0.2}
               duration={1.2}
             >
               ABOUT
             </ScrollTextAnimation>
             <ScrollTextAnimation
-              className="text-[33px] sm:text-[130px] lg:text-[170px] whitespace-nowrap font-extralight tracking-wide uppercase leading-none"
+              className="text-[33px] sm:text-[100px] whitespace-nowrap font-extralight tracking-wide uppercase leading-none"
               delay={0.4}
               duration={1.2}
             >
@@ -107,13 +147,13 @@ export default function About() {
       </div>
 
       {/* CONTENT */}
-      <div id="about-content">
+      <div id="about-content" className="relative z-10">
         {/* OUR STORY */}
         <motion.section
           ref={ourStoryRef}
-          className="py-30 bg-white"
+          className="py-20 sm:py-24 lg:py-32 bg-white"
           initial="hidden"
-          animate={ourStoryInView ? 'visible' : 'hidden'}
+          animate={(ourStoryInView || ourStoryVisible) ? 'visible' : 'hidden'}
           variants={containerVariants}
         >
           <div className="max-w-7xl mx-auto px-8 sm:px-12 lg:px-16 space-y-24">
@@ -124,7 +164,7 @@ export default function About() {
                   <motion.div
                     className="h-1 w-16 bg-brand-purple mb-6"
                     initial={{ width: 0 }}
-                    animate={ourStoryInView ? { width: 64 } : { width: 0 }}
+                    animate={(ourStoryInView || ourStoryVisible) ? { width: 64 } : { width: 0 }}
                     transition={{ duration: 0.6, delay: 0.2 }}
                   />
                   <motion.h2
@@ -226,9 +266,9 @@ export default function About() {
         {/* BUILT FOR */}
         <motion.section
           ref={builtForRef}
-          className="py-30 bg-luxury-charcoal"
+          className="py-20 sm:py-24 lg:py-32 bg-luxury-charcoal"
           initial="hidden"
-          animate={builtForInView ? 'visible' : 'hidden'}
+          animate={(builtForInView || builtForVisible) ? 'visible' : 'hidden'}
           variants={containerVariants}
         >
           <div className="max-w-7xl mx-auto px-8 sm:px-12 lg:px-16">
