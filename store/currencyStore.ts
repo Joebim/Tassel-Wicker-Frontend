@@ -193,18 +193,6 @@ export const useCurrencyStore = create<CurrencyStore>()(
       },
 
       fetchExchangeRates: async () => {
-        // Always fetch rates with USD as base currency for consistency
-        // The API returns rates relative to the base currency
-        const apiKey = process.env.NEXT_PUBLIC_CURRENCY_API_KEY;
-
-        // Skip if no API key
-        if (!apiKey) {
-          console.warn(
-            "NEXT_PUBLIC_CURRENCY_API_KEY not found, using fallback rates"
-          );
-          return;
-        }
-
         // Don't fetch if rates were updated recently (within last 5 minutes)
         const lastUpdated = get().lastUpdated;
         if (lastUpdated && Date.now() - lastUpdated < 5 * 60 * 1000) {
@@ -212,10 +200,9 @@ export const useCurrencyStore = create<CurrencyStore>()(
         }
 
         try {
-          // Always use USD as base for consistency
-          const response = await fetch(
-            `https://v6.exchangerate-api.com/v6/${apiKey}/latest/USD`
-          );
+          // Call server-side API route to fetch exchange rates
+          // This keeps the API key secure on the server
+          const response = await fetch("/api/currency/rates?base=USD");
 
           if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
@@ -223,8 +210,8 @@ export const useCurrencyStore = create<CurrencyStore>()(
 
           const result = await response.json();
 
-          if (result.result === "success" && result.conversion_rates) {
-            get().setExchangeRates(result.conversion_rates);
+          if (result.success && result.rates) {
+            get().setExchangeRates(result.rates);
           } else {
             throw new Error(result.error || "Failed to fetch currency data");
           }

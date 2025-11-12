@@ -9,6 +9,7 @@ interface CurrencyInfo {
 
 /**
  * Hook to fetch real-time currency exchange rates
+ * Uses server-side API route to keep API key secure
  * @param baseCurrency - Base currency code (default: USD)
  * @returns Object with conversion rates and loading/error states
  */
@@ -16,24 +17,16 @@ function useCurrencyInfo(baseCurrency: CurrencyCode = 'USD') {
   const [data, setData] = useState<CurrencyInfo>({});
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  
-  const apiKey = process.env.NEXT_PUBLIC_CURRENCY_API_KEY;
 
   useEffect(() => {
     const fetchCurrencyData = async () => {
-      // Skip if no API key is provided
-      if (!apiKey) {
-        console.warn('NEXT_PUBLIC_CURRENCY_API_KEY not found, using fallback rates');
-        return;
-      }
-
       setIsLoading(true);
       setError(null);
 
       try {
-        const response = await fetch(
-          `https://v6.exchangerate-api.com/v6/${apiKey}/latest/${baseCurrency}`
-        );
+        // Call server-side API route to fetch exchange rates
+        // This keeps the API key secure on the server
+        const response = await fetch(`/api/currency/rates?base=${baseCurrency}`);
 
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
@@ -41,8 +34,8 @@ function useCurrencyInfo(baseCurrency: CurrencyCode = 'USD') {
 
         const result = await response.json();
 
-        if (result.result === 'success' && result.conversion_rates) {
-          setData(result.conversion_rates || {});
+        if (result.success && result.rates) {
+          setData(result.rates || {});
         } else {
           throw new Error(result.error || 'Failed to fetch currency data');
         }
@@ -58,7 +51,7 @@ function useCurrencyInfo(baseCurrency: CurrencyCode = 'USD') {
     if (baseCurrency) {
       fetchCurrencyData();
     }
-  }, [baseCurrency, apiKey]);
+  }, [baseCurrency]);
 
   return { data, error, isLoading };
 }

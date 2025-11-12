@@ -44,7 +44,7 @@ NEXT_PUBLIC_EMAILJS_PUBLIC_KEY=your_public_key
 NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=your_stripe_key
 STRIPE_SECRET_KEY=your_stripe_secret
 
-NEXT_PUBLIC_CURRENCY_API_KEY=your_currency_api_key
+CURRENCY_API_KEY=your_currency_api_key
 RESEND_API_KEY=your_resend_api_key
 SYSTEME_API_KEY=your_systeme_api_key
 ```
