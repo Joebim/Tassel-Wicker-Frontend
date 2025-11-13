@@ -11,6 +11,7 @@ import { useAuthStore } from '@/store/authStore';
 import { useCartStore } from '@/store/cartStore';
 import { useCustomBasketStore } from '@/store/customBasketStore';
 import { useCurrencyStore } from '@/store/currencyStore';
+import CookieConsent from '@/components/common/CookieConsent';
 
 export default function Providers({ children }: { children: React.ReactNode }) {
   // Create QueryClient inside component to avoid hydration mismatches
@@ -44,6 +45,7 @@ export default function Providers({ children }: { children: React.ReactNode }) {
             <CartProvider>
               <AnimationProvider>
                 {children}
+                <CookieConsent />
               </AnimationProvider>
             </CartProvider>
           </AuthProvider>

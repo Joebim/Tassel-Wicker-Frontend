@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation';
 import Header from '@/components/common/Header';
 import Footer from '@/components/common/Footer';
 import ToastComponent from '@/components/common/Toast';
+import CookieConsent from '@/components/common/CookieConsent';
 
 export default function SiteLayoutClient({
     children,
@@ -35,6 +36,7 @@ export default function SiteLayoutClient({
             </div>
             {!isHomePage && !isHomeVariation && <Footer />}
             <ToastComponent />
+            <CookieConsent />
         </div>
     );
 }
