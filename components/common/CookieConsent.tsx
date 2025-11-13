@@ -74,35 +74,27 @@ const CookieConsent: React.FC = () => {
               <div className="flex-1">
                 <p className="text-sm text-gray-700 font-light leading-relaxed">
                   We use cookies to enhance your browsing experience, analyze site traffic, and personalize content. 
-                  By clicking &quot;Accept&quot;, you consent to our use of cookies.{' '}
-                  <a 
-                    href="/privacy-policy" 
-                    className="text-brand-purple hover:underline font-medium"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    Learn more
-                  </a>
+                  By clicking &quot;Accept&quot;, you consent to our use of cookies.
                 </p>
               </div>
               <div className="flex items-center gap-3 flex-shrink-0">
                 <button
                   onClick={handleDecline}
-                  className="px-4 py-2 text-sm font-light text-gray-700 hover:text-gray-900 transition-colors duration-200"
+                  className="px-4 py-2 text-sm font-light text-white bg-black hover:bg-black/90 transition-colors duration-200"
                   aria-label="Decline cookies"
                 >
                   Decline
                 </button>
                 <button
                   onClick={handleAccept}
-                  className="px-6 py-2 text-sm font-light text-white bg-brand-purple hover:bg-brand-purple/90 rounded-full transition-colors duration-200 uppercase tracking-wider"
+                  className="px-6 py-2 text-sm font-light text-white bg-black hover:bg-black/90 transition-colors duration-200 uppercase tracking-wider"
                   aria-label="Accept cookies"
                 >
                   Accept
                 </button>
                 <button
                   onClick={handleDecline}
-                  className="p-2 text-gray-400 hover:text-gray-600 transition-colors duration-200"
+                  className="p-2 text-black hover:text-black/70 transition-colors duration-200"
                   aria-label="Close cookie notice"
                 >
                   <LuX size={20} />

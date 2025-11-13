@@ -11,6 +11,7 @@ import { useAuthStore } from '@/store/authStore';
 import { useToastStore } from '@/store/toastStore';
 import { usePriceFormat } from '@/hooks/usePrice';
 import { useCurrencyStore } from '@/store/currencyStore';
+import useCountries from '@/hooks/useCountries';
 
 // Initialize Stripe
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || '');
@@ -163,6 +164,7 @@ export default function Checkout() {
     const { formattedPrice: formattedTotal } = usePriceFormat(totalPrice);
     const [clientSecret, setClientSecret] = useState<string | null>(null);
 
+    const { countries, isLoading: isLoadingCountries } = useCountries();
     const [formData, setFormData] = useState({
         firstName: '',
         lastName: '',
@@ -172,6 +174,19 @@ export default function Checkout() {
         postalCode: '',
         country: 'United States'
     });
+
+    // Set default country when countries are loaded (if current country is not in the list)
+    useEffect(() => {
+        if (countries.length > 0) {
+            const countryExists = countries.some(c => c.name === formData.country);
+            if (!countryExists) {
+                const defaultCountry = countries.find(c => c.name === 'United States') || countries[0];
+                if (defaultCountry) {
+                    setFormData(prev => ({ ...prev, country: defaultCountry.name }));
+                }
+            }
+        }
+    }, [countries, formData.country]);
 
     // Scroll to top when component mounts
     useEffect(() => {
@@ -396,11 +411,18 @@ export default function Checkout() {
                                             name="country"
                                             value={formData.country}
                                             onChange={handleChange}
-                                            className="w-full px-4 py-3 border border-luxury-cool-grey bg-luxury-white text-luxury-black focus:outline-none focus:ring-2 focus:ring-brand-purple focus:border-transparent font-extralight"
+                                            disabled={isLoadingCountries}
+                                            className="w-full px-4 py-3 border border-luxury-cool-grey bg-luxury-white text-luxury-black focus:outline-none focus:ring-2 focus:ring-brand-purple focus:border-transparent font-extralight disabled:opacity-50 disabled:cursor-not-allowed"
                                         >
-                                            <option value="United States">United States</option>
-                                            <option value="Canada">Canada</option>
-                                            <option value="United Kingdom">United Kingdom</option>
+                                            {isLoadingCountries ? (
+                                                <option value="">Loading countries...</option>
+                                            ) : (
+                                                countries.map((country) => (
+                                                    <option key={country.code || country.name} value={country.name}>
+                                                        {country.name}
+                                                    </option>
+                                                ))
+                                            )}
                                         </select>
                                     </div>
                                 </div>
