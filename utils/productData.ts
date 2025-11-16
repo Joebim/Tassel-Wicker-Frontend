@@ -25,7 +25,7 @@ const basketProducts: ProductWithItems[] = [
         id: "dee-1",
         name: "The Free Writing Journal",
         description:
-          "A beautifully crafted 280 lined hardback journal designed for reflection and clarity. The orange fabric spine contrasts the deep blue covers, while the embossed gold quote “I write so I can hear myself think” inspires mindful writing and meditative moments.",
+          "A beautifully crafted 280 lined hardback journal designed for reflection and clarity. It is the perfect companion for mindful writing and meditative moments. The orange fabric spine adds a subtle warmth against the deep blue covers, while the embossed gold quote <em>“I write so I can hear myself think”</em> inspires every page. The Free Writing Journal is an elevated essential for those dedicated to deepening their journaling practice.",
         category: "Stationery",
         variants: createVariantFromLegacy(
           "https://res.cloudinary.com/dygrsvya5/image/upload/q_auto:low/v1761523713/THE_FREE_WRITING_JOURNAL_f84teh.jpg",
@@ -558,7 +558,7 @@ export const shopProducts: ShopProduct[] = [
       "https://res.cloudinary.com/dygrsvya5/image/upload/q_auto:low/v1761523717/COVER_IMAGE_FOR_NYLA_BASKET_ebewca.jpg",
     category: "Baskets",
     description:
-      "My personal favourite. This basket mirrors my love for meditative and slow living. It is designed to inspire mindfulness, presence, and moments of reflection throughout the day.",
+      "My personal favourite, this basket mirrors my love for meditative and slow living. It is designed to inspire mindfulness, presence, and moments of reflection throughout the day.",
     isNew: false,
     isFeatured: true,
     items: getBasketItems("1").map(toShopItem),
@@ -584,7 +584,7 @@ export const shopProducts: ShopProduct[] = [
       "https://res.cloudinary.com/dygrsvya5/image/upload/q_auto:low/v1761523685/COVER_IMAGE_FOR_DURO_BASKET_lc3d6w.jpg",
     category: "Baskets",
     description:
-      'Derived from the Yoruba name Durojaiye, meaning "to wait and enjoy life." This basket is a meditation on time and resilience. Named after my mother, the Duro basket is a tribute to her strength, grace, love, and enduring spirit.',
+      'Derived from the Yoruba name <em>Durojaiye</em>, meaning “to wait and enjoy life,” this basket is a meditation on time and resilience. Named after my mother, the Duro Basket stands as a tribute to her strength, grace, love and enduring spirit.',
     isNew: true,
     isFeatured: false,
     items: getBasketItems("2").map(toShopItem),

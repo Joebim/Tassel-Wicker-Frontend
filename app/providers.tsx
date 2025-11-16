@@ -35,6 +35,19 @@ export default function Providers({ children }: { children: React.ReactNode }) {
     useCartStore.persist.rehydrate();
     useCustomBasketStore.persist.rehydrate();
     useCurrencyStore.persist.rehydrate();
+
+    // Clean up any legacy auth data from local/session storage
+    if (typeof window !== 'undefined') {
+      try {
+        localStorage.removeItem('auth-storage');
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        localStorage.removeItem('refreshToken');
+        sessionStorage.removeItem('auth-storage');
+      } catch {
+        // Ignore storage cleanup errors
+      }
+    }
   }, []);
 
   return (

@@ -47,7 +47,7 @@ export default function Shipping() {
     ];
 
     return (
-        <div className="min-h-screen bg-luxury-white text-luxury-black">
+        <div className="min-h-screen bg-white text-luxury-black">
             {/* Hero */}
             <section className="relative h-screen w-full overflow-hidden">
                 <div className="absolute inset-0 z-0">
@@ -61,14 +61,14 @@ export default function Shipping() {
                 <div className="relative z-10 h-full w-full p-6 sm:p-10 lg:p-12 flex flex-col lg:flex-row lg:items-end lg:justify-between gap-10">
                     <div className="flex flex-col text-white max-w-3xl text-center lg:text-left">
                         <ScrollTextAnimation
-                            className="text-4xl sm:text-[130px] lg:text-[170px] font-extralight tracking-wide uppercase leading-none"
+                            className="text-[36px] sm:text-[130px] lg:text-[170px] font-extralight tracking-wide uppercase leading-none"
                             delay={0.2}
                             duration={1.2}
                         >
                             SHIPPING
                         </ScrollTextAnimation>
                         <ScrollTextAnimation
-                            className="text-4xl sm:text-[130px] lg:text-[170px] font-extralight tracking-wide uppercase leading-none"
+                            className="text-[36px] sm:text-[130px] lg:text-[170px] font-extralight tracking-wide uppercase leading-none"
                             delay={0.4}
                             duration={1.2}
                         >

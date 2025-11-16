@@ -2,6 +2,28 @@ import { createContext, useReducer, useEffect } from 'react';
 import { initialState, authReducer } from './authConstants';
 import type { User, AuthUser, LoginCredentials, RegisterCredentials } from '../types/user';
 
+// Simple browser cookie helpers (non-HTTP-only, client-side only)
+const getCookie = (name: string): string | null => {
+    if (typeof document === 'undefined') return null;
+    const match = document.cookie
+        .split('; ')
+        .find((row) => row.startsWith(`${encodeURIComponent(name)}=`));
+    if (!match) return null;
+    return decodeURIComponent(match.split('=')[1] || '');
+};
+
+const setCookie = (name: string, value: string, maxAgeSeconds = 60 * 60 * 24 * 7) => {
+    if (typeof document === 'undefined') return;
+    document.cookie = `${encodeURIComponent(name)}=${encodeURIComponent(
+        value
+    )}; Max-Age=${maxAgeSeconds}; Path=/; SameSite=Lax`;
+};
+
+const removeCookie = (name: string) => {
+    if (typeof document === 'undefined') return;
+    document.cookie = `${encodeURIComponent(name)}=; Max-Age=0; Path=/; SameSite=Lax`;
+};
+
 interface AuthState {
     user: User | null;
     token: string | null;
@@ -32,8 +54,21 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     useEffect(() => {
         // Check for stored auth data on mount (client-side only)
         if (typeof window === 'undefined') return;
-        const storedToken = localStorage.getItem('token');
-        const storedUser = localStorage.getItem('user');
+
+        // Clear any legacy local/session storage values
+        try {
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            localStorage.removeItem('refreshToken');
+            sessionStorage.removeItem('token');
+            sessionStorage.removeItem('user');
+            sessionStorage.removeItem('refreshToken');
+        } catch {
+            // Ignore storage cleanup errors
+        }
+
+        const storedToken = getCookie('token');
+        const storedUser = getCookie('user');
 
         if (storedToken && storedUser) {
             try {
@@ -43,14 +78,14 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
                     payload: {
                         user,
                         token: storedToken,
-                        refreshToken: localStorage.getItem('refreshToken') || '',
+                        refreshToken: getCookie('refreshToken') || '',
                     },
                 });
             } catch {
-                // Clear invalid stored data
-                localStorage.removeItem('token');
-                localStorage.removeItem('user');
-                localStorage.removeItem('refreshToken');
+                // Clear invalid stored cookie data
+                removeCookie('token');
+                removeCookie('user');
+                removeCookie('refreshToken');
             }
         }
     }, []);
@@ -87,10 +122,10 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
                 refreshToken: 'mock-refresh-token',
             };
 
-            // Store in localStorage
-            localStorage.setItem('token', mockAuthUser.token);
-            localStorage.setItem('user', JSON.stringify(mockAuthUser.user));
-            localStorage.setItem('refreshToken', mockAuthUser.refreshToken);
+            // Store in cookies instead of localStorage
+            setCookie('token', mockAuthUser.token);
+            setCookie('user', JSON.stringify(mockAuthUser.user));
+            setCookie('refreshToken', mockAuthUser.refreshToken);
 
             dispatch({ type: 'LOGIN_SUCCESS', payload: mockAuthUser });
         } catch (error) {
@@ -134,10 +169,10 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
                 refreshToken: 'mock-refresh-token',
             };
 
-            // Store in localStorage
-            localStorage.setItem('token', mockAuthUser.token);
-            localStorage.setItem('user', JSON.stringify(mockAuthUser.user));
-            localStorage.setItem('refreshToken', mockAuthUser.refreshToken);
+            // Store in cookies instead of localStorage
+            setCookie('token', mockAuthUser.token);
+            setCookie('user', JSON.stringify(mockAuthUser.user));
+            setCookie('refreshToken', mockAuthUser.refreshToken);
 
             dispatch({ type: 'LOGIN_SUCCESS', payload: mockAuthUser });
         } catch (error) {
@@ -149,9 +184,9 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     };
 
     const logout = () => {
-        localStorage.removeItem('token');
-        localStorage.removeItem('user');
-        localStorage.removeItem('refreshToken');
+        removeCookie('token');
+        removeCookie('user');
+        removeCookie('refreshToken');
         dispatch({ type: 'LOGOUT' });
     };
 
@@ -160,13 +195,13 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     };
 
     const updateUser = (user: User) => {
-        localStorage.setItem('user', JSON.stringify(user));
+        setCookie('user', JSON.stringify(user));
         dispatch({
             type: 'LOGIN_SUCCESS',
             payload: {
                 user,
                 token: state.token || '',
-                refreshToken: localStorage.getItem('refreshToken') || '',
+                refreshToken: getCookie('refreshToken') || '',
             },
         });
     };

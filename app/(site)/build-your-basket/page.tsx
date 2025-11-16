@@ -125,12 +125,12 @@ export default function BuildYourBasket() {
     }, []);
 
     return (
-        <div className="relative min-h-screen bg-luxury-white">
+        <div className="relative min-h-screen bg-white">
             {/* Intro Overlay */}
             <AnimatePresence>
                 {showOverlay && !currentBasket && (
                     <motion.div
-                        className="fixed inset-0 z-40 bg-luxury-white/95 backdrop-blur-sm flex items-center justify-center px-6"
+                        className="fixed inset-0 z-40 bg-white/95 backdrop-blur-sm flex items-center justify-center px-6"
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
@@ -166,7 +166,7 @@ export default function BuildYourBasket() {
             </AnimatePresence>
 
             {/* Back Button - Sticky at top */}
-            <div className="sticky top-0 z-50 bg-luxury-white/95 backdrop-blur-sm border-b border-luxury-warm-grey/10">
+            <div className="sticky top-0 z-50 bg-white/95 backdrop-blur-sm border-b border-luxury-warm-grey/10">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
                     <button
                         onClick={() => router.back()}
@@ -270,7 +270,7 @@ export default function BuildYourBasket() {
                                     placeholder="Search products..."
                                     value={searchTerm}
                                     onChange={(e) => setSearchTerm(e.target.value)}
-                                    className="w-full pl-10 pr-4 py-3 border border-luxury-warm-grey/20 rounded-lg bg-luxury-white focus:outline-none focus:border-brand-purple/50 transition-colors duration-200 font-extralight"
+                                    className="w-full pl-10 pr-4 py-3 border border-luxury-warm-grey/20 rounded-lg bg-white focus:outline-none focus:border-brand-purple/50 transition-colors duration-200 font-extralight"
                                 />
                             </div>
 
@@ -279,7 +279,7 @@ export default function BuildYourBasket() {
                                 <select
                                     value={selectedCategory}
                                     onChange={(e) => setSelectedCategory(e.target.value)}
-                                    className="w-full px-4 py-3 border border-luxury-warm-grey/20 rounded-lg bg-luxury-white focus:outline-none focus:border-brand-purple/50 transition-colors duration-200 font-extralight"
+                                    className="w-full px-4 py-3 border border-luxury-warm-grey/20 rounded-lg bg-white focus:outline-none focus:border-brand-purple/50 transition-colors duration-200 font-extralight"
                                 >
                                     {categories.map(category => (
                                         <option key={category} value={category}>{category}</option>

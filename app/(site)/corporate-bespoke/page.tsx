@@ -82,7 +82,7 @@ export default function CorporateBespoke() {
     };
 
     return (
-        <div className="bg-luxury-white text-luxury-black min-h-screen">
+        <div className="bg-white text-luxury-black min-h-screen">
             {/* Hero */}
             <section className="relative h-screen w-full overflow-hidden">
                 <div className="absolute inset-0 z-0">
@@ -96,45 +96,48 @@ export default function CorporateBespoke() {
                     />
                     <div className="absolute inset-0 bg-black opacity-50"></div>
                 </div>
-                <div className="relative z-10 h-full w-full flex flex-col items-start justify-end lg:flex-row lg:items-end lg:justify-between gap-10 px-6 sm:px-10 lg:px-12 pb-12">
-                    <div className="max-w-5xl text-white text-left lg:text-left">
-                        <ScrollTextAnimation
-                            className="text-4xl sm:text-[90px] font-extralight tracking-wide uppercase leading-none"
-                            delay={0.3}
-                            duration={1.2}
-                        >
-                            CORPORATE
-                        </ScrollTextAnimation>
-                        <ScrollTextAnimation
-                            className="text-4xl sm:text-[90px] font-extralight tracking-wide uppercase leading-none"
-                            delay={0.5}
-                            duration={1.2}
-                        >
-                            & BESPOKE SERVICE
-                        </ScrollTextAnimation>
+                <div className="relative z-10 h-full w-full flex flex-row items-end sm:items-start justify-end lg:items-end lg:justify-between gap-7 sm:gap-10 px-6 sm:px-10 lg:px-12 pb-12">
+                    <div className=" flex flex-row items-end self-end">
+                        <div className="max-w-5xl text-white text-left lg:text-left">
+                            <ScrollTextAnimation
+                                className="text-[35px] sm:text-[90px] font-extralight tracking-wide uppercase leading-none"
+                                delay={0.3}
+                                duration={1.2}
+                            >
+                                CORPORATE
+                            </ScrollTextAnimation>
+                            <ScrollTextAnimation
+                                className="text-[32px] sm:text-[90px] font-extralight tracking-wide uppercase leading-none"
+                                delay={0.5}
+                                duration={1.2}
+                            >
+                                & BESPOKE SERVICE
+                            </ScrollTextAnimation>
+                        </div>
+                        <div className="relative">
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    if (typeof window !== 'undefined') {
+                                        document.getElementById('corporate-content')?.scrollIntoView({ behavior: 'smooth' });
+                                    }
+                                }}
+                                className="relative"
+                                aria-label="Learn more"
+                            >
+                                <CircularText
+                                    text="DISCOVER MORE • DISCOVER MORE • "
+                                    spinDuration={15}
+                                    onHover="speedUp"
+                                    className="w-[90px] h-[90px] leading-0.5 sm:w-[120px] sm:h-[120px]"
+                                />
+                                <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+                                    <LuChevronDown size={24} className="text-white animate-bounce" aria-hidden="true" />
+                                </div>
+                            </button>
+                        </div>
                     </div>
-                    <div className="relative">
-                        <button
-                            type="button"
-                            onClick={() => {
-                                if (typeof window !== 'undefined') {
-                                    document.getElementById('corporate-content')?.scrollIntoView({ behavior: 'smooth' });
-                                }
-                            }}
-                            className="relative"
-                            aria-label="Learn more"
-                        >
-                            <CircularText
-                                text="DISCOVER MORE • DISCOVER MORE • DISCOVER MORE • "
-                                spinDuration={15}
-                                onHover="speedUp"
-                                className="w-[100px] h-[100px] text-[12px] leading-0.5"
-                            />
-                            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-                                <LuChevronDown size={24} className="text-white animate-bounce" aria-hidden="true" />
-                            </div>
-                        </button>
-                    </div>
+
                 </div>
             </section>
 

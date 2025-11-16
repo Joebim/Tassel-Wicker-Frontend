@@ -98,51 +98,55 @@ export default function About() {
         </div>
 
         <div className="relative z-10 h-full w-full p-6 sm:p-10 lg:p-12 flex flex-col items-start justify-end lg:flex-row lg:items-end lg:justify-between gap-10">
-          <div className="flex flex-col text-white max-w-3xl text-center lg:text-left">
-            <ScrollTextAnimation
-              className="text-[33px] sm:text-[100px] font-extralight tracking-wide uppercase leading-none"
-              delay={0.2}
-              duration={1.2}
-            >
-              ABOUT
-            </ScrollTextAnimation>
-            <ScrollTextAnimation
-              className="text-[33px] sm:text-[100px] whitespace-nowrap font-extralight tracking-wide uppercase leading-none"
-              delay={0.4}
-              duration={1.2}
-            >
-              TASSEL & WICKER
-            </ScrollTextAnimation>
+          <div className="w-full flex flex-row items-end justify-between self-end">
+
+            <div className="flex flex-col text-white max-w-3xl text-center lg:text-left">
+              <ScrollTextAnimation
+                className="text-[35px] sm:text-[100px] font-extralight tracking-wide uppercase leading-none"
+                delay={0.2}
+                duration={1.2}
+              >
+                ABOUT
+              </ScrollTextAnimation>
+              <ScrollTextAnimation
+                className="text-[35px] sm:text-[100px] text-left font-extralight tracking-wide uppercase leading-none"
+                delay={0.4}
+                duration={1.2}
+              >
+                TASSEL & WICKER
+              </ScrollTextAnimation>
+            </div>
+
+            <div className="relative">
+              <button
+                type="button"
+                onClick={() => {
+                  if (typeof window !== 'undefined') {
+                    document
+                      .getElementById('about-content')
+                      ?.scrollIntoView({ behavior: 'smooth' });
+                  }
+                }}
+                className="relative"
+                aria-label="About Us"
+              >
+                <CircularText
+                  text="ABOUT US • ABOUT US • ABOUT US • "
+                  spinDuration={15}
+                  onHover="speedUp"
+                  className="w-[70px] h-[70px] text-[11px] leading-0.5 sm:w-[120px] sm:h-[120px] sm:text-[12px]"
+                />
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+                  <LuChevronDown
+                    size={24}
+                    className="cursor-pointer text-white animate-bounce"
+                    aria-hidden="true"
+                  />
+                </div>
+              </button>
+            </div>
           </div>
 
-          <div className="relative">
-            <button
-              type="button"
-              onClick={() => {
-                if (typeof window !== 'undefined') {
-                  document
-                    .getElementById('about-content')
-                    ?.scrollIntoView({ behavior: 'smooth' });
-                }
-              }}
-              className="relative"
-              aria-label="About Us"
-            >
-              <CircularText
-                text="ABOUT US • ABOUT US • ABOUT US • "
-                spinDuration={15}
-                onHover="speedUp"
-                className="w-[100px] h-[100px] text-[12px] leading-0.5"
-              />
-              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
-                <LuChevronDown
-                  size={24}
-                  className="cursor-pointer text-white animate-bounce"
-                  aria-hidden="true"
-                />
-              </div>
-            </button>
-          </div>
         </div>
       </div>
 

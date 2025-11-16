@@ -130,3 +130,10 @@
 * {
   font-family: var(--font-family-sans);
 }
+
+/* Global mobile font-size reduction (approx. -1px for rem-based text) */
+@media (max-width: 640px) {
+  html {
+    font-size: 15px;
+  }
+}

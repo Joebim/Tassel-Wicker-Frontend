@@ -183,13 +183,12 @@ function LearnMoreContent() {
                                 <p className="text-luxury-cool-grey font-extralight">Material: {String(details.material)}</p>
                             )}
                             {details.materials && Array.isArray(details.materials) && details.materials.length > 0 && (
-                                <div className="text-luxury-cool-grey font-extralight">
-                                    <p className="font-medium uppercase tracking-wide text-xs mb-1">Materials</p>
-                                    <div className="space-y-1">
-                                        {details.materials.map((material: string, index: number) => (
-                                            <p key={index}>• {material}</p>
-                                        ))}
-                                    </div>
+                                <div className="space-y-1">
+                                    {details.materials.map((material: string, index: number) => (
+                                        <p key={index} className="text-luxury-cool-grey font-extralight">
+                                            • {material}
+                                        </p>
+                                    ))}
                                 </div>
                             )}
                             {details.care && (
@@ -217,17 +216,17 @@ function LearnMoreContent() {
                         <div className="space-y-2">
                             {details.fragranceNotes.top && (
                                 <p className="text-luxury-cool-grey font-extralight">
-                                    <span className="font-medium">Top:</span> {String(details.fragranceNotes.top)}
+                                    <span>Top:</span> {String(details.fragranceNotes.top)}
                                 </p>
                             )}
                             {details.fragranceNotes.middle && (
                                 <p className="text-luxury-cool-grey font-extralight">
-                                    <span className="font-medium">Middle:</span> {String(details.fragranceNotes.middle)}
+                                    <span>Middle:</span> {String(details.fragranceNotes.middle)}
                                 </p>
                             )}
                             {details.fragranceNotes.base && (
                                 <p className="text-luxury-cool-grey font-extralight">
-                                    <span className="font-medium">Base:</span> {String(details.fragranceNotes.base)}
+                                    <span>Base:</span> {String(details.fragranceNotes.base)}
                                 </p>
                             )}
                         </div>
@@ -279,7 +278,7 @@ function LearnMoreContent() {
 
     if (!product || !item) {
         return (
-            <div className="min-h-screen bg-luxury-white flex items-center justify-center">
+            <div className="min-h-screen bg-white flex items-center justify-center">
                 <div className="text-center">
                     <h1 className="text-2xl font-extralight text-luxury-black mb-4 uppercase">Product Not Found</h1>
                     <button
@@ -294,7 +293,7 @@ function LearnMoreContent() {
     }
 
     return (
-        <div className="min-h-screen bg-luxury-white text-luxury-black">
+        <div className="min-h-screen bg-white text-luxury-black">
             {/* Back Button */}
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24">
                 <button
@@ -329,7 +328,7 @@ function LearnMoreContent() {
                 <div className="p-6 sm:p-12 flex flex-col justify-center">
                     <div className="max-w-2xl">
                         {/* Product Title */}
-                        <h1 className="text-4xl font-extralight text-luxury-black mb-8 leading-tight uppercase">
+                        <h1 className="text-[36px] font-extralight text-luxury-black mb-8 leading-tight uppercase">
                             {item.name}
                         </h1>
 
@@ -358,7 +357,7 @@ function LearnMoreContent() {
                         <button
                             type="button"
                             onClick={handleAddToCustomBasket}
-                            className="flex items-center gap-3 text-luxury-black hover:text-brand-purple transition-colors duration-200 cursor-pointer"
+                            className="hidden sm:flex items-center gap-3 text-luxury-black hover:text-brand-purple transition-colors duration-200 cursor-pointer"
                         >
                             <span className="text-sm font-extralight tracking-wider uppercase">Add to Basket</span>
                             <div className="w-6 h-6 border border-luxury-black rounded-full flex items-center justify-center">
@@ -371,9 +370,9 @@ function LearnMoreContent() {
 
             {/* Detailed Information Section */}
             {item.details && (
-                <div className="bg-luxury-white pb-24 pt-12">
+                <div className="bg-white pb-6 sm:pb-24 pt-0 sm:pt-12">
                     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                        <h2 className="text-3xl font-extralight text-luxury-black mb-16 text-center uppercase">
+                        <h2 className="text-2xl sm:text-3xl font-extralight text-luxury-black mb-6 sm:mb-16 text-center uppercase">
                             Detailed Information
                         </h2>
                         <div className="max-w-4xl mx-auto">
@@ -382,6 +381,19 @@ function LearnMoreContent() {
                     </div>
                 </div>
             )}
+            <div className="px-6 sm:px-12 py-12">
+                <button
+                    type="button"
+                    onClick={handleAddToCustomBasket}
+                    className="sm:hidden flex items-center gap-3 text-luxury-black hover:text-brand-purple transition-colors duration-200 cursor-pointer"
+                >
+                    <span className="text-sm font-extralight tracking-wider uppercase">Add to Basket</span>
+                    <div className="w-6 h-6 border border-luxury-black rounded-full flex items-center justify-center">
+                        <LuArrowRight size={12} />
+                    </div>
+                </button>
+            </div>
+
         </div>
     );
 }
@@ -389,7 +401,7 @@ function LearnMoreContent() {
 export default function LearnMore() {
     return (
         <Suspense fallback={
-            <div className="min-h-screen bg-luxury-white flex items-center justify-center">
+            <div className="min-h-screen bg-white flex items-center justify-center">
                 <div className="text-luxury-cool-grey font-extralight">Loading...</div>
             </div>
         }>

@@ -14,10 +14,10 @@ interface LuxuryFilterProps {
     currentFilters?: Partial<FilterState>;
 }
 
-const LuxuryFilter: React.FC<LuxuryFilterProps> = ({ 
-    isOpen, 
-    onClose, 
-    onFilterChange, 
+const LuxuryFilter: React.FC<LuxuryFilterProps> = ({
+    isOpen,
+    onClose,
+    onFilterChange,
     categories = ['All'],
     currentFilters = {}
 }) => {
@@ -34,7 +34,7 @@ const LuxuryFilter: React.FC<LuxuryFilterProps> = ({
 
     const handleCategorySelect = (category: string) => {
         setSelectedCategory(category);
-        onFilterChange({ 
+        onFilterChange({
             category: category === 'All' ? undefined : category,
             price: selectedPrice === 'All' ? undefined : selectedPrice
         });
@@ -42,7 +42,7 @@ const LuxuryFilter: React.FC<LuxuryFilterProps> = ({
 
     const handlePriceSelect = (price: string) => {
         setSelectedPrice(price);
-        onFilterChange({ 
+        onFilterChange({
             category: selectedCategory === 'All' ? undefined : selectedCategory,
             price: price === 'All' ? undefined : price
         });
@@ -57,19 +57,19 @@ const LuxuryFilter: React.FC<LuxuryFilterProps> = ({
     if (!isOpen) return null;
 
     return (
-        <div className="absolute top-full left-0 mt-2 z-50 bg-luxury-white rounded-lg shadow-lg w-64 border border-luxury-warm-grey/20 max-h-[calc(100vh-8rem)] overflow-y-auto">
+        <div className="absolute top-full left-0 mt-2 z-50 bg-white rounded-lg shadow-lg w-64 border border-luxury-warm-grey/20 max-h-[calc(100vh-8rem)] overflow-y-auto">
             <div className="p-6">
-            {/* Header */}
-                <div className="flex items-center gap-2 mb-6 sticky top-0 bg-luxury-white pb-2 z-10">
+                {/* Header */}
+                <div className="flex items-center gap-2 mb-6 sticky top-0 bg-white pb-2 z-10">
                     <LuFilter size={18} className="text-luxury-charcoal" />
                     <h3 className="text-lg font-extralight text-luxury-charcoal uppercase">Filters</h3>
-                    <button 
-                        onClick={onClose} 
+                    <button
+                        onClick={onClose}
                         className="ml-auto p-1 hover:bg-luxury-warm-grey/10 rounded transition-colors duration-200"
                     >
                         <LuX size={16} className="text-luxury-charcoal" />
-                </button>
-            </div>
+                    </button>
+                </div>
 
                 {/* Category Filter */}
                 <div className="mb-8">
@@ -116,12 +116,12 @@ const LuxuryFilter: React.FC<LuxuryFilterProps> = ({
                 {/* Clear Filters Button */}
                 {(selectedCategory !== 'All' || selectedPrice !== 'All') && (
                     <div className="mt-6 pt-6 border-t border-luxury-warm-grey/20">
-                            <button
+                        <button
                             onClick={handleClearFilters}
                             className="w-full px-4 py-2 text-sm text-luxury-cool-grey hover:text-luxury-black font-extralight uppercase transition-colors"
                         >
                             Clear Filters
-                            </button>
+                        </button>
                     </div>
                 )}
             </div>

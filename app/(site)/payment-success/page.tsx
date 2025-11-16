@@ -44,7 +44,7 @@ function PaymentSuccessContent() {
     }, [paymentIntent, paymentIntentClientSecret, clearCart, hasClearedCart]);
 
     return (
-        <div className="min-h-screen bg-luxury-white text-luxury-black flex items-center justify-center">
+        <div className="min-h-screen bg-white text-luxury-black flex items-center justify-center">
             <div className="max-w-2xl mx-auto text-center px-4 sm:px-6 lg:px-8">
                 <motion.div
                     initial={{ opacity: 0, scale: 0.8 }}
@@ -180,7 +180,7 @@ function PaymentSuccessContent() {
 export default function PaymentSuccess() {
     return (
         <Suspense fallback={
-            <div className="min-h-screen bg-luxury-white text-luxury-black flex items-center justify-center">
+            <div className="min-h-screen bg-white text-luxury-black flex items-center justify-center">
                 <div className="text-center">
                     <p className="text-luxury-cool-grey font-extralight">Loading...</p>
                 </div>

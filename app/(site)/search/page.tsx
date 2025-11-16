@@ -151,9 +151,9 @@ function SearchContent() {
     const hasActiveFilters = selectedCategory !== 'All' || selectedPrice !== 'All';
 
     return (
-        <div className="min-h-screen bg-luxury-white pt-12">
+        <div className="min-h-screen bg-white pt-12">
             {/* Header Section */}
-            <div className="bg-luxury-white border-b border-luxury-warm-grey/20">
+            <div className="bg-white border-b border-luxury-warm-grey/20">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
                     <div className="flex items-center gap-4 mb-6">
                         <button
@@ -174,7 +174,7 @@ function SearchContent() {
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
                                 placeholder="Search for products..."
-                                className="w-full pl-12 pr-12 py-4 border border-luxury-warm-grey/20 rounded-lg bg-luxury-white focus:outline-none focus:border-brand-purple/50 transition-colors duration-200 font-extralight text-luxury-black placeholder-luxury-cool-grey"
+                                className="w-full pl-12 pr-12 py-4 border border-luxury-warm-grey/20 rounded-lg bg-white focus:outline-none focus:border-brand-purple/50 transition-colors duration-200 font-extralight text-luxury-black placeholder-luxury-cool-grey"
                                 autoFocus
                             />
                             {searchTerm && (
@@ -211,8 +211,8 @@ function SearchContent() {
                 <div className="flex flex-col lg:flex-row gap-8">
                     {/* Filter Sidebar */}
                     <div className="w-full lg:w-64 shrink-0 hidden lg:block">
-                        <div className="bg-luxury-white border border-luxury-warm-grey/20 rounded-lg p-6 sticky top-8 max-h-[calc(100vh-4rem)] overflow-y-auto">
-                            <div className="flex items-center gap-2 mb-6 sticky top-0 bg-luxury-white pb-2 z-10">
+                        <div className="bg-white border border-luxury-warm-grey/20 rounded-lg p-6 sticky top-8 max-h-[calc(100vh-4rem)] overflow-y-auto">
+                            <div className="flex items-center gap-2 mb-6 sticky top-0 bg-white pb-2 z-10">
                                 <LuFilter size={18} className="text-luxury-charcoal" />
                                 <h3 className="text-lg font-extralight text-luxury-charcoal uppercase">Filters</h3>
                             </div>
@@ -329,7 +329,7 @@ function SearchContent() {
 export default function Search() {
     return (
         <Suspense fallback={
-            <div className="min-h-screen bg-luxury-white pt-12 flex items-center justify-center">
+            <div className="min-h-screen bg-white pt-12 flex items-center justify-center">
                 <div className="text-luxury-cool-grey font-extralight">Loading...</div>
             </div>
         }>

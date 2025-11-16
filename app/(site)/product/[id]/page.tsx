@@ -15,6 +15,9 @@ import { usePrice } from '@/hooks/usePrice';
 
 type DetailValue = string | string[] | { [key: string]: string } | undefined;
 
+const renderRichText = (text?: string) =>
+    text ? <span dangerouslySetInnerHTML={{ __html: text }} /> : null;
+
 const isRecordDetail = (value: DetailValue): value is { [key: string]: string } =>
     typeof value === 'object' && value !== null && !Array.isArray(value);
 
@@ -66,13 +69,12 @@ const BasketItem: React.FC<{
         >
             {/* Item Image */}
             <div className="bg-luxury-cream-light relative flex items-center justify-center p-6 sm:p-12">
-                <div className="relative w-full max-w-lg h-[400px]">
+                <div className="relative w-full h-[450px] sm:h-[700px]">
                     <Image
                         src={item.image}
                         alt={item.name}
                         fill
-                        className="object-cover"
-                        sizes="(max-width: 768px) 100vw, 50vw"
+                        className="w-full h-full object-cover object-center"
                     />
 
                     {/* Vertical Text - Left */}
@@ -93,7 +95,7 @@ const BasketItem: React.FC<{
                     {/* Item Description */}
                     <div className="mb-6">
                         <p className="text-luxury-cool-grey leading-relaxed font-extralight">
-                            {item.description}
+                            {renderRichText(item.description)}
                         </p>
                     </div>
 
@@ -408,7 +410,7 @@ export default function ProductDetail() {
 
     if (!product) {
         return (
-            <div className="min-h-screen bg-luxury-white flex items-center justify-center">
+            <div className="min-h-screen bg-white flex items-center justify-center">
                 <div className="text-center">
                     <h1 className="text-2xl font-extralight text-luxury-black mb-4 uppercase">Product Not Found</h1>
                     <Link href="/shop" className="text-brand-purple hover:text-brand-purple-light transition-colors font-extralight uppercase">
@@ -420,7 +422,7 @@ export default function ProductDetail() {
     }
 
     return (
-        <div className="min-h-screen bg-luxury-white text-luxury-black">
+        <div className="min-h-screen bg-white text-luxury-black">
             {/* Back Button */}
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24">
                 <button
@@ -440,9 +442,9 @@ export default function ProductDetail() {
                         {/* Carousel Container */}
                         <div className="relative overflow-hidden rounded-lg">
                             {/* Carousel Track */}
-                            <div className="relative h-[400px] sm:h-[600px] overflow-hidden">
+                            <div className="relative h-[400px] sm:h-[600px] w-full overflow-hidden">
                                 <motion.div
-                                    className="flex h-full"
+                                    className="flex h-full w-full"
                                     animate={{
                                         x: `-${currentImageIndex * 100}%`
                                     }}
@@ -454,14 +456,14 @@ export default function ProductDetail() {
                                     {allImages.map((image, index) => (
                                         <div
                                             key={index}
-                                            className="min-w-full h-full flex items-center justify-center shrink-0 relative"
+                                            className="w-full h-full flex items-center justify-center shrink-0 relative"
                                         >
                                             <Image
                                                 src={image}
                                                 alt={`${product.name} - ${product.variants?.[index]?.name || 'Image ' + (index + 1)}`}
                                                 width={600}
                                                 height={600}
-                                                className="max-w-full max-h-[400px] sm:max-h-[600px] object-cover"
+                                                className="h-full w-full object-cover"
                                                 priority={index === 0}
                                             />
                                         </div>
@@ -513,7 +515,7 @@ export default function ProductDetail() {
                 <div className="px-6 sm:px-10 lg:pr-12 lg:pl-0 flex flex-col justify-center">
                     <div className="max-w-xl">
                         <ScrollTextAnimation
-                            className="text-4xl sm:text-5xl lg:text-6xl font-extralight text-luxury-black mb-8 leading-tight uppercase"
+                            className="text-[36px] sm:text-5xl lg:text-6xl font-extralight text-luxury-black mb-8 leading-tight uppercase"
                             delay={0.2}
                             duration={1.2}
                         >
@@ -584,7 +586,7 @@ export default function ProductDetail() {
                         {/* Description */}
                         <div className="mb-8">
                             <p className="text-luxury-cool-grey leading-relaxed font-extralight">
-                                {product.description}
+                                {renderRichText(product.description)}
                             </p>
                         </div>
                         <button
@@ -599,7 +601,7 @@ export default function ProductDetail() {
 
             {/* Product Details Section */}
             {detailSections.length > 0 && (
-                <section className="bg-luxury-white pb-24 pt-12">
+                <section className="bg-white pb-24 pt-12">
                     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12">
                         <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-12">
                             <h2 className="text-3xl font-extralight text-luxury-black uppercase tracking-[0.35em]">
@@ -628,7 +630,7 @@ export default function ProductDetail() {
             {/* Note: items property is only on ProductWithItems, not ProductDataItem */}
             {/* This section is for basket products that contain items */}
             {('items' in product && Array.isArray(product.items) && product.items.length > 0) && (
-                <div className="bg-luxury-white py-24">
+                <div className="bg-white py-24">
                     <div className="flex flex-col max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                         <div className="flex justify-center px-10 border-b border-brand-green self-center ">
                             <h2 className="text-2xl font-extralight text-brand-green uppercase mb-5">

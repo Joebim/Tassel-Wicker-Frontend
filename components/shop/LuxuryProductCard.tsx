@@ -9,9 +9,9 @@ import { getDefaultImage, getDefaultPrice } from '@/utils/productHelpers';
 import { usePrice } from '@/hooks/usePrice';
 
 type CardProduct = ShopProduct | (ProductDataItem & {
-        isNew?: boolean;
-        isFeatured?: boolean;
-        isCustom?: boolean;
+    isNew?: boolean;
+    isFeatured?: boolean;
+    isCustom?: boolean;
 });
 
 interface LuxuryProductCardProps {
@@ -27,10 +27,10 @@ const LuxuryProductCard: React.FC<LuxuryProductCardProps> = ({ product, onAddToC
     const basePrice = 'variants' in product && product.variants && product.variants.length > 0
         ? getDefaultPrice(product as ProductDataItem)
         : (product.price || 0);
-    
+
     // Use price hook for formatting
     const { formattedPrice } = usePrice(basePrice);
-    
+
     const handleAddToCart = (e: React.MouseEvent) => {
         e.preventDefault();
         e.stopPropagation();
@@ -49,7 +49,7 @@ const LuxuryProductCard: React.FC<LuxuryProductCardProps> = ({ product, onAddToC
             href={getProductLink()}
             className="group block"
         >
-            <div className="bg-luxury-white overflow-hidden transition-all duration-300">
+            <div className="bg-white overflow-hidden transition-all duration-300">
                 {/* Image Container */}
                 <div className="relative h-[400px] overflow-hidden">
                     <Image
@@ -74,7 +74,7 @@ const LuxuryProductCard: React.FC<LuxuryProductCardProps> = ({ product, onAddToC
                 </div>
 
                 {/* Content */}
-                <div className="pt-6 bg-luxury-white flex flex-col items-start justify-between">
+                <div className="pt-6 bg-white flex flex-col items-start justify-between">
                     <h3 className="text-lg font-extralight text-luxury-charcoal mb-2 group-hover:text-brand-purple transition-colors duration-200 uppercase">
                         {product.name}
                     </h3>

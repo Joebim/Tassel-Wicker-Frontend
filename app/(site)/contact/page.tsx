@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Image from 'next/image';
 import { useToastStore } from '@/store/toastStore';
+import ScrollTextAnimation from '@/components/common/ScrollTextAnimation';
 
 export default function Contact() {
     const [formData, setFormData] = useState({
@@ -83,9 +84,9 @@ export default function Contact() {
                 <div className="w-full max-w-xl">
                     {/* Header */}
                     <div className="flex flex-col items-center justify-center text-center mb-14 mt-25">
-                        <h1 className="text-white text-4xl md:text-6xl font-extralight uppercase tracking-wide mb-4">
+                        <ScrollTextAnimation className="text-white text-[36px] md:text-6xl font-extralight uppercase tracking-wide mb-4" delay={0.2} duration={1.2}>
                             CONTACT US
-                        </h1>
+                        </ScrollTextAnimation>
                         <p className="text-white/80 text-sm md:text-base font-extralight uppercase tracking-wide">
                             WE&apos;D LOVE TO HEAR FROM YOU
                         </p>

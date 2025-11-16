@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import { createClientStorage } from "@/utils/storage";
+import { createClientCookieStorage } from "@/utils/storage";
 
 export interface User {
   uid: string;
@@ -11,6 +11,7 @@ export interface User {
 interface AuthStore {
   user: User | null;
   isLoading: boolean;
+  hasHydrated: boolean;
   setUser: (user: User | null) => void;
   setLoading: (loading: boolean) => void;
   logout: () => void;
@@ -21,6 +22,7 @@ export const useAuthStore = create<AuthStore>()(
     (set) => ({
       user: null,
       isLoading: false,
+      hasHydrated: false,
 
       setUser: (user: User | null) => {
         set({ user });
@@ -37,7 +39,11 @@ export const useAuthStore = create<AuthStore>()(
     {
       name: "auth-storage",
       skipHydration: true, // Skip hydration to prevent SSR mismatches
-      storage: createClientStorage(),
+      storage: createClientCookieStorage(),
+      onRehydrateStorage: () => (state, error) => {
+        // Mark store as hydrated regardless of success/failure
+        useAuthStore.setState({ hasHydrated: true });
+      },
     }
   )
 );

@@ -76,7 +76,7 @@ export default function Shop() {
   }, [products, filters]);
 
   return (
-    <div className="min-h-screen bg-luxury-white">
+    <div className="min-h-screen bg-white">
       <div className="relative h-screen w-full overflow-hidden">
         <div className="absolute inset-0 z-0">
           <Image
@@ -90,53 +90,56 @@ export default function Shop() {
           <div className="absolute inset-0 bg-black opacity-40"></div>
         </div>
 
-        <div className="relative z-10 h-full w-full p-6 sm:p-10 lg:p-12 flex flex-col items-start justify-end lg:flex-row lg:items-end lg:justify-between gap-10">
-          <div className="flex flex-col text-white max-w-3xl text-center lg:text-left">
-            <ScrollTextAnimation
-              className="text-5xl sm:text-5xl lg:text-[110px] font-extralight tracking-wide uppercase leading-none"
-              delay={0.2}
-              duration={1.2}
-            >
-              OUR
-            </ScrollTextAnimation>
-            <ScrollTextAnimation
-              className="text-5xl sm:text-5xl lg:text-[110px] font-extralight tracking-wide uppercase leading-none"
-              delay={0.2}
-              duration={1.2}
-            >
-              PRODUCTS
-            </ScrollTextAnimation>
+        <div className="relative z-10 h-full w-full p-6 sm:p-10 lg:p-12 flex flex-row items-end sm:items-start justify-end lg:flex-row lg:items-end lg:justify-between gap-10">
+          <div className="w-full flex flex-row items-end justify-between self-end">
+            <div className="flex flex-col text-white max-w-3xl text-center lg:text-left">
+              <ScrollTextAnimation
+                className="text-[39px] sm:text-5xl lg:text-[110px] font-extralight tracking-wide uppercase leading-none"
+                delay={0.2}
+                duration={1.2}
+              >
+                OUR
+              </ScrollTextAnimation>
+              <ScrollTextAnimation
+                className="text-[39px] sm:text-5xl lg:text-[110px] font-extralight tracking-wide uppercase leading-none"
+                delay={0.2}
+                duration={1.2}
+              >
+                PRODUCTS
+              </ScrollTextAnimation>
+            </div>
+            <div className="relative flex justify-center lg:justify-end">
+              <button
+                type="button"
+                onClick={() => document.getElementById('shop-content')?.scrollIntoView({ behavior: 'smooth' })}
+                className="relative"
+                aria-label="Shop Now"
+              >
+                <CircularText
+                  text="SHOP NOW • SHOP NOW • SHOP NOW • "
+                  spinDuration={15}
+                  onHover="speedUp"
+                  className="w-[70px] h-[70px] text-[11px] leading-0.5 sm:w-[120px] sm:h-[120px] sm:text-[12px]"
+                />
+                <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+                  <LuChevronDown size={24} className="cursor-pointer text-white animate-bounce" aria-hidden="true" />
+                </div>
+              </button>
+            </div>
           </div>
-          <div className="relative flex justify-center lg:justify-end">
-            <button
-              type="button"
-              onClick={() => document.getElementById('shop-content')?.scrollIntoView({ behavior: 'smooth' })}
-              className="relative"
-              aria-label="Shop Now"
-            >
-              <CircularText
-                text="SHOP NOW • SHOP NOW • SHOP NOW • "
-                spinDuration={15}
-                onHover="speedUp"
-                className="w-[100px] h-[100px] text-[11px] leading-0.5 sm:w-[120px] sm:h-[120px] sm:text-[12px]"
-              />
-              <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-                <LuChevronDown size={24} className="cursor-pointer text-white animate-bounce" aria-hidden="true" />
-              </div>
-            </button>
-          </div>
+
         </div>
       </div>
 
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-14 text-center">
-        <h2 className="text-2xl md:text-3xl font-light text-luxury-black leading-relaxed mb-6 uppercase tracking-[0.2em]">
-          Where intention meets curation because it&apos;s the{' '}
+      <div className="flex flex-col items-center justify-center max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pt-14 pb-0 sm:pb-14 text-center">
+        <h2 className="text-[12px] sm:text-2xl md:text-3xl font-light text-luxury-black leading-relaxed mb-6 uppercase tracking-[0.2em]">
+          Where intention meets curation <br /> because it&apos;s the{' '}
           <span className="line-through decoration-2 decoration-black">thought</span>{' '}
-          gift that counts.
+          gift that <br />counts
         </h2>
-        <p className="text-lg text-luxury-cool-grey font-extralight leading-relaxed">
+        <p className="w-[88%]! mx-auto text-[10px] sm:text-lg text-luxury-black font-extralight leading-relaxed">
           The Tassel &amp; Wicker signature baskets are inspired by the friendships and relationships that sustain us.
-          We believe that when we give thoughtfully, we communicate presence, intention, and appreciation in ways words alone cannot.
+          We believe that when we give thoughtfully, we communicate presence, intention, and appreciation in ways words alone cannot
         </p>
       </div>
 
@@ -146,7 +149,7 @@ export default function Shop() {
             <div className="relative">
               <button
                 onClick={() => setIsFilterOpen((o) => !o)}
-                className="flex items-center gap-2 px-6 py-3 bg-luxury-white border border-luxury-warm-grey/20 rounded-xl hover:bg-luxury-warm-grey/5 transition-all duration-200"
+                className="flex items-center gap-2 px-6 py-3 bg-white border border-luxury-warm-grey/20 rounded-xl hover:bg-luxury-warm-grey/5 transition-all duration-200"
               >
                 <LuFilter size={18} className="text-luxury-charcoal" />
                 <span className="text-luxury-charcoal font-extralight uppercase">Filters</span>
@@ -161,7 +164,7 @@ export default function Shop() {
               />
             </div>
 
-            <div className="text-luxury-cool-grey font-extralight uppercase">
+            <div className="text-[12px] sm:text-[15px] text-luxury-cool-grey font-extralight uppercase">
               {filteredProducts.length} products
             </div>
           </div>

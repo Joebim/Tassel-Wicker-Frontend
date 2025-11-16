@@ -66,7 +66,7 @@ export default function Signup() {
     };
 
     return (
-        <div className="min-h-screen bg-luxury-white flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+        <div className="min-h-screen bg-white flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
             <div className="max-w-md w-full space-y-8">
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
@@ -105,7 +105,7 @@ export default function Signup() {
                                     required
                                     value={formData.displayName}
                                     onChange={handleChange}
-                                    className="block w-full pl-10 pr-3 py-3 border border-luxury-cool-grey bg-luxury-white text-luxury-black placeholder-luxury-cool-grey focus:outline-none focus:ring-2 focus:ring-brand-purple focus:border-transparent font-extralight"
+                                    className="block w-full pl-10 pr-3 py-3 border border-luxury-cool-grey bg-white text-luxury-black placeholder-luxury-cool-grey focus:outline-none focus:ring-2 focus:ring-brand-purple focus:border-transparent font-extralight"
                                     placeholder="Enter your full name"
                                 />
                             </div>
@@ -126,7 +126,7 @@ export default function Signup() {
                                     required
                                     value={formData.email}
                                     onChange={handleChange}
-                                    className="block w-full pl-10 pr-3 py-3 border border-luxury-cool-grey bg-luxury-white text-luxury-black placeholder-luxury-cool-grey focus:outline-none focus:ring-2 focus:ring-brand-purple focus:border-transparent font-extralight"
+                                    className="block w-full pl-10 pr-3 py-3 border border-luxury-cool-grey bg-white text-luxury-black placeholder-luxury-cool-grey focus:outline-none focus:ring-2 focus:ring-brand-purple focus:border-transparent font-extralight"
                                     placeholder="Enter your email"
                                 />
                             </div>
@@ -147,7 +147,7 @@ export default function Signup() {
                                     required
                                     value={formData.password}
                                     onChange={handleChange}
-                                    className="block w-full pl-10 pr-12 py-3 border border-luxury-cool-grey bg-luxury-white text-luxury-black placeholder-luxury-cool-grey focus:outline-none focus:ring-2 focus:ring-brand-purple focus:border-transparent font-extralight"
+                                    className="block w-full pl-10 pr-12 py-3 border border-luxury-cool-grey bg-white text-luxury-black placeholder-luxury-cool-grey focus:outline-none focus:ring-2 focus:ring-brand-purple focus:border-transparent font-extralight"
                                     placeholder="Create a password"
                                 />
                                 <button
@@ -179,7 +179,7 @@ export default function Signup() {
                                     required
                                     value={formData.confirmPassword}
                                     onChange={handleChange}
-                                    className="block w-full pl-10 pr-12 py-3 border border-luxury-cool-grey bg-luxury-white text-luxury-black placeholder-luxury-cool-grey focus:outline-none focus:ring-2 focus:ring-brand-purple focus:border-transparent font-extralight"
+                                    className="block w-full pl-10 pr-12 py-3 border border-luxury-cool-grey bg-white text-luxury-black placeholder-luxury-cool-grey focus:outline-none focus:ring-2 focus:ring-brand-purple focus:border-transparent font-extralight"
                                     placeholder="Confirm your password"
                                 />
                                 <button

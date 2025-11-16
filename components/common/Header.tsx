@@ -118,7 +118,7 @@ const Header: React.FC<HeaderProps> = ({ showHeader = true }) => {
                                 <LuUser size={20} />
                             </button>
                             {isAccountDropdownOpen && mounted && (
-                                <div className="absolute right-0 mt-2 w-48 bg-luxury-white rounded-md shadow-lg py-1 z-50">
+                                <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50">
                                     {user ? (
                                         <>
                                             <div className="px-4 py-2 border-b border-luxury-cream-light">
@@ -167,7 +167,7 @@ const Header: React.FC<HeaderProps> = ({ showHeader = true }) => {
                     />
 
                     {/* Menu Panel */}
-                    <div className={`absolute left-0 top-0 h-full w-80 bg-luxury-white shadow-2xl transform transition-transform duration-300 ease-out ${isMenuOpen ? 'translate-x-0' : '-translate-x-full'
+                    <div className={`absolute left-0 top-0 h-full w-80 bg-white shadow-2xl transform transition-transform duration-300 ease-out ${isMenuOpen ? 'translate-x-0' : '-translate-x-full'
                         }`}>
                         <div className="h-full flex flex-col">
                             {/* Close Button */}

@@ -57,11 +57,53 @@ const sessionStorageClient: StateStorage = {
   },
 };
 
+// Cookie-based storage for auth (avoids local/session storage)
+const cookieStorageClient: StateStorage = {
+  getItem: (name: string): string | null => {
+    if (typeof document === 'undefined') return null;
+    try {
+      const cookie = document.cookie
+        .split('; ')
+        .find((row) => row.startsWith(`${encodeURIComponent(name)}=`));
+      if (!cookie) return null;
+      return decodeURIComponent(cookie.split('=')[1] || '');
+    } catch {
+      return null;
+    }
+  },
+  setItem: (name: string, value: string): void => {
+    if (typeof document === 'undefined') return;
+    try {
+      // 7 day expiry, Lax for safety
+      const maxAge = 60 * 60 * 24 * 7;
+      document.cookie = `${encodeURIComponent(name)}=${encodeURIComponent(
+        value
+      )}; Max-Age=${maxAge}; Path=/; SameSite=Lax`;
+    } catch {
+      // Ignore cookie errors
+    }
+  },
+  removeItem: (name: string): void => {
+    if (typeof document === 'undefined') return;
+    try {
+      document.cookie = `${encodeURIComponent(
+        name
+      )}=; Max-Age=0; Path=/; SameSite=Lax`;
+    } catch {
+      // Ignore cookie errors
+    }
+  },
+};
+
 export const createClientStorage = () => {
   return createJSONStorage(() => localStorageClient);
 };
 
 export const createClientSessionStorage = () => {
   return createJSONStorage(() => sessionStorageClient);
+};
+
+export const createClientCookieStorage = () => {
+  return createJSONStorage(() => cookieStorageClient);
 };
 

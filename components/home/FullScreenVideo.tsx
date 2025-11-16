@@ -71,10 +71,10 @@ const FullScreenVideo: React.FC = () => {
                 >
                     {/* Luxury Text */}
                     <div className="relative">
-                        <div className="text-brand-cream text-xs md:text-sm font-extralight tracking-[0.25em] uppercase opacity-95">
-                            Discover Our <span className="text-white">SIGNATURE</span>
+                        <div className="text-white text-xs whitespace-nowrap md:text-sm font-extralight tracking-[0.25em] uppercase opacity-95">
+                            Discover Our SIGNATURE
                         </div>
-                        <div className="text-white text-sm md:text-base font-extralight tracking-[0.15em] uppercase mt-1">
+                        <div className="text-white text-sm whitespace-nowrap md:text-base font-extralight tracking-[0.15em] uppercase mt-1">
                             Celebration Baskets
                         </div>
                         {/* Decorative line */}

@@ -18,7 +18,7 @@ const ItemPriceDisplay: React.FC<{ price: number; quantity: number }> = ({ price
 export default function Cart() {
     const router = useRouter();
     const { items, updateQuantity, removeItem, getTotalPrice, getTotalItems, clearCart } = useCartStore();
-    
+
     // Format total price
     const totalPrice = getTotalPrice();
     const { formattedPrice: formattedTotal } = usePriceFormat(totalPrice);
@@ -32,7 +32,7 @@ export default function Cart() {
 
     if (items.length === 0) {
         return (
-            <div className="min-h-screen bg-luxury-white text-luxury-black">
+            <div className="min-h-screen bg-white text-luxury-black">
                 {/* Back Button */}
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24">
                     <button
@@ -55,7 +55,7 @@ export default function Cart() {
                         <div className="w-24 h-24 bg-luxury-cream-light rounded-full flex items-center justify-center mx-auto mb-8">
                             <LuShoppingBag className="text-luxury-cool-grey" size={32} />
                         </div>
-                        <h2 className="text-4xl font-extralight text-luxury-black mb-4 uppercase">
+                        <h2 className="text-[36px] font-extralight text-luxury-black mb-4 uppercase">
                             Your Cart is Empty
                         </h2>
                         <p className="text-luxury-cool-grey font-extralight mb-8 max-w-md">
@@ -75,7 +75,7 @@ export default function Cart() {
     }
 
     return (
-        <div className="min-h-screen bg-luxury-white text-luxury-black">
+        <div className="min-h-screen bg-white text-luxury-black">
             {/* Back Button */}
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24">
                 <button
@@ -87,11 +87,11 @@ export default function Cart() {
                 </button>
             </div>
 
-            {/* Cart Header */}
+                {/* Cart Header */}
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-                <div className="flex justify-between items-center mb-12">
+                        <div className="flex justify-between items-center mb-12">
                     <div>
-                        <h1 className="text-5xl font-extralight text-luxury-black mb-2 uppercase">
+                        <h1 className="text-[48px] font-extralight text-luxury-black mb-2 uppercase">
                             Shopping Cart
                         </h1>
                         <p className="text-luxury-cool-grey font-extralight">
@@ -224,7 +224,7 @@ export default function Cart() {
                         ))}
                     </div>
 
-                    {/* Order Summary */}
+                    {/* Order Summary (Sidebar) */}
                     <div className="lg:col-span-1">
                         <motion.div
                             initial={{ opacity: 0, x: 20 }}
@@ -232,7 +232,7 @@ export default function Cart() {
                             transition={{ duration: 0.6, delay: 0.3 }}
                             className="bg-luxury-cream-light p-8 sticky top-8"
                         >
-                            <h3 className="text-2xl font-extralight text-luxury-black mb-6 uppercase">
+                            <h3 className="text-[24px] font-extralight text-luxury-black mb-6 uppercase">
                                 Order Summary
                             </h3>
 
