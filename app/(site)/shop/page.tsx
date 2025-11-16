@@ -137,7 +137,7 @@ export default function Shop() {
           <span className="line-through decoration-2 decoration-black">thought</span>{' '}
           gift that <br />counts
         </h2>
-        <p className="w-[88%]! mx-auto text-[10px] sm:text-lg text-luxury-black font-extralight leading-relaxed">
+        <p className="w-[88%]! mx-auto text-[18px] sm:text-lg text-luxury-black font-extralight leading-relaxed text-justify">
           The Tassel &amp; Wicker signature baskets are inspired by the friendships and relationships that sustain us.
           We believe that when we give thoughtfully, we communicate presence, intention, and appreciation in ways words alone cannot
         </p>
