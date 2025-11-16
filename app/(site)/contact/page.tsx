@@ -104,7 +104,7 @@ export default function Contact() {
                                 onChange={handleChange}
                                 required
                                 placeholder="FULL NAME *"
-                                className="w-full px-6 py-4 bg-transparent border-2 border-white/60 text-white placeholder-white/80 font-extralight uppercase tracking-wide focus:outline-none focus:border-brand-cream transition-all duration-300"
+                                className="w-full px-6 py-4 bg-transparent border-2 border-white/60 text-white placeholder-white/80 font-extralight uppercase tracking-wide focus:outline-none focus:border-luxury-white transition-all duration-300"
                             />
                         </div>
 
@@ -118,7 +118,7 @@ export default function Contact() {
                                 onChange={handleChange}
                                 required
                                 placeholder="EMAIL ADDRESS *"
-                                className="w-full px-6 py-4 bg-transparent border-2 border-white/60 text-white placeholder-white/80 font-extralight uppercase tracking-wide focus:outline-none focus:border-brand-cream transition-all duration-300"
+                                className="w-full px-6 py-4 bg-transparent border-2 border-white/60 text-white placeholder-white/80 font-extralight uppercase tracking-wide focus:outline-none focus:border-luxury-white transition-all duration-300"
                             />
                         </div>
 
@@ -132,7 +132,7 @@ export default function Contact() {
                                 onChange={handleChange}
                                 required
                                 placeholder="PHONE NUMBER *"
-                                className="w-full px-6 py-4 bg-transparent border-2 border-white/60 text-white placeholder-white/80 font-extralight uppercase tracking-wide focus:outline-none focus:border-brand-cream transition-all duration-300"
+                                className="w-full px-6 py-4 bg-transparent border-2 border-white/60 text-white placeholder-white/80 font-extralight uppercase tracking-wide focus:outline-none focus:border-luxury-white transition-all duration-300"
                             />
                         </div>
 
@@ -154,7 +154,7 @@ export default function Contact() {
                         <button
                             type="submit"
                             disabled={isSubmitting}
-                            className="w-full mt-8 py-4 bg-white/10 backdrop-blur-sm border-2 border-white/60 text-white font-extralight uppercase tracking-wide hover:bg-white/20 hover:border-brand-cream disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300"
+                            className="w-full mt-8 py-4 bg-white/10 backdrop-blur-sm border-2 border-white/60 text-white font-extralight uppercase tracking-wide hover:bg-white/20 hover:border-luxury-white disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300"
                         >
                             {isSubmitting ? 'SENDING...' : 'SUBMIT'}
                         </button>

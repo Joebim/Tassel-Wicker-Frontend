@@ -78,26 +78,26 @@ const FullScreenVideo: React.FC = () => {
                             Celebration Baskets
                         </div>
                         {/* Decorative line */}
-                        <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-12 h-px bg-linear-to-r from-transparent via-brand-cream to-transparent opacity-50"></div>
+                        <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-12 h-px bg-linear-to-r from-transparent via-luxury-white to-transparent opacity-50"></div>
                     </div>
 
                     {/* Luxury Arrow with Animation */}
                     <div className="relative">
                         <div className="animate-bounce">
-                            <div className="bg-black/20 backdrop-blur-sm rounded-full p-3 border border-white/20 group-hover:border-brand-cream/60 transition-all duration-300">
+                            <div className="bg-black/20 backdrop-blur-sm rounded-full p-3 border border-white/20 group-hover:border-luxury-white/60 transition-all duration-300">
                                 <LuChevronDown
                                     size={18}
-                                    className="text-white group-hover:text-brand-cream drop-shadow-2xl transition-colors duration-300"
+                                    className="text-white group-hover:text-luxury-white drop-shadow-2xl transition-colors duration-300"
                                 />
                             </div>
                         </div>
                         {/* Glow effect */}
-                        <div className="absolute inset-0 bg-brand-cream/10 rounded-full blur-sm opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                        <div className="absolute inset-0 bg-luxury-white/10 rounded-full blur-sm opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                     </div>
 
                     {/* Subtle "Shop Now" hint */}
                     <div className="opacity-0 group-hover:opacity-100 transition-all duration-500 delay-200">
-                        <div className="flex items-center space-x-2 text-brand-cream text-xs font-extralight tracking-wider uppercase">
+                        <div className="flex items-center space-x-2 text-luxury-white text-xs font-extralight tracking-wider uppercase">
                             <span>Shop Now</span>
                             <LuArrowRight size={12} className="transform group-hover:translate-x-1 transition-transform duration-300" />
                         </div>

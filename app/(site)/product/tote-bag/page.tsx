@@ -66,7 +66,7 @@ export default function ToteBagDetail() {
             {/* Main Product Section */}
             <div className="grid grid-cols-1 lg:grid-cols-2 min-h-screen">
                 {/* Left: Image */}
-                <div className="bg-luxury-cream-light relative flex items-center justify-center p-6 sm:p-10 lg:p-12">
+                <div className="bg-luxury-white relative flex items-center justify-center p-6 sm:p-10 lg:p-12">
                     <div className="relative w-full max-w-full  h-[400px] sm:h-[600px] rounded-lg overflow-hidden">
                         <Image
                             src={product.image}

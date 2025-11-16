@@ -103,7 +103,7 @@ const LuxuryFilter: React.FC<LuxuryFilterProps> = ({
                                 key={range}
                                 onClick={() => handlePriceSelect(range)}
                                 className={`w-full px-4 py-2 text-sm rounded-lg transition-all duration-200 text-left font-extralight uppercase ${selectedPrice === range
-                                    ? 'bg-brand-green text-luxury-white'
+                                    ? 'bg-brand-purple text-luxury-white'
                                     : 'bg-luxury-warm-grey/10 text-luxury-charcoal hover:bg-luxury-warm-grey/20'
                                     }`}
                             >

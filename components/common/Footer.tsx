@@ -80,7 +80,7 @@ const Footer: React.FC = () => {
                             </div>
                         </div>
                         <div className="flex space-x-4">
-                            <a href="https://www.instagram.com/tasselandwicker/" className="text-luxury-warm-grey hover:text-brand-cream transition-colors duration-200">
+                            <a href="https://www.instagram.com/tasselandwicker/" className="text-luxury-warm-grey hover:text-luxury-white transition-colors duration-200">
                                 <FaInstagram size={20} />
                             </a>
                             <a href="https://pin.it/5r2lvE9Ks" className="text-luxury-warm-grey hover:text-brand-cream transition-colors duration-200">
@@ -94,7 +94,7 @@ const Footer: React.FC = () => {
                         <h3 className="text-lg font-extralight text-luxury-white mb-6 uppercase">Quick Links</h3>
                         <ul className="space-y-3">
                             <li>
-                                <Link href="/" className="text-luxury-warm-grey hover:text-brand-cream transition-colors duration-200 text-sm font-extralight uppercase">
+                                <Link href="/" className="text-luxury-warm-grey hover:text-luxury-white transition-colors duration-200 text-sm font-extralight uppercase">
                                     Home
                                 </Link>
                             </li>
@@ -142,7 +142,7 @@ const Footer: React.FC = () => {
                     <div>
                         <h3 className="text-lg font-extralight text-luxury-white mb-6 uppercase">Contact Us</h3>
                         <div className="space-y-4">
-                            <a href="mailto:info@tasselandwicker.com" className="flex items-center space-x-3 text-brand-cream hover:text-brand-cream/80 transition-colors duration-200">
+                            <a href="mailto:info@tasselandwicker.com" className="flex items-center space-x-3 text-luxury-white hover:text-luxury-white/80 transition-colors duration-200">
                                 <LuMail className="h-5 w-5 shrink-0" />
                                 <span className="text-sm font-extralight uppercase">info@tasselandwicker.com</span>
                             </a>
@@ -165,7 +165,7 @@ const Footer: React.FC = () => {
                                 placeholder="Enter your email"
                                 disabled={isSubmitting}
                                 required
-                                className="flex-1 px-4 py-3 bg-luxury-charcoal border border-luxury-warm-grey/30 rounded-l-xl focus:outline-none focus:ring-2 focus:ring-brand-cream focus:border-brand-cream text-luxury-white placeholder-luxury-warm-grey font-extralight disabled:opacity-50 disabled:cursor-not-allowed"
+                                className="flex-1 px-4 py-3 bg-luxury-charcoal border border-luxury-warm-grey/30 rounded-l-xl focus:outline-none focus:ring-2 focus:ring-brand-purple focus:border-brand-purple text-luxury-white placeholder-luxury-warm-grey font-extralight disabled:opacity-50 disabled:cursor-not-allowed"
                             />
                             <button
                                 type="submit"

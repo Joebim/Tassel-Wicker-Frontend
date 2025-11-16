@@ -107,16 +107,10 @@
 
   /* Brand Colors */
   --color-brand-purple: #4c062c;
-  --color-brand-cream: #fff6bd;
-  --color-brand-green: #00351d;
 
   /* Brand Color Blending Variations */
   --color-brand-purple-light: #6b1a4a;
   --color-brand-purple-dark: #2d0318;
-  --color-brand-cream-light: #fffef0;
-  --color-brand-cream-dark: #e6d8a3;
-  --color-brand-green-light: #004d2a;
-  --color-brand-green-dark: #001a0a;
 
   /* Luxury Neutrals */
   --color-luxury-black: #000000;

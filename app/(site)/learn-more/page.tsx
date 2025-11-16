@@ -308,7 +308,7 @@ function LearnMoreContent() {
             {/* Main Content - Top Section */}
             <div className="grid grid-cols-1 lg:grid-cols-2 min-h-screen">
                 {/* Left Panel - Product Image */}
-                <div className="bg-luxury-cream-light relative flex items-center justify-center p-6  sm:p-12">
+                <div className="bg-luxury-white relative flex items-center justify-center p-6  sm:p-12">
                     <div className="relative max-w-lg w-full  h-[400px] sm:h-[600px]">
                         <Image
                             src={itemImage}

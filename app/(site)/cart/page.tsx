@@ -52,7 +52,7 @@ export default function Cart() {
                         transition={{ duration: 0.6 }}
                         className="text-center"
                     >
-                        <div className="w-24 h-24 bg-luxury-cream-light rounded-full flex items-center justify-center mx-auto mb-8">
+                        <div className="w-24 h-24 bg-luxury-white rounded-full flex items-center justify-center mx-auto mb-8">
                             <LuShoppingBag className="text-luxury-cool-grey" size={32} />
                         </div>
                         <h2 className="text-[36px] font-extralight text-luxury-black mb-4 uppercase">
@@ -87,9 +87,9 @@ export default function Cart() {
                 </button>
             </div>
 
-                {/* Cart Header */}
+            {/* Cart Header */}
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-                        <div className="flex justify-between items-center mb-12">
+                <div className="flex justify-between items-center mb-12">
                     <div>
                         <h1 className="text-[48px] font-extralight text-luxury-black mb-2 uppercase">
                             Shopping Cart
@@ -115,7 +115,7 @@ export default function Cart() {
                                 initial={{ opacity: 0, y: 20 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ duration: 0.6, delay: index * 0.1 }}
-                                className="grid grid-cols-1 md:grid-cols-4 gap-6 p-6 border border-luxury-cream-light"
+                                className="grid grid-cols-1 md:grid-cols-4 gap-6 p-6 border border-luxury-white/20"
                             >
                                 {/* Product Image */}
                                 <div className="md:col-span-1">
@@ -230,7 +230,7 @@ export default function Cart() {
                             initial={{ opacity: 0, x: 20 }}
                             animate={{ opacity: 1, x: 0 }}
                             transition={{ duration: 0.6, delay: 0.3 }}
-                            className="bg-luxury-cream-light p-8 sticky top-8"
+                            className="bg-luxury-white p-8 sticky top-8"
                         >
                             <h3 className="text-[24px] font-extralight text-luxury-black mb-6 uppercase">
                                 Order Summary

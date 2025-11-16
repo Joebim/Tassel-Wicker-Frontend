@@ -19,28 +19,28 @@ const AnimationVariations: React.FC = () => {
             <div className="flex flex-col space-y-2">
                 <Link
                     href="/"
-                    className="flex items-center space-x-2 text-luxury-warm-grey hover:text-brand-cream transition-colors duration-200 text-xs"
+                    className="flex items-center space-x-2 text-luxury-warm-grey hover:text-luxury-white transition-colors duration-200 text-xs"
                 >
                     <LuHouse size={14} />
                     <span>Original</span>
                 </Link>
                 <Link
                     href="/home-v2"
-                    className="flex items-center space-x-2 text-luxury-warm-grey hover:text-brand-cream transition-colors duration-200 text-xs"
+                    className="flex items-center space-x-2 text-luxury-warm-grey hover:text-luxury-white transition-colors duration-200 text-xs"
                 >
                     <LuPalette size={14} />
                     <span>Cream + Green</span>
                 </Link>
                 <Link
                     href="/home-v3"
-                    className="flex items-center space-x-2 text-luxury-warm-grey hover:text-brand-cream transition-colors duration-200 text-xs"
+                    className="flex items-center space-x-2 text-luxury-warm-grey hover:text-luxury-white transition-colors duration-200 text-xs"
                 >
                     <LuSparkles size={14} />
                     <span>Blur Reveal</span>
                 </Link>
                 <Link
                     href="/home-v4"
-                    className="flex items-center space-x-2 text-luxury-warm-grey hover:text-brand-cream transition-colors duration-200 text-xs"
+                    className="flex items-center space-x-2 text-luxury-warm-grey hover:text-luxury-white transition-colors duration-200 text-xs"
                 >
                     <LuEye size={14} />
                     <span>Sequential</span>

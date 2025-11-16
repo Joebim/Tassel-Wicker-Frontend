@@ -68,7 +68,7 @@ const BasketItem: React.FC<{
             }}
         >
             {/* Item Image */}
-            <div className="bg-luxury-cream-light relative flex items-center justify-center p-6 sm:p-12">
+            <div className="bg-luxury-white relative flex items-center justify-center p-6 sm:p-12">
                 <div className="relative w-full h-[450px] sm:h-[700px]">
                     <Image
                         src={item.image}
@@ -632,8 +632,8 @@ export default function ProductDetail() {
             {('items' in product && Array.isArray(product.items) && product.items.length > 0) && (
                 <div className="bg-white py-24">
                     <div className="flex flex-col max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                        <div className="flex justify-center px-10 border-b border-brand-green self-center ">
-                            <h2 className="text-2xl font-extralight text-brand-green uppercase mb-5">
+                        <div className="flex justify-center px-10 border-b border-brand-purple self-center ">
+                            <h2 className="text-2xl font-extralight text-brand-purple uppercase mb-5">
                                 In the Basket
                             </h2>
                         </div>

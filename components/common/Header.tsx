@@ -52,7 +52,7 @@ const Header: React.FC<HeaderProps> = ({ showHeader = true }) => {
 
     // Text colors based on background
     const textColor = hasBackground ? 'text-white' : 'text-luxury-black';
-    const hoverColor = hasBackground ? 'hover:text-brand-cream' : 'hover:text-brand-green';
+    const hoverColor = hasBackground ? 'hover:text-luxury-white' : 'hover:text-brand-purple';
     const logoColor = hasBackground ? 'text-white' : 'text-luxury-black';
 
     const handleLogout = async () => {
@@ -121,7 +121,7 @@ const Header: React.FC<HeaderProps> = ({ showHeader = true }) => {
                                 <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50">
                                     {user ? (
                                         <>
-                                            <div className="px-4 py-2 border-b border-luxury-cream-light">
+                                            <div className="px-4 py-2 border-b border-luxury-white/20">
                                                 <p className="text-sm font-extralight text-luxury-black">{user.displayName || 'User'}</p>
                                                 <p className="text-xs text-luxury-cool-grey">{user.email}</p>
                                             </div>
@@ -174,7 +174,7 @@ const Header: React.FC<HeaderProps> = ({ showHeader = true }) => {
                             <div className="pt-8 px-8 flex justify-end mb-8">
                                 <button
                                     onClick={() => setIsMenuOpen(false)}
-                                    className="p-2 text-luxury-black hover:text-brand-green transition-colors duration-200"
+                                    className="p-2 text-luxury-black hover:text-brand-purple transition-colors duration-200"
                                 >
                                     <LuX size={24} />
                                 </button>
@@ -184,7 +184,7 @@ const Header: React.FC<HeaderProps> = ({ showHeader = true }) => {
                             <nav className="flex flex-col">
                                 <Link
                                     href="/"
-                                    className={`py-6 px-8 text-luxury-black font-extralight uppercase text-lg transition-colors duration-200 ${pathname === '/' ? 'text-brand-green' : 'hover:bg-luxury-warm-grey/10'
+                                    className={`py-6 px-8 text-luxury-black font-extralight uppercase text-lg transition-colors duration-200 ${pathname === '/' ? 'text-brand-purple' : 'hover:bg-luxury-warm-grey/10'
                                         }`}
                                     onClick={() => setIsMenuOpen(false)}
                                 >

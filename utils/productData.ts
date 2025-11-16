@@ -584,7 +584,7 @@ export const shopProducts: ShopProduct[] = [
       "https://res.cloudinary.com/dygrsvya5/image/upload/q_auto:low/v1761523685/COVER_IMAGE_FOR_DURO_BASKET_lc3d6w.jpg",
     category: "Baskets",
     description:
-      'Derived from the Yoruba name <em>Durojaiye</em>, meaning “to wait and enjoy life,” this basket is a meditation on time and resilience. Named after my mother, the Duro Basket stands as a tribute to her strength, grace, love and enduring spirit.',
+      "Derived from the Yoruba name <em>Durojaiye</em>, meaning “to wait and enjoy life,” this basket is a meditation on time and resilience. Named after my mother, the Duro Basket stands as a tribute to her strength, grace, love and enduring spirit.",
     isNew: true,
     isFeatured: false,
     items: getBasketItems("2").map(toShopItem),

@@ -54,8 +54,8 @@ function PaymentSuccessContent() {
                 >
                     {/* Success Icon */}
                     <div className="flex justify-center">
-                        <div className="w-24 h-24 bg-brand-green/10 rounded-full flex items-center justify-center">
-                            <LuCheck className="text-brand-green" size={48} />
+                        <div className="w-24 h-24 bg-brand-purple/10 rounded-full flex items-center justify-center">
+                            <LuCheck className="text-brand-purple" size={48} />
                         </div>
                     </div>
 
@@ -85,7 +85,7 @@ function PaymentSuccessContent() {
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.6, delay: 0.4 }}
-                        className="bg-luxury-cream-light p-8"
+                        className="bg-luxury-white p-8"
                     >
                         <h2 className="text-2xl font-extralight text-luxury-black mb-6 uppercase">
                             What&apos;s Next?
@@ -159,7 +159,7 @@ function PaymentSuccessContent() {
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         transition={{ duration: 0.6, delay: 0.6 }}
-                        className="pt-8 border-t border-luxury-cream-light"
+                        className="pt-8 border-t border-luxury-white/20"
                     >
                         <p className="text-luxury-cool-grey font-extralight text-sm">
                             Questions about your order? Contact us at{' '}

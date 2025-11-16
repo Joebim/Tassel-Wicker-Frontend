@@ -9,15 +9,15 @@ const ToastComponent: React.FC = () => {
     const getToastIcon = (type: Toast["type"]) => {
         switch (type) {
             case "success":
-                return <LuCheck className="text-green-200" size={20} />;
+                return <LuCheck className="text-brand-purple-light" size={20} />;
             case "error":
                 return <LuCircle className="text-red-500" size={20} />;
             case "warning":
                 return <LuTriangle className="text-yellow-500" size={20} />;
             case "info":
-                return <LuInfo className="text-purple-200" size={20} />;
+                return <LuInfo className="text-brand-purple-light" size={20} />;
             default:
-                return <LuInfo className="text-brand-cream" size={20} />;
+                return <LuInfo className="text-luxury-white" size={20} />;
         }
     };
 
@@ -25,33 +25,33 @@ const ToastComponent: React.FC = () => {
         switch (type) {
             case "success":
                 return {
-                    bg: "bg-brand-green/50",
-                    border: "border-brand-green/15",
-                    text: "text-brand-cream",
+                    bg: "bg-brand-purple/50",
+                    border: "border-brand-purple/15",
+                    text: "text-luxury-white",
                 };
             case "error":
                 return {
                     bg: "bg-red-500/50",
                     border: "border-red-500/15",
-                    text: "text-brand-cream",
+                    text: "text-luxury-white",
                 };
             case "warning":
                 return {
                     bg: "bg-yellow-500/50",
                     border: "border-yellow-500/15",
-                    text: "text-brand-cream",
+                    text: "text-luxury-white",
                 };
             case "info":
                 return {
                     bg: "bg-brand-purple/50",
                     border: "border-brand-purple/15",
-                    text: "text-brand-cream",
+                    text: "text-luxury-white",
                 };
             default:
                 return {
                     bg: "bg-brand-purple/50",
                     border: "border-brand-purple/15",
-                    text: "text-brand-cream",
+                    text: "text-luxury-white",
                 };
         }
     };

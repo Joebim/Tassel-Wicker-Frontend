@@ -97,7 +97,7 @@ const PaymentForm: React.FC<{
 
     return (
         <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="bg-luxury-cream-light p-6 rounded-lg">
+            <div className="bg-luxury-white p-6 rounded-lg">
                 <PaymentElement
                     options={{
                         layout: 'tabs',
@@ -470,7 +470,7 @@ export default function Checkout() {
                                         />
                                     </Elements>
                                 ) : (
-                                    <div className="bg-luxury-cream-light p-6 rounded-lg">
+                                    <div className="bg-luxury-white p-6 rounded-lg">
                                         <p className="text-luxury-cool-grey font-extralight text-sm">
                                             Initializing payment...
                                         </p>
@@ -486,7 +486,7 @@ export default function Checkout() {
                             initial={{ opacity: 0, x: 20 }}
                             animate={{ opacity: 1, x: 0 }}
                             transition={{ duration: 0.6, delay: 0.2 }}
-                            className="bg-luxury-cream-light p-8 sticky top-8"
+                            className="bg-luxury-white p-8 sticky top-8"
                         >
                             <h3 className="text-2xl font-extralight text-luxury-black mb-6 uppercase">
                                 Order Summary

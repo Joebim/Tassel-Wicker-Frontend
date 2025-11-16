@@ -18,7 +18,7 @@ const VideoCard: React.FC<VideoCardProps> = ({
     const isInView = useInView(ref, { once: false, amount: 0.3 });
 
     return (
-        <div ref={ref} className={`group relative aspect-9/16 overflow-hidden bg-white ${className}`}>
+        <div ref={ref} className={`group relative aspect-9/16 md:aspect-9/16 overflow-hidden bg-white h-[200px] md:h-auto ${className}`}>
             <video
                 src={videoSrc}
                 className="w-full h-full object-cover absolute top-0 left-0 z-0"
