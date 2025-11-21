@@ -75,12 +75,20 @@ const PaymentForm: React.FC<{
                 return;
             }
 
+            // Store customer info in localStorage for email sending on success page
+            if (typeof window !== 'undefined') {
+                localStorage.setItem('checkout_customer_email', formData.email);
+                localStorage.setItem('checkout_first_name', formData.firstName);
+                localStorage.setItem('checkout_last_name', formData.lastName);
+            }
+
             // Confirm payment with existing clientSecret
             const { error: confirmError } = await stripe.confirmPayment({
                 elements,
                 clientSecret,
                 confirmParams: {
                     return_url: `${window.location.origin}/payment-success`,
+                    receipt_email: formData.email, // Set receipt email on payment intent
                     payment_method_data: {
                         billing_details: {
                             name: `${formData.firstName} ${formData.lastName}`,
@@ -274,7 +282,10 @@ export default function Checkout() {
         }
     }, [hasHydrated, user, router]);
 
-    // Create payment intent when component mounts
+    // Create payment intent when component mounts or when cart/price changes
+    // Note: Customer info (formData.email, formData.firstName, formData.lastName) is intentionally
+    // not in dependencies to avoid recreating payment intent on every form field change.
+    // Customer info is also captured in the confirmPayment call and will be available in webhook.
     useEffect(() => {
         if (items.length > 0 && convertedTotalPrice > 0) {
             const createPaymentIntent = async () => {
@@ -295,6 +306,11 @@ export default function Checkout() {
                             })),
                             metadata: {
                                 userId: user?.uid || 'guest',
+                                // Include customer info if available (may be empty on initial mount)
+                                customerEmail: formData.email || '',
+                                customerName: formData.firstName && formData.lastName
+                                    ? `${formData.firstName} ${formData.lastName}`
+                                    : '',
                             },
                         }),
                     });
@@ -321,6 +337,7 @@ export default function Checkout() {
 
             createPaymentIntent();
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [items, convertedTotalPrice, currency, user]);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {

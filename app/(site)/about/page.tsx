@@ -219,7 +219,7 @@ export default function About() {
                 className="relative w-full h-[600px]"
               >
                 <Image
-                  src="https://res.cloudinary.com/dygrsvya5/image/upload/q_auto:low/v1763713791/ABOUT_PAGE_yciiey.jpg"
+                  src="https://res.cloudinary.com/dygrsvya5/image/upload/q_auto:low/v1763659367/UPDATED_ABOUT_IMAGE_ogsr4o.jpg"
                   alt="My Why"
                   fill
                   className="object-cover"
@@ -235,8 +235,8 @@ export default function About() {
                 transition={{ duration: 0.3 }}
                 className="lg:order-1 order-2 relative w-full h-[600px]"
               >
-                <Image
-                  src="https://res.cloudinary.com/dygrsvya5/image/upload/q_auto:low/v1763659375/ABOUT_zhap9y.jpg"
+                <Image      
+                  src="https://res.cloudinary.com/dygrsvya5/image/upload/v1761149640/_2MK9308_dcgky8.jpg"
                   alt="Signature Celebration Basket"
                   fill
                   className="object-cover"
@@ -294,14 +294,14 @@ export default function About() {
           variants={containerVariants}
         >
           <div className="max-w-7xl mx-auto px-8 sm:px-12 lg:px-16">
-            <motion.div className="sm:mb-16 mb-8" variants={itemVariants}>
+            <motion.div className="sm:mb-16 mb-8 gap-1 flex flex-row sm:flex-col" variants={itemVariants}>
               <motion.h2
                 className="text-5xl font-extralight text-white mb-0 sm:mb-4"
                 variants={headingVariants}
               >
-                <ScrollTextAnimation delay={0.2} duration={0.8} className='text-[28px] sm:text-[39px]'>
+                <ScrollTextAnimation delay={0.2} duration={0.8} className='text-[18px] sm:text-[39px]'>
                   IT&apos;S THE{' '}
-                  <span className="line-through decoration-5 decoration-white">
+                  <span className="line-through decoration-1 sm:decoration-5 decoration-white">
                     THOUGHT
                   </span>{' '}
                   GIFT
@@ -312,7 +312,7 @@ export default function About() {
                 className="text-5xl font-extralight text-white"
                 variants={headingVariants}
               >
-                <ScrollTextAnimation delay={0.4} duration={0.8} className='text-[28px] sm:text-[39px]'>
+                <ScrollTextAnimation delay={0.4} duration={0.8} className='text-[18px] sm:text-[39px]'>
                   THAT COUNTS.
                 </ScrollTextAnimation>
               </motion.h2>

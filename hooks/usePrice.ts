@@ -1,6 +1,11 @@
-import { useMemo } from 'react';
-import { useCurrencyStore } from '@/store/currencyStore';
-import { formatPriceWithConversion, formatPrice, getFinalPrice, getCurrencySymbol } from '@/utils/priceUtils';
+import { useMemo } from "react";
+import { useCurrencyStore } from "@/store/currencyStore";
+import {
+  formatPriceWithConversion,
+  formatPrice,
+  getFinalPrice,
+  getCurrencySymbol,
+} from "@/utils/priceUtils";
 
 /**
  * Hook for price formatting and conversion
@@ -56,5 +61,3 @@ export function usePriceFormat(price: number) {
     currency,
   };
 }
-
-

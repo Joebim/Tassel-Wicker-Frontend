@@ -3,7 +3,7 @@
 // Disable static generation - this page needs to check URL params dynamically
 export const dynamic = 'force-dynamic';
 
-import { useEffect, useState, Suspense } from 'react';
+import { useEffect, useState, Suspense, useCallback } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { motion } from 'framer-motion';
@@ -13,11 +13,66 @@ import { useToastStore } from '@/store/toastStore';
 
 function PaymentSuccessContent() {
     const searchParams = useSearchParams();
-    const { clearCart } = useCartStore();
+    const { clearCart, items } = useCartStore();
     const [hasClearedCart, setHasClearedCart] = useState(false);
+    const [emailSent, setEmailSent] = useState(false);
 
     const paymentIntent = searchParams?.get('payment_intent');
     const paymentIntentClientSecret = searchParams?.get('payment_intent_client_secret');
+
+    // Get customer email from localStorage (stored during checkout)
+    const getCustomerEmail = () => {
+        if (typeof window !== 'undefined') {
+            return localStorage.getItem('checkout_customer_email') || '';
+        }
+        return '';
+    };
+
+    const getCustomerName = () => {
+        if (typeof window !== 'undefined') {
+            const firstName = localStorage.getItem('checkout_first_name') || '';
+            const lastName = localStorage.getItem('checkout_last_name') || '';
+            return `${firstName} ${lastName}`.trim();
+        }
+        return '';
+    };
+
+    // Send order confirmation email
+    const sendOrderEmail = useCallback(async () => {
+        if (!paymentIntent || emailSent) return;
+
+        const customerEmail = getCustomerEmail();
+        const customerName = getCustomerName();
+
+        if (!customerEmail) {
+            console.warn('No customer email found, skipping email send');
+            return;
+        }
+
+        try {
+            const response = await fetch('/api/send-order-email', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    paymentIntentId: paymentIntent,
+                    customerEmail: customerEmail,
+                    customerName: customerName,
+                }),
+            });
+
+            const data = await response.json();
+            if (data.success) {
+                setEmailSent(true);
+                console.log('Order confirmation email sent successfully');
+            } else {
+                console.error('Failed to send order confirmation email:', data.error);
+            }
+        } catch (error) {
+            console.error('Error sending order confirmation email:', error);
+        }
+    }, [paymentIntent, emailSent]);
 
     // Clear cart and show success message when payment is confirmed
     useEffect(() => {
@@ -42,6 +97,25 @@ function PaymentSuccessContent() {
             }
         }
     }, [paymentIntent, paymentIntentClientSecret, clearCart, hasClearedCart]);
+
+    // Send order confirmation email when payment intent is available
+    useEffect(() => {
+        if (paymentIntent && !emailSent) {
+            // Delay slightly to ensure payment is fully processed
+            const timer = setTimeout(async () => {
+                await sendOrderEmail();
+                // Clean up localStorage after email is sent (or attempted)
+                if (typeof window !== 'undefined') {
+                    setTimeout(() => {
+                        localStorage.removeItem('checkout_customer_email');
+                        localStorage.removeItem('checkout_first_name');
+                        localStorage.removeItem('checkout_last_name');
+                    }, 5000); // Keep for 5 seconds in case of retries
+                }
+            }, 1000);
+            return () => clearTimeout(timer);
+        }
+    }, [paymentIntent, emailSent, sendOrderEmail]);
 
     return (
         <div className="min-h-screen bg-white text-luxury-black flex items-center justify-center">
