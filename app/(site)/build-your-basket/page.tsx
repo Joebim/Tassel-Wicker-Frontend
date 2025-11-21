@@ -10,7 +10,7 @@ import { useCartStore } from '@/store/cartStore';
 import { getAllProducts } from '@/utils/productData';
 import { useToastStore } from '@/store/toastStore';
 import { getDefaultVariant } from '@/utils/productHelpers';
-import { usePrice, usePriceFormat } from '@/hooks/usePrice';
+import { usePrice } from '@/hooks/usePrice';
 
 // Price display components
 const ProductPriceDisplay: React.FC<{ price: number }> = ({ price }) => {
@@ -19,12 +19,12 @@ const ProductPriceDisplay: React.FC<{ price: number }> = ({ price }) => {
 };
 
 const BasketTotalPriceDisplay: React.FC<{ totalPrice: number }> = ({ totalPrice }) => {
-    const { formattedPrice } = usePriceFormat(totalPrice);
+    const { formattedPrice } = usePrice(totalPrice);
     return <div className="text-2xl font-extralight text-luxury-black">{formattedPrice}</div>;
 };
 
 const ItemPriceDisplaySmall: React.FC<{ price: number }> = ({ price }) => {
-    const { formattedPrice } = usePriceFormat(price);
+    const { formattedPrice } = usePrice(price);
     return <p className="text-xs text-luxury-cool-grey font-extralight">{formattedPrice}</p>;
 };
 
@@ -32,7 +32,7 @@ export default function BuildYourBasket() {
     const router = useRouter();
     const MIN_SELECTION = 3;
     const MAX_SELECTION = 5;
-    const { currentBasket, setBasketType, addItem, removeItem, clearBasket, pendingItems } = useCustomBasketStore();
+    const { currentBasket, setBasketType, addItem, removeItem, clearBasket } = useCustomBasketStore();
     const selectionCount = currentBasket?.selectedItems.length ?? 0;
     const { addItem: addToCart } = useCartStore();
     const [searchTerm, setSearchTerm] = useState('');
@@ -40,6 +40,8 @@ export default function BuildYourBasket() {
     // Track selected variant for each product by product ID
     const [selectedVariants, setSelectedVariants] = useState<Record<string, number>>({});
     const [showOverlay, setShowOverlay] = useState(!currentBasket);
+    const [selectedProduct, setSelectedProduct] = useState<typeof allProducts[0] | null>(null);
+    const [modalVariantIndex, setModalVariantIndex] = useState<Record<string, number>>({});
 
     useEffect(() => {
         if (currentBasket) {
@@ -67,17 +69,209 @@ export default function BuildYourBasket() {
     }, [allProducts, searchTerm, selectedCategory]);
 
     const handleBasketTypeSelect = (type: 'natural' | 'black') => {
-        const queuedCount = pendingItems.length;
         setBasketType(type);
-        if (queuedCount > 0) {
+    };
+
+    const handleAddItem = () => {
+        if (!selectedProduct) return;
+
+        const variants = selectedProduct.variants ?? [];
+        const variantIdx = modalVariantIndex[selectedProduct.id] ?? 0;
+        const hasVariants = variants.length > 1;
+        const currentVariant = hasVariants
+            ? variants[variantIdx] ?? variants[0]
+            : getDefaultVariant(selectedProduct);
+
+        const variantName = hasVariants ? currentVariant.name : undefined;
+        const itemUniqueId = hasVariants && variantName
+            ? `${selectedProduct.id}-${variantName.toLowerCase().replace(/\s+/g, '-')}`
+            : selectedProduct.id;
+
+        const isItemSelected = currentBasket?.selectedItems.some((item) => item.id === itemUniqueId);
+        const canAddItem = selectionCount < MAX_SELECTION && !isItemSelected;
+
+        if (!canAddItem) {
             useToastStore.getState().addToast({
-                type: 'success',
-                title: queuedCount === 1 ? 'Item Added' : 'Items Added',
-                message: queuedCount === 1
-                    ? 'Your selected item has been added to this basket.'
-                    : 'Your queued items have been added to this basket.',
+                type: "info",
+                title: isItemSelected ? "Already Added" : "Selection Limit Reached",
+                message: isItemSelected
+                    ? "This product is already in your basket."
+                    : `You can select up to ${MAX_SELECTION} products in your custom basket.`,
             });
+            return;
         }
+
+        const itemName = variantName && variantName !== 'Default'
+            ? `${selectedProduct.name} - ${variantName}`
+            : selectedProduct.name;
+
+        const basketItem: CustomBasketItem = {
+            id: itemUniqueId,
+            name: itemName,
+            description: selectedProduct.description,
+            image: currentVariant.image,
+            price: currentVariant.price,
+            category: selectedProduct.category,
+            variantName: variantName,
+            details: selectedProduct.details
+        };
+
+        addItem(basketItem);
+        setSelectedProduct(null);
+
+        useToastStore.getState().addToast({
+            type: "success",
+            title: "Item Added",
+            message: "Product has been added to your custom basket.",
+        });
+    };
+
+    // Render product details similar to learn-more page
+    const renderProductDetails = (product: typeof allProducts[0]) => {
+        if (!product.details) return null;
+
+        const { details } = product;
+
+        return (
+            <div className="flex flex-col gap-5">
+                {details.brand && (
+                    <div className="flex flex-col gap-1.5 border-l-2 border-brand-purple pl-4">
+                        <h3 className="text-[17px] font-extralight text-luxury-black uppercase">Brand</h3>
+                        <p className="text-black/70 font-extralight text-[13px] sm:text-[15px]">{String(details.brand)}</p>
+                    </div>
+                )}
+
+                {details.ingredients && Array.isArray(details.ingredients) && (
+                    <div className="flex flex-col gap-2 border-l-2 border-brand-purple pl-4">
+                        <h3 className="text-[17px] font-extralight text-luxury-black uppercase">Ingredients</h3>
+                        <div className="flex flex-col gap-0.5">
+                            {details.ingredients.map((ingredient: string, index: number) => (
+                                <p key={index} className="text-black/70 font-extralight text-[13px] sm:text-[15px]">• {ingredient}</p>
+                            ))}
+                        </div>
+                    </div>
+                )}
+
+                {/* Specifications */}
+                {(details.dimensions || details.weight || details.volume || details.netWeight || details.packageDimensions || details.size || details.pages || details.paper || details.material || (details.materials && Array.isArray(details.materials) && details.materials.length > 0) || details.care || details.wax || details.quantity) && (
+                    <div className="flex flex-col gap-2 border-l-2 border-brand-purple pl-4">
+                        <h3 className="text-[17px] font-extralight text-luxury-black uppercase">Specifications</h3>
+                        <div className="flex flex-col gap-1.5">
+                            {details.dimensions && (
+                                <p className="text-black/70 font-extralight text-[13px] sm:text-[15px]">Dimensions: {String(details.dimensions)}</p>
+                            )}
+                            {details.weight && (
+                                <p className="text-black/70 font-extralight text-[13px] sm:text-[15px]">Weight: {String(details.weight)}</p>
+                            )}
+                            {details.volume && (
+                                <p className="text-black/70 font-extralight text-[13px] sm:text-[15px]">Volume: {String(details.volume)}</p>
+                            )}
+                            {details.netWeight && (
+                                <p className="text-black/70 font-extralight text-[13px] sm:text-[15px]">Net Weight: {String(details.netWeight)}</p>
+                            )}
+                            {details.packageDimensions && (
+                                <p className="text-black/70 font-extralight text-[13px] sm:text-[15px]">Package Dimensions: {String(details.packageDimensions)}</p>
+                            )}
+                            {details.size && (
+                                <p className="text-black/70 font-extralight text-[13px] sm:text-[15px]">Size: {String(details.size)}</p>
+                            )}
+                            {details.pages && (
+                                <p className="text-black/70 font-extralight text-[13px] sm:text-[15px]">Pages: {String(details.pages)}</p>
+                            )}
+                            {details.paper && (
+                                <p className="text-black/70 font-extralight text-[13px] sm:text-[15px]">Paper: {String(details.paper)}</p>
+                            )}
+                            {details.material && (
+                                <p className="text-black/70 font-extralight text-[13px] sm:text-[15px]">Material: {String(details.material)}</p>
+                            )}
+                            {details.materials && Array.isArray(details.materials) && details.materials.length > 0 && (
+                                <div className="flex flex-col gap-0.5">
+                                    {details.materials.map((material: string, index: number) => (
+                                        <p key={index} className="text-black/70 font-extralight text-[13px] sm:text-[15px]">
+                                            • {material}
+                                        </p>
+                                    ))}
+                                </div>
+                            )}
+                            {details.care && (
+                                <p className="text-black/70 font-extralight text-[13px] sm:text-[15px]">Care: {String(details.care)}</p>
+                            )}
+                            {details.wax && (
+                                <p className="text-black/70 font-extralight text-[13px] sm:text-[15px]">Wax: {String(details.wax)}</p>
+                            )}
+                            {details.quantity && (
+                                <p className="text-black/70 font-extralight text-[13px] sm:text-[15px]">Quantity: {String(details.quantity)}</p>
+                            )}
+                        </div>
+                    </div>
+                )}
+
+                {/* Storage */}
+                {details.storage && (
+                    <div className="flex flex-col gap-2 border-l-2 border-brand-purple pl-4">
+                        <h3 className="text-[17px] font-extralight text-luxury-black uppercase">Storage</h3>
+                        <p className="text-black/70 font-extralight text-[13px] sm:text-[15px]">{String(details.storage)}</p>
+                    </div>
+                )}
+
+                {/* Fragrance Notes */}
+                {details.fragranceNotes && typeof details.fragranceNotes === 'object' && !Array.isArray(details.fragranceNotes) && (
+                    <div className="flex flex-col gap-2 border-l-2 border-brand-purple pl-4">
+                        <h3 className="text-[17px] font-extralight text-luxury-black uppercase">Fragrance Notes</h3>
+                        <div className="flex flex-col gap-1.5">
+                            {details.fragranceNotes.top && (
+                                <p className="text-black/70 font-extralight text-[13px] sm:text-[15px]">
+                                    <span>Top:</span> {String(details.fragranceNotes.top)}
+                                </p>
+                            )}
+                            {details.fragranceNotes.middle && (
+                                <p className="text-black/70 font-extralight text-[13px] sm:text-[15px]">
+                                    <span>Middle:</span> {String(details.fragranceNotes.middle)}
+                                </p>
+                            )}
+                            {details.fragranceNotes.base && (
+                                <p className="text-black/70 font-extralight text-[13px] sm:text-[15px]">
+                                    <span>Base:</span> {String(details.fragranceNotes.base)}
+                                </p>
+                            )}
+                        </div>
+                    </div>
+                )}
+
+                {/* Contents */}
+                {details.contents && Array.isArray(details.contents) && (
+                    <div className="flex flex-col gap-2 border-l-2 border-brand-purple pl-4">
+                        <h3 className="text-[17px] font-extralight text-luxury-black uppercase">Contents</h3>
+                        <div className="flex flex-col gap-0.5">
+                            {details.contents.map((content: string, index: number) => (
+                                <p key={index} className="text-black/70 font-extralight text-[13px] sm:text-[15px]">• {content}</p>
+                            ))}
+                        </div>
+                    </div>
+                )}
+
+                {/* Additional Info */}
+                {(details.alcoholContent || details.composition || details.temperatureRange || details.heatSource) && (
+                    <div className="flex flex-col gap-2 border-l-2 border-brand-purple pl-4">
+                        <h3 className="text-[17px] font-extralight text-luxury-black uppercase">Additional Information</h3>
+                        <div className="flex flex-col gap-1.5">
+                            {details.alcoholContent && (
+                                <p className="text-black/70 font-extralight text-[13px] sm:text-[15px]">Alcohol Content: {String(details.alcoholContent)}</p>
+                            )}
+                            {details.composition && (
+                                <p className="text-black/70 font-extralight text-[13px] sm:text-[15px]">Composition: {String(details.composition)}</p>
+                            )}
+                            {details.temperatureRange && (
+                                <p className="text-black/70 font-extralight text-[13px] sm:text-[15px]">Temperature Range: {String(details.temperatureRange)}</p>
+                            )}
+                            {details.heatSource && (
+                                <p className="text-black/70 font-extralight text-[13px] sm:text-[15px]">Heat Source: {String(details.heatSource)}</p>
+                            )}
+                        </div>
+                    </div>
+                )}
+            </div>
+        );
     };
 
     const handleAddToCart = () => {
@@ -251,7 +445,7 @@ export default function BuildYourBasket() {
 
             {/* Product Selection Section */}
             {currentBasket && (
-                <div className="flex flex-col lg:flex-row min-h-[calc(100vh-5rem)] overflow-hidden pt-12 lg:pt-0">
+                <div className="flex flex-col-reverse lg:flex-row min-h-[calc(100vh-5rem)] overflow-hidden pt-12 lg:pt-0">
                     {/* Left Side - Product List (35%) */}
                     <div className="w-full lg:flex-[3.5] bg-luxury-warm-grey/5 border-r border-luxury-warm-grey/20 overflow-hidden flex flex-col">
                         <div className="p-6 shrink-0">
@@ -289,7 +483,7 @@ export default function BuildYourBasket() {
                         </div>
 
                         {/* Product List */}
-                        <div className="flex-1 overflow-y-auto overflow-x-hidden px-6 pb-6 max-h-[calc(100vh-100px)]">
+                        <div className="flex-2 overflow-y-auto overflow-x-hidden px-6 pb-6 max-h-[calc(100vh-100px)]">
                             <div className="space-y-3">
                                 {filteredProducts.map((product) => {
                                     // Get current variant to check selection
@@ -320,11 +514,11 @@ export default function BuildYourBasket() {
                                         }));
                                     };
 
-                                    const handleAddItem = (e?: React.MouseEvent) => {
+                                    const handleItemClick = (e?: React.MouseEvent) => {
                                         if (e) {
-                                            e.stopPropagation(); // Prevent double-trigger if called from button
+                                            e.stopPropagation();
                                         }
-                                        if (!canAdd) {
+                                        if (isSelected || !canAdd) {
                                             useToastStore.getState().addToast({
                                                 type: "info",
                                                 title: isSelected ? "Already Added" : "Selection Limit Reached",
@@ -334,40 +528,28 @@ export default function BuildYourBasket() {
                                             });
                                             return;
                                         }
-
-                                        const variantName = hasVariants ? currentVariant.name : undefined;
-                                        const itemName = variantName && variantName !== 'Default'
-                                            ? `${product.name} - ${variantName}`
-                                            : product.name;
-
-                                        const basketItem: CustomBasketItem = {
-                                            id: itemUniqueId,
-                                            name: itemName,
-                                            description: product.description,
-                                            image: currentImage,
-                                            price: currentPrice,
-                                            category: product.category,
-                                            variantName: variantName,
-                                            details: product.details
-                                        };
-
-                                        addItem(basketItem);
+                                        // Set the selected product and its current variant for the modal
+                                        setSelectedProduct(product);
+                                        setModalVariantIndex(prev => ({
+                                            ...prev,
+                                            [product.id]: variantIndex
+                                        }));
                                     };
 
                                     return (
                                         <motion.div
                                             key={product.id}
                                             whileHover={{ scale: canAdd ? 1.02 : 1 }}
-                                            onClick={() => canAdd && handleAddItem()}
-                                            className={`p-4 border rounded-lg transition-all duration-200 cursor-pointer ${isSelected
+                                            onClick={() => canAdd && handleItemClick()}
+                                            className={` h-36 sm:h-40 p-4 border rounded-lg transition-all duration-200 cursor-pointer ${isSelected
                                                 ? 'border-brand-purple/50 bg-brand-purple/5 cursor-default'
                                                 : canAdd
                                                     ? 'border-luxury-warm-grey/20 hover:border-brand-purple/30 hover:bg-luxury-warm-grey/5'
                                                     : 'border-luxury-warm-grey/20 opacity-50 cursor-not-allowed'
                                                 }`}
                                         >
-                                            <div className="flex items-start gap-3">
-                                                <div className="w-16 h-16 rounded-lg overflow-hidden shrink-0 relative">
+                                            <div className="flex items-start gap-3 h-full">
+                                                <div className="w-16 h-full rounded-lg overflow-hidden shrink-0 relative">
                                                     <Image
                                                         src={currentImage}
                                                         alt={product.name}
@@ -466,7 +648,7 @@ export default function BuildYourBasket() {
                                     <div className="space-y-3">
                                         {currentBasket.selectedItems.map((item) => (
                                             <div key={item.id} className="flex items-center gap-3 p-3 bg-luxury-warm-grey/5 rounded-lg">
-                                                <div className="w-12 h-12 rounded-lg overflow-hidden shrink-0 relative">
+                                                <div className="w-12 h-20 rounded-md overflow-hidden shrink-0 relative">
                                                     <Image
                                                         src={item.image}
                                                         alt={item.name}
@@ -518,6 +700,168 @@ export default function BuildYourBasket() {
                     </div>
                 </div>
             )}
+
+            {/* Product Modal */}
+            <AnimatePresence>
+                {selectedProduct && (
+                    <>
+                        {/* Backdrop */}
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            transition={{ duration: 0.3 }}
+                            className="fixed inset-0 bg-white/60 backdrop-blur-md z-50"
+                            onClick={() => setSelectedProduct(null)}
+                        />
+
+                        {/* Modal Card */}
+                        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6">
+                            <motion.div
+                                initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                                animate={{ opacity: 1, scale: 1, y: 0 }}
+                                exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                                transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                                className="bg-white rounded-lg shadow-2xl max-w-4xl w-full max-h-[calc(90vh-2px)] overflow-hidden flex flex-col"
+                                onClick={(e) => e.stopPropagation()}
+                            >
+                                {/* Header with Close Button */}
+                                <div className="flex items-center justify-between gap-4 px-6 py-4 border-b border-black/10 shrink-0">
+                                    <h2 className="text-[15px] sm:text-[19px] font-extralight uppercase tracking-wide text-luxury-black">
+                                        {selectedProduct.name}
+                                    </h2>
+                                    <button
+                                        onClick={() => setSelectedProduct(null)}
+                                        className="inline-flex items-center justify-center gap-1 text-black/60 hover:text-black transition-colors duration-200 cursor-pointer p-2"
+                                    >
+                                        <LuX size={18} />
+                                    </button>
+                                </div>
+
+                                {/* Scrollable Content */}
+                                <div className="flex-1 overflow-y-auto">
+                                    {/* Main Content - Image smaller, text larger */}
+                                    <div className="grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-6 p-6 min-h-full">
+                                        {/* Left Panel - Full Height Product Image */}
+                                        {(() => {
+                                            const variants = selectedProduct.variants ?? [];
+                                            const variantIdx = modalVariantIndex[selectedProduct.id] ?? 0;
+                                            const hasVariants = variants.length > 1;
+                                            const currentVariant = hasVariants
+                                                ? variants[variantIdx] ?? variants[0]
+                                                : getDefaultVariant(selectedProduct);
+                                            const currentImage = currentVariant.image;
+
+                                            return (
+                                                <div className="relative flex items-start justify-center lg:sticky lg:top-6 lg:h-[calc(100vh-12rem)]">
+                                                    <div className="relative w-full sm:max-w-[240px] min-h-[460px] sm:min-h-auto aspect-square lg:max-w-full lg:h-full lg:aspect-auto">
+                                                        <Image
+                                                            src={currentImage}
+                                                            alt={selectedProduct.name}
+                                                            fill
+                                                            className="object-cover rounded-lg"
+                                                            sizes="240px"
+                                                        />
+                                                    </div>
+                                                </div>
+                                            );
+                                        })()}
+
+                                        {/* Right Panel - Product Details with more space */}
+                                        <div className="flex flex-col gap-6">
+                                            {/* Product Category */}
+                                            {selectedProduct.category && (
+                                                <p className="text-black text-[15px] font-extralight uppercase">
+                                                    {selectedProduct.category}
+                                                </p>
+                                            )}
+
+                                            {/* Separator Line */}
+                                            <div className="w-12 h-px bg-black"></div>
+
+                                            {/* Variant Selector */}
+                                            {(() => {
+                                                const variants = selectedProduct.variants ?? [];
+                                                const variantIdx = modalVariantIndex[selectedProduct.id] ?? 0;
+                                                const hasVariants = variants.length > 1;
+
+                                                if (!hasVariants) {
+                                                    return (
+                                                        <div>
+                                                            <ProductPriceDisplay price={(variants[0] ?? getDefaultVariant(selectedProduct)).price} />
+                                                        </div>
+                                                    );
+                                                }
+
+                                                return (
+                                                    <div className="flex flex-col gap-3">
+                                                        <label className="block text-[15px] font-extralight text-luxury-black uppercase">
+                                                            Variant
+                                                        </label>
+                                                        <div className="flex flex-wrap gap-2">
+                                                            {variants.map((variant, index) => {
+                                                                const isSelected = variantIdx === index;
+                                                                return (
+                                                                    <button
+                                                                        key={index}
+                                                                        onClick={() => setModalVariantIndex(prev => ({
+                                                                            ...prev,
+                                                                            [selectedProduct.id]: index
+                                                                        }))}
+                                                                        className={`px-3 py-1.5 text-[13px] rounded transition-all duration-200 font-extralight uppercase ${isSelected
+                                                                            ? 'bg-brand-purple text-white'
+                                                                            : 'bg-white border border-black/20 text-luxury-black hover:border-brand-purple'
+                                                                            }`}
+                                                                    >
+                                                                        {variant.name}
+                                                                    </button>
+                                                                );
+                                                            })}
+                                                        </div>
+                                                        <div>
+                                                            <ProductPriceDisplay price={(variants[variantIdx] ?? variants[0]).price} />
+                                                        </div>
+                                                    </div>
+                                                );
+                                            })()}
+
+                                            {/* Description */}
+                                            <div>
+                                                <p className="text-black/70 leading-relaxed font-extralight text-[15px]">
+                                                    {selectedProduct.description}
+                                                </p>
+                                            </div>
+
+                                            {/* Add to Basket Button */}
+                                            <button
+                                                onClick={handleAddItem}
+                                                className="flex items-center gap-2 text-luxury-black hover:text-brand-purple transition-colors duration-200 cursor-pointer w-fit py-2"
+                                            >
+                                                <span className="text-[13px] font-extralight tracking-wider uppercase">Add to Basket</span>
+                                                <div className="w-5 h-5 border border-luxury-black rounded-full flex items-center justify-center">
+                                                    <LuShoppingCart size={11} />
+                                                </div>
+                                            </button>
+
+                                            {/* Detailed Information Section - Below Add to Basket Button */}
+                                            {selectedProduct.details && (
+                                                <div className="flex flex-col gap-4 border-t border-black/10 pt-6">
+                                                    <h2 className="text-[13px] sm:text-[15px] font-extralight text-luxury-black uppercase">
+                                                        Detailed Information
+                                                    </h2>
+                                                    <div>
+                                                        {renderProductDetails(selectedProduct)}
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                </div>
+                            </motion.div>
+                        </div>
+                    </>
+                )}
+            </AnimatePresence>
         </div>
     );
 }

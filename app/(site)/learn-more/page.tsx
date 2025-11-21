@@ -3,9 +3,7 @@
 import { useCallback, useEffect, useMemo, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import Image from 'next/image';
-import { LuArrowLeft, LuArrowRight } from 'react-icons/lu';
-import { useCustomBasketStore, type CustomBasketItem } from '@/store/customBasketStore';
-import { useToastStore } from '@/store/toastStore';
+import { LuArrowLeft } from 'react-icons/lu';
 import { getDefaultVariant } from '@/utils/productHelpers';
 import { shopProducts } from '@/utils/productData';
 import type { ShopProduct, ShopProductItem } from '@/types/productData';
@@ -16,8 +14,6 @@ function LearnMoreContent() {
     const productId = searchParams.get('productId');
     const itemId = searchParams.get('itemId');
 
-    const { currentBasket, addItem: addCustomBasketItem, queueItem } = useCustomBasketStore();
-    const addToast = useToastStore((state) => state.addToast);
 
     // Find product and item from query parameters
     const { product, item } = useMemo(() => {
@@ -54,77 +50,6 @@ function LearnMoreContent() {
         }
     }, []);
 
-    const handleAddToCustomBasket = useCallback(() => {
-        if (!item) {
-            addToast({
-                type: 'info',
-                title: 'Product Details Unavailable',
-                message: 'Please select a product to add to your custom basket.',
-            });
-            return;
-        }
-
-        const slugify = (value: string) => value.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
-        const defaultVariant = getDefaultVariant(item);
-        const hasCustomVariantName = defaultVariant.name && defaultVariant.name !== 'Default';
-        const baseId = (typeof item.id === 'string' && item.id.trim() !== '')
-            ? item.id
-            : slugify(item.name) || slugify(defaultVariant.name || '') || 'custom-item';
-        const variantSlug = hasCustomVariantName ? slugify(defaultVariant.name) : '';
-        const uniqueId = variantSlug ? `${baseId}-${variantSlug}` : baseId;
-
-        const basketItem: CustomBasketItem = {
-            id: uniqueId,
-            name: hasCustomVariantName ? `${item.name} - ${defaultVariant.name}` : item.name,
-            description: item.description,
-            image: defaultVariant.image,
-            price: defaultVariant.price,
-            category: item.category,
-            variantName: hasCustomVariantName ? defaultVariant.name : undefined,
-            details: item.details,
-        };
-
-        if (currentBasket) {
-            const isDuplicate = currentBasket.selectedItems.some((selected) => selected.id === basketItem.id);
-            if (isDuplicate) {
-                addToast({
-                    type: 'info',
-                    title: 'Already Added',
-                    message: 'This item is already in your custom basket.',
-                });
-                router.push('/build-your-basket');
-                return;
-            }
-
-            if (currentBasket.selectedItems.length >= 5) {
-                addToast({
-                    type: 'warning',
-                    title: 'Basket Full',
-                    message: 'Remove an item before adding another to your custom basket.',
-                });
-                router.push('/build-your-basket');
-                return;
-            }
-
-            addCustomBasketItem(basketItem);
-            addToast({
-                type: 'success',
-                title: 'Added to Basket',
-                message: 'We\'ve added this item to your custom basket.',
-            });
-            router.push('/build-your-basket');
-            return;
-        }
-
-        queueItem(basketItem);
-        addToast({
-            type: 'info',
-            title: 'Select Your Basket',
-            message: 'Choose your basket style to add this item.',
-        });
-        router.push('/build-your-basket');
-    }, [item, currentBasket, addCustomBasketItem, queueItem, addToast, router]);
-
     const renderDetails = () => {
         if (!item?.details) return null;
 
@@ -151,7 +76,7 @@ function LearnMoreContent() {
                 )}
 
                 {/* Specifications */}
-                {(details.dimensions || details.weight || details.volume || details.netWeight || details.packageDimensions || details.size || details.pages || details.paper || details.material || (details.materials && Array.isArray(details.materials) && details.materials.length > 0) || details.care || details.wax) && (
+                {(details.dimensions || details.weight || details.volume || details.netWeight || details.packageDimensions || details.size || details.pages || details.paper || details.material || (details.materials && Array.isArray(details.materials) && details.materials.length > 0) || details.care || details.wax || details.quantity) && (
                     <div className="border-l-2 border-brand-purple pl-6">
                         <h3 className="text-lg font-extralight text-luxury-black mb-3 uppercase">Specifications</h3>
                         <div className="space-y-2">
@@ -196,6 +121,9 @@ function LearnMoreContent() {
                             )}
                             {details.wax && (
                                 <p className="text-luxury-cool-grey font-extralight">Wax: {String(details.wax)}</p>
+                            )}
+                            {details.quantity && (
+                                <p className="text-luxury-cool-grey font-extralight">Quantity: {String(details.quantity)}</p>
                             )}
                         </div>
                     </div>
@@ -308,7 +236,7 @@ function LearnMoreContent() {
             {/* Main Content - Top Section */}
             <div className="grid grid-cols-1 lg:grid-cols-2 min-h-screen">
                 {/* Left Panel - Product Image */}
-                <div className="bg-luxury-white relative flex items-center justify-center p-6  sm:p-12">
+                <div className="bg-white relative flex items-center justify-center p-6  sm:p-12">
                     <div className="relative max-w-lg w-full  h-[400px] sm:h-[600px]">
                         <Image
                             src={itemImage}
@@ -353,17 +281,6 @@ function LearnMoreContent() {
                             </p>
                         </div>
 
-                        {/* CTA */}
-                        <button
-                            type="button"
-                            onClick={handleAddToCustomBasket}
-                            className="hidden sm:flex items-center gap-3 text-luxury-black hover:text-brand-purple transition-colors duration-200 cursor-pointer"
-                        >
-                            <span className="text-sm font-extralight tracking-wider uppercase">Add to Basket</span>
-                            <div className="w-6 h-6 border border-luxury-black rounded-full flex items-center justify-center">
-                                <LuArrowRight size={12} />
-                            </div>
-                        </button>
                     </div>
                 </div>
             </div>
@@ -381,18 +298,6 @@ function LearnMoreContent() {
                     </div>
                 </div>
             )}
-            <div className="px-6 sm:px-12 py-12">
-                <button
-                    type="button"
-                    onClick={handleAddToCustomBasket}
-                    className="sm:hidden flex items-center gap-3 text-luxury-black hover:text-brand-purple transition-colors duration-200 cursor-pointer"
-                >
-                    <span className="text-sm font-extralight tracking-wider uppercase">Add to Basket</span>
-                    <div className="w-6 h-6 border border-luxury-black rounded-full flex items-center justify-center">
-                        <LuArrowRight size={12} />
-                    </div>
-                </button>
-            </div>
 
         </div>
     );

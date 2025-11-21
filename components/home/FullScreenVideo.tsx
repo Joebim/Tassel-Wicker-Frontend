@@ -92,7 +92,7 @@ const FullScreenVideo: React.FC = () => {
                             </div>
                         </div>
                         {/* Glow effect */}
-                        <div className="absolute inset-0 bg-luxury-white/10 rounded-full blur-sm opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                        <div className="absolute inset-0 bg-white/10 rounded-full blur-sm opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                     </div>
 
                     {/* Subtle "Shop Now" hint */}

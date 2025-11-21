@@ -4,22 +4,26 @@ import { formatPriceWithConversion, formatPrice, getFinalPrice, getCurrencySymbo
 
 /**
  * Hook for price formatting and conversion
- * @param basePrice - Base price in USD
+ * @param basePrice - Base price in GBP
  * @returns Formatted price string and utility functions
  */
 export function usePrice(basePrice: number) {
   const { currency } = useCurrencyStore();
 
   const formattedPrice = useMemo(() => {
-    return formatPriceWithConversion(basePrice);
+    return formatPriceWithConversion(basePrice, currency);
   }, [basePrice, currency]);
 
   const finalPrice = useMemo(() => {
+    // Currency is needed to trigger recalculation when it changes
+    // The function reads from store but we need to track currency for reactivity
     return getFinalPrice(basePrice);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [basePrice, currency]);
 
   const currencySymbol = useMemo(() => {
     return getCurrencySymbol();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currency]);
 
   return {
@@ -38,11 +42,12 @@ export function usePriceFormat(price: number) {
   const { currency } = useCurrencyStore();
 
   const formattedPrice = useMemo(() => {
-    return formatPrice(price);
+    return formatPrice(price, currency);
   }, [price, currency]);
 
   const currencySymbol = useMemo(() => {
     return getCurrencySymbol();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currency]);
 
   return {

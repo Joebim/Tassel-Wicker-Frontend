@@ -6,12 +6,12 @@ import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { LuArrowLeft, LuPlus, LuMinus, LuTrash2, LuShoppingBag } from 'react-icons/lu';
 import { useCartStore, type CartItem } from '@/store/cartStore';
-import { usePrice, usePriceFormat } from '@/hooks/usePrice';
+import { usePrice } from '@/hooks/usePrice';
 
 // Component for displaying item price
 const ItemPriceDisplay: React.FC<{ price: number; quantity: number }> = ({ price, quantity }) => {
     const itemTotal = price * quantity;
-    const { formattedPrice } = usePriceFormat(itemTotal);
+    const { formattedPrice } = usePrice(itemTotal);
     return <p className="text-2xl font-extralight text-luxury-black">{formattedPrice}</p>;
 };
 
@@ -21,7 +21,7 @@ export default function Cart() {
 
     // Format total price
     const totalPrice = getTotalPrice();
-    const { formattedPrice: formattedTotal } = usePriceFormat(totalPrice);
+    const { formattedPrice: formattedTotal } = usePrice(totalPrice);
 
     // Scroll to top when component mounts
     useEffect(() => {
@@ -52,7 +52,7 @@ export default function Cart() {
                         transition={{ duration: 0.6 }}
                         className="text-center"
                     >
-                        <div className="w-24 h-24 bg-luxury-white rounded-full flex items-center justify-center mx-auto mb-8">
+                        <div className="w-24 h-24 bg-white rounded-full flex items-center justify-center mx-auto mb-8">
                             <LuShoppingBag className="text-luxury-cool-grey" size={32} />
                         </div>
                         <h2 className="text-[36px] font-extralight text-luxury-black mb-4 uppercase">
@@ -230,7 +230,7 @@ export default function Cart() {
                             initial={{ opacity: 0, x: 20 }}
                             animate={{ opacity: 1, x: 0 }}
                             transition={{ duration: 0.6, delay: 0.3 }}
-                            className="bg-luxury-white p-8 sticky top-8"
+                            className="bg-white p-8 sticky top-8"
                         >
                             <h3 className="text-[24px] font-extralight text-luxury-black mb-6 uppercase">
                                 Order Summary

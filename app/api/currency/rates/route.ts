@@ -23,9 +23,9 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Get base currency from query params (default to USD)
+    // Get base currency from query params (default to GBP)
     const searchParams = request.nextUrl.searchParams;
-    const baseCurrency = searchParams.get("base") || "USD";
+    const baseCurrency = searchParams.get("base") || "GBP";
 
     // Fetch exchange rates from ExchangeRate-API
     const response = await fetch(

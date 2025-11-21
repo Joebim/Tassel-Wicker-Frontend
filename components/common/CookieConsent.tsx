@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import { LuX } from 'react-icons/lu';
 
@@ -72,15 +73,18 @@ const CookieConsent: React.FC = () => {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
               <div className="flex-1">
-                <p className="text-sm text-gray-700 font-light leading-relaxed">
+                <p className="text-sm text-gray-700 font-light leading-relaxed uppercase">
                   We use cookies to enhance your browsing experience, analyze site traffic, and personalize content. 
-                  By clicking &quot;Accept&quot;, you consent to our use of cookies.
+                  By clicking &quot;Accept&quot;, you consent to our use of cookies.{' '}
+                  <Link href="/cookie-policy" className="underline hover:text-gray-900 transition-colors duration-200">
+                    Learn more
+                  </Link>.
                 </p>
               </div>
               <div className="flex items-center gap-3 flex-shrink-0">
                 <button
                   onClick={handleDecline}
-                  className="px-4 py-2 text-sm font-light text-white bg-black hover:bg-black/90 transition-colors duration-200"
+                  className="px-4 py-2 text-sm font-light text-white bg-black hover:bg-black/90 transition-colors duration-200 uppercase tracking-wider"
                   aria-label="Decline cookies"
                 >
                   Decline

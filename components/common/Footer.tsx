@@ -175,7 +175,7 @@ const Footer: React.FC = () => {
                                 {isSubmitting ? 'Subscribing...' : 'Subscribe'}
                             </button>
                         </form>
-                        <p className="text-luxury-warm-grey text-xs mt-4 font-extralight">
+                        <p className="text-luxury-warm-grey text-xs mt-4 font-extralight uppercase">
                             We respect your privacy. Unsubscribe at any time.
                         </p>
                     </div>
@@ -187,13 +187,13 @@ const Footer: React.FC = () => {
                         © 2025 Tassel & Wicker. All rights reserved.
                     </div>
                     <div className="flex space-x-8 mt-4 md:mt-0">
-                        <Link href="/privacy" className="text-luxury-warm-grey hover:text-brand-cream transition-colors duration-200 text-sm font-extralight uppercase">
+                        <Link href="/privacy-policy" className="text-luxury-warm-grey hover:text-brand-cream transition-colors duration-200 text-sm font-extralight uppercase">
                             Privacy Policy
                         </Link>
-                        <Link href="/terms" className="text-luxury-warm-grey hover:text-brand-cream transition-colors duration-200 text-sm font-extralight uppercase">
+                        <Link href="/terms-of-service" className="text-luxury-warm-grey hover:text-brand-cream transition-colors duration-200 text-sm font-extralight uppercase">
                             Terms of Service
                         </Link>
-                        <Link href="/cookies" className="text-luxury-warm-grey hover:text-brand-cream transition-colors duration-200 text-sm font-extralight uppercase">
+                        <Link href="/cookie-policy" className="text-luxury-warm-grey hover:text-brand-cream transition-colors duration-200 text-sm font-extralight uppercase">
                             Cookie Policy
                         </Link>
                     </div>

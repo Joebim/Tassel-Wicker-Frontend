@@ -47,7 +47,7 @@ const Header: React.FC<HeaderProps> = ({ showHeader = true }) => {
     }, [isAccountDropdownOpen]);
 
     // Pages with background images (video or static images)
-    const pagesWithBackground = ['/', '/about', '/contact', '/shop', '/corporate-bespoke', '/shipping', '/returns'];
+    const pagesWithBackground = ['/', '/about', '/contact', '/shop', '/corporate-bespoke', '/shipping', '/returns', '/cookie-policy', '/privacy-policy', '/terms-of-service'];
     const hasBackground = pagesWithBackground.includes(pathname);
 
     // Text colors based on background

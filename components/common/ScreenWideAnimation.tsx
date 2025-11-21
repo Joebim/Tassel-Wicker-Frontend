@@ -198,7 +198,7 @@ const ScreenWideAnimation: React.FC<ScreenWideAnimationProps> = ({
         <div className="fixed inset-0 z-50 pointer-events-none">
             {/* V2: Cream background overlay */}
             {version === 'v2' && (
-                <div className={`absolute inset-0 bg-luxury-white transition-opacity duration-1000 ease-out ${showBackground ? 'opacity-100' : 'opacity-0'}`}></div>
+                <div className={`absolute inset-0 bg-white transition-opacity duration-1000 ease-out ${showBackground ? 'opacity-100' : 'opacity-0'}`}></div>
             )}
 
             {/* V3: Blur background */}

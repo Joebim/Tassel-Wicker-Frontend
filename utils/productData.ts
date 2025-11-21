@@ -29,7 +29,7 @@ const basketProducts: ProductWithItems[] = [
         category: "Stationery",
         variants: createVariantFromLegacy(
           "https://res.cloudinary.com/dygrsvya5/image/upload/q_auto:low/v1761523713/THE_FREE_WRITING_JOURNAL_f84teh.jpg",
-          45
+          20
         ),
         details: {
           brand: "Positive Planner",
@@ -43,11 +43,11 @@ const basketProducts: ProductWithItems[] = [
         id: "dee-2",
         name: "Breckland Orchard Posh Pop",
         description:
-          "A refreshing blend of ripe strawberries and tangy rhubarb, perfectly balanced for a bright, crisp taste and finished with a hint of vanilla.",
+          "A refreshing blend of ripe strawberries and tangy rhubarb, perfectly balanced for a bright, crisp taste. A hint of vanilla adds smoothness and depth, creating a delicately layered flavour that’s both vibrant and satisfying.",
         category: "Beverages",
         variants: createVariantFromLegacy(
           "https://res.cloudinary.com/dygrsvya5/image/upload/q_auto:low/v1761523710/BRECKLAND_ORCHARD_POSH_POP_a3f5pf.jpg",
-          8
+          6
         ),
         details: {
           weight: "39.6 kilograms",
@@ -62,7 +62,7 @@ const basketProducts: ProductWithItems[] = [
         category: "Home & Living",
         variants: createVariantFromLegacy(
           "https://res.cloudinary.com/dygrsvya5/image/upload/q_auto:low/v1761523710/MAEGEN_TOMATO_MINT_LEAF_CANDLE_srrcqt.jpg",
-          35
+          33
         ),
         details: {
           netWeight: "280g / 10oz",
@@ -77,7 +77,7 @@ const basketProducts: ProductWithItems[] = [
         category: "Home & Living",
         variants: createVariantFromLegacy(
           "https://res.cloudinary.com/dygrsvya5/image/upload/q_auto:low/v1761523711/MAEGEN_GREEN_BUBBLE_MATCHES_lhjvjx.jpg",
-          18
+          15
         ),
         details: {
           quantity: "100 long matches",
@@ -88,11 +88,11 @@ const basketProducts: ProductWithItems[] = [
         id: "dee-5",
         name: "Frank's Salted Caramel Fudge Shortbread Cookies",
         description:
-          "Rich, buttery shortbread enhanced with swirls of salted caramel fudge. Each cookie balances sweetness with subtle saltiness for an irresistible treat.",
+          "Indulge in the rich, buttery flavour of Frank’s shortbread, enhanced with swirls of salted caramel fudge. Each cookie delivers a perfect balance of sweetness and subtle saltiness, making them an irresistible treat for everyday enjoyment or gifting.",
         category: "Food & Treats",
         variants: createVariantFromLegacy(
           "https://res.cloudinary.com/dygrsvya5/image/upload/q_auto:low/v1761523709/SALTED_CARAMEL_FUDGE_SHORTBREAD_COOKIES_f9fy2o.jpg",
-          12
+          6
         ),
         details: {
           ingredients: [
@@ -114,7 +114,7 @@ const basketProducts: ProductWithItems[] = [
         id: "dee-6",
         name: "Black Wicker Basket",
         description:
-          "A medium-sized black wicker basket with a branded removable cotton liner and vegan leather straps. Handmade by skilled weavers, each piece is eco-friendly, designed to last, and easy to repurpose for everyday living.",
+          "A medium-sized black wicker basket with a branded removable cotton liner and vegan leather straps. Handmade by skilled weavers, each piece is eco-friendly and designed to last. The removable liner is made from 140g/sqm cotton and tailored to fit our wicker baskets with extended straps. It secures neatly around the hinges with discreet hook-and-loop fasteners. Perfect for storage, picnics, or home styling, our wicker baskets can be beautifully repurposed for everyday living.",
         category: "Baskets",
         variants: createVariantFromLegacy(
           "https://res.cloudinary.com/dygrsvya5/image/upload/q_auto:low/v1761523728/BLACK_WICKER_BASKET_xhdnno.jpg",
@@ -143,7 +143,7 @@ const basketProducts: ProductWithItems[] = [
         category: "Beverages",
         variants: createVariantFromLegacy(
           "https://res.cloudinary.com/dygrsvya5/image/upload/q_auto:low/v1761523684/SHIRLEY_TEMPLE_WINE_emfamv.jpg",
-          25
+          13
         ),
         details: {
           alcoholContent: "0.0% ABV",
@@ -166,7 +166,7 @@ const basketProducts: ProductWithItems[] = [
         category: "Beauty & Fragrance",
         variants: createVariantFromLegacy(
           "https://res.cloudinary.com/dygrsvya5/image/upload/q_auto:low/v1761523682/EAU_NUDE_PERFRUME_ast4rj.jpg",
-          95
+          28
         ),
         details: {
           contents: [
@@ -189,7 +189,7 @@ const basketProducts: ProductWithItems[] = [
         category: "Kitchen & Dining",
         variants: createVariantFromLegacy(
           "https://res.cloudinary.com/dygrsvya5/image/upload/q_auto:low/v1761523688/LE_CREUSET_MINI_COCOTTE_IN_GARNET_rnmcgy.jpg",
-          65
+          27
         ),
         details: {
           material: "Stoneware (Glazed)",
@@ -207,15 +207,15 @@ const basketProducts: ProductWithItems[] = [
         category: "Food & Treats",
         variants: createVariantFromLegacy(
           "https://res.cloudinary.com/dygrsvya5/image/upload/q_auto:low/v1761523684/FRANK_S_LUXURY_COOKIES_-_RASPBERRY_SHORTBREAD_ffewbl.jpg",
-          12
+          6
         ),
         details: {
           ingredients: [
-            "Wheat Flour (Calcium Carbonate, Iron, Nicotinamide, Thiamine)",
+            "Wheat",
+            "Flour (Calcium Carbonate, Iron, Nicotinamide, Thiamine)",
             "Salted Butter (32%)",
-            "Sugar",
-            "Raspberries (1%) (100% Natural Raspberries)",
-            "Natural Raspberry Flavouring (<1%)",
+            "Sugar Raspberries (1%) (100% Natural Raspberries)",
+            "Natural Raspberry Flavouring(<1%)",
           ],
         },
       },
@@ -227,7 +227,7 @@ const basketProducts: ProductWithItems[] = [
         category: "Food & Treats",
         variants: createVariantFromLegacy(
           "https://res.cloudinary.com/dygrsvya5/image/upload/q_auto:low/v1761523685/CARTWRIGHT_BUTLER_COOKIES_-_ORANGE_AND_CRANBERRY_hkkcvc.jpg",
-          15
+          7
         ),
         details: {
           ingredients: [
@@ -238,6 +238,7 @@ const basketProducts: ProductWithItems[] = [
             "Sugar",
             "Maize Starch",
             "Cranberries (6%)",
+            "Cranberry",
             "Cane Sugar",
             "Sunflower Oil",
             "Cinnamon",
@@ -253,7 +254,7 @@ const basketProducts: ProductWithItems[] = [
         id: "duro-6",
         name: "Natural Wicker Basket",
         description:
-          "A medium-sized wicker basket with a branded removable cotton liner and vegan leather straps. Handmade by skilled weavers, each piece is eco-friendly, designed to last, and can be beautifully repurposed for storage, picnics, or home styling.",
+          "A medium-sized wicker basket with a branded removable cotton liner and vegan leather straps. Handmade by skilled weavers, each piece is eco-friendly and designed to last. The removable liner is made from 140g/sqm cotton and tailored to fit our wicker baskets with extended straps. It secures neatly around the hinges with discreet hook-and-loop fasteners. Perfect for storage, picnics, or home styling, our wicker baskets can be beautifully repurposed for everyday living.",
         category: "Baskets",
         variants: createVariantFromLegacy(
           "https://res.cloudinary.com/dygrsvya5/image/upload/q_auto:low/v1761523697/WICKER_BASKET_jy5cs6.jpg",
@@ -300,22 +301,58 @@ export const getAdditionalProducts = (): StandaloneProduct[] => [
     category: "Kitchen & Dining",
     variants: [
       {
-        name: "Yellow",
+        name: "Default",
         image:
-          "https://res.cloudinary.com/dygrsvya5/image/upload/q_auto:low/v1761224787/YELLOW_RAMEKIN_ml5qy1.jpg",
-        price: 28,
-      },
-      {
-        name: "Pink",
-        image:
-          "https://res.cloudinary.com/dygrsvya5/image/upload/q_auto:low/v1761224783/PINK_RAMEKIN_knwhct.jpg",
+          "https://res.cloudinary.com/dygrsvya5/image/upload/v1763714626/NEXT_RAMEKINS_phaxjy.jpg",
         price: 28,
       },
     ],
     details: {
       dimensions: "Height 11cm | Width 11cm | Depth 11cm",
     },
-  },
+    items: [
+      {
+        id: "add-1-yellow",
+        name: "Yellow Ramekin",
+        description:
+          "A beautiful yellow ceramic ramekin with lid, perfect for serving individual portions.",
+        category: "Kitchen & Dining",
+        image:
+          "https://res.cloudinary.com/dygrsvya5/image/upload/q_auto:low/v1761224787/YELLOW_RAMEKIN_ml5qy1.jpg",
+        variants: [
+          {
+            name: "Default",
+            image:
+              "https://res.cloudinary.com/dygrsvya5/image/upload/q_auto:low/v1761224787/YELLOW_RAMEKIN_ml5qy1.jpg",
+            price: 14,
+          },
+        ],
+        details: {
+          dimensions: "Height 11cm | Width 11cm | Depth 11cm",
+        },
+      },
+      {
+        id: "add-1-pink",
+        name: "Pink Ramekin",
+        description:
+          "A beautiful pink ceramic ramekin with lid, perfect for serving individual portions.",
+        category: "Kitchen & Dining",
+        image:
+          "https://res.cloudinary.com/dygrsvya5/image/upload/q_auto:low/v1761224783/PINK_RAMEKIN_knwhct.jpg",
+        variants: [
+          {
+            name: "Default",
+            image:
+              "https://res.cloudinary.com/dygrsvya5/image/upload/q_auto:low/v1761224783/PINK_RAMEKIN_knwhct.jpg",
+            price: 14,
+          },
+        ],
+        details: {
+          dimensions: "Height 11cm | Width 11cm | Depth 11cm",
+        },
+      },
+    ],
+  } as StandaloneProduct & { items?: ShopProductItem[] },
   {
     id: "add-2",
     name: "Le Creuset Mini Cocotte",
@@ -327,13 +364,13 @@ export const getAdditionalProducts = (): StandaloneProduct[] => [
         name: "Chambray",
         image:
           "https://res.cloudinary.com/dygrsvya5/image/upload/q_auto:low/v1761224793/LE_CREUSET_MINI_CASSEROLE_IN_CHAMBRAY_zu5tj8.jpg",
-        price: 65,
+        price: 27,
       },
       {
         name: "Garnet",
         image:
           "https://res.cloudinary.com/dygrsvya5/image/upload/q_auto:low/v1761523688/LE_CREUSET_MINI_COCOTTE_IN_GARNET_rnmcgy.jpg",
-        price: 65,
+        price: 27,
       },
     ],
     details: {
@@ -352,7 +389,7 @@ export const getAdditionalProducts = (): StandaloneProduct[] => [
     category: "Food & Treats",
     variants: createVariantFromLegacy(
       "https://res.cloudinary.com/dygrsvya5/image/upload/q_auto:low/v1761224819/WHITTARD_HOT_CHOCOLATE_qzuwcz.jpg",
-      22
+      15.95
     ),
     details: {
       ingredients: [
@@ -374,7 +411,7 @@ export const getAdditionalProducts = (): StandaloneProduct[] => [
     category: "Food & Treats",
     variants: createVariantFromLegacy(
       "https://res.cloudinary.com/dygrsvya5/image/upload/q_auto:low/v1761224821/ORANGE_MILK_CHOCOLATE_wff1dr.jpg",
-      14
+      6
     ),
     details: {
       ingredients: [
@@ -398,7 +435,7 @@ export const getAdditionalProducts = (): StandaloneProduct[] => [
     category: "Food & Treats",
     variants: createVariantFromLegacy(
       "https://res.cloudinary.com/dygrsvya5/image/upload/q_auto:low/v1762482220/ALL_BUTTER_SHORTBREAD_mmv2km.jpg",
-      10
+      6
     ),
     details: {
       ingredients: [
@@ -416,7 +453,7 @@ export const getAdditionalProducts = (): StandaloneProduct[] => [
     category: "Food & Treats",
     variants: createVariantFromLegacy(
       "https://res.cloudinary.com/dygrsvya5/image/upload/q_auto:low/v1762482443/CHOCOLATE_CHUNK_COOKIES_teb8ib.jpg",
-      12
+      6
     ),
     details: {
       ingredients: [
@@ -438,7 +475,7 @@ export const getAdditionalProducts = (): StandaloneProduct[] => [
     category: "Beverages",
     variants: createVariantFromLegacy(
       "https://res.cloudinary.com/dygrsvya5/image/upload/q_auto:low/v1761224783/APPLE_JUICE_rp7lzt.jpg",
-      6
+      5.5
     ),
     details: {
       ingredients: ["100% fresh apples"],
@@ -455,7 +492,7 @@ export const getAdditionalProducts = (): StandaloneProduct[] => [
     category: "Home & Living",
     variants: createVariantFromLegacy(
       "https://res.cloudinary.com/dygrsvya5/image/upload/q_auto:low/v1761224785/MAEGEN_ATINA_CANDLE_IN_RED_khefmd.jpg",
-      18
+      15
     ),
     details: {
       quantity: "100 long matches",
@@ -470,7 +507,7 @@ export const getAdditionalProducts = (): StandaloneProduct[] => [
     category: "Food & Treats",
     variants: createVariantFromLegacy(
       "https://res.cloudinary.com/dygrsvya5/image/upload/q_auto:low/v1761224804/BUTTERSCOTCH_CRUNCH_COOKIES_jxseta.jpg",
-      15
+      8.75
     ),
     details: {
       ingredients: [
@@ -499,7 +536,7 @@ export const getAdditionalProducts = (): StandaloneProduct[] => [
     category: "Food & Treats",
     variants: createVariantFromLegacy(
       "https://res.cloudinary.com/dygrsvya5/image/upload/q_auto:low/v1761224806/STRAWBERRY_COOKIES_yfuvsn.jpg",
-      16
+      8.75
     ),
     details: {
       ingredients: [
@@ -535,7 +572,7 @@ export const getAdditionalProducts = (): StandaloneProduct[] => [
     category: "Food & Treats",
     variants: createVariantFromLegacy(
       "https://res.cloudinary.com/dygrsvya5/image/upload/q_auto:low/v1761224813/VANILLA_WHITE_CHOCOLATE_xxobpy.jpg",
-      14
+      6
     ),
     details: {
       ingredients: [
@@ -553,7 +590,7 @@ export const shopProducts: ShopProduct[] = [
   {
     id: "1",
     name: "The Dee Basket",
-    price: 670,
+    price: 130,
     image:
       "https://res.cloudinary.com/dygrsvya5/image/upload/q_auto:low/v1761523717/COVER_IMAGE_FOR_NYLA_BASKET_ebewca.jpg",
     category: "Baskets",
@@ -579,7 +616,7 @@ export const shopProducts: ShopProduct[] = [
   {
     id: "2",
     name: "The Duro Basket",
-    price: 670,
+    price: 130,
     image:
       "https://res.cloudinary.com/dygrsvya5/image/upload/q_auto:low/v1761523685/COVER_IMAGE_FOR_DURO_BASKET_lc3d6w.jpg",
     category: "Baskets",
@@ -632,7 +669,7 @@ export const shopProducts: ShopProduct[] = [
   {
     id: "4",
     name: "Branded Tote Bag",
-    price: 120,
+    price: 63,
     image:
       "https://res.cloudinary.com/dygrsvya5/image/upload/q_auto:low/v1761525451/BRANDED_TOTE_BAG_jno028.jpg",
     category: "Accessories",

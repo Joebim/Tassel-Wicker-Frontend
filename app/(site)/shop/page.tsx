@@ -11,12 +11,14 @@ import ScrollTextAnimation from '@/components/common/ScrollTextAnimation';
 import ScrollVelocity from '@/components/common/ScrollVelocity';
 import { shopProducts } from '@/utils/productData';
 import type { ShopProduct } from '@/types/productData';
+import { useWindowWidth } from '@/hooks/useWindowsWidth';
 
 export default function Shop() {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [filters, setFilters] = useState<{ category?: string; price?: string }>({});
   const { addItem } = useCartStore();
+  const { isDesktop } = useWindowWidth();
 
   const handleAddToCart = (product: ShopProduct) => {
     const price = product.price ?? 0;
@@ -132,14 +134,14 @@ export default function Shop() {
       </div>
 
       <div className="flex flex-col items-center justify-center max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pt-14 pb-0 sm:pb-14 text-center">
-        <h2 className="text-[12px] sm:text-2xl md:text-3xl font-light text-luxury-black leading-relaxed mb-6 uppercase tracking-[0.2em]">
+        <h2 className="text-[12px] sm:text-[20px] lg:text-3xl font-light text-luxury-black leading-relaxed mb-6 uppercase tracking-[0.2em]">
           Where intention meets curation <br /> because it&apos;s the{' '}
           <span className="line-through decoration-2 decoration-black">thought</span>{' '}
           gift that <br />counts
         </h2>
-        <p className="w-[88%]! mx-auto text-[18px] sm:text-lg text-luxury-black font-extralight leading-relaxed text-justify">
-          The Tassel &amp; Wicker signature baskets are inspired by the friendships and relationships that sustain us.
-          We believe that when we give thoughtfully, we communicate presence, intention, and appreciation in ways words alone cannot
+        <p className="w-[88%]! mx-auto text-[16px] sm:text-lg text-luxury-black font-extralight text-center wrap-break-word [hyphens:auto]">
+          The Tassel &amp; Wicker signature baskets are<br /> inspired by the friendships and <br />relationships that sustain us.
+          <br /><br />We believe that when we give thoughtfully,<br /> we communicate presence, intention, and<br /> appreciation in ways words alone cannot
         </p>
       </div>
 
@@ -201,17 +203,22 @@ export default function Shop() {
         </div>
       </div>
 
-      <div className="py-14 bg-amber-50">
+      <div className="py-8 sm:py-14 bg-amber-50">
         <ScrollVelocity
           texts={[
             <span key="scroll-text" className='font-extralight text-black'>
-              {' '}WHERE INTENTION MEETS CURATION BECAUSE IT&apos;S THE{' '}
-              <span className="line-through decoration-3 decoration-black">THOUGHT</span>{' '}
-              GIFT THAT COUNTS
+              IT&apos;S THE{' '}
+              <span className="line-through decoration-1 sm:decoration-3 decoration-black">THOUGHT</span>{' '}
+              GIFT THAT COUNTS{'  '}
+              <span className="mx-4 sm:mx-8">&nbsp;</span>
+              COMMITTED TO ELEVATED LIVING
             </span>
           ]}
           velocity={100}
           className="custom-scroll-text"
+          scrollerClassName="scroller text-sm md:text-2xl"
+          itemSpacing={isDesktop ? "150px" : "60px"}
+          scroll='left'
         />
       </div>
     </div>

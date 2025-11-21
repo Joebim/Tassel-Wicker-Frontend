@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 import { loadStripe } from '@stripe/stripe-js';
 import { Elements, PaymentElement, useStripe, useElements } from '@stripe/react-stripe-js';
 import { motion } from 'framer-motion';
@@ -9,33 +10,52 @@ import { LuArrowLeft, LuMapPin } from 'react-icons/lu';
 import { useCartStore, type CartItem } from '@/store/cartStore';
 import { useAuthStore } from '@/store/authStore';
 import { useToastStore } from '@/store/toastStore';
-import { usePriceFormat } from '@/hooks/usePrice';
+import { usePrice } from '@/hooks/usePrice';
 import { useCurrencyStore } from '@/store/currencyStore';
-import useCountries from '@/hooks/useCountries';
+import useCountries, { type Country } from '@/hooks/useCountries';
 
 // Initialize Stripe
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || '');
 
+// Helper functions for country handling
+const getCountryByName = (countries: Country[], countryName: string): Country | undefined => {
+    return countries.find((c: Country) => c.name === countryName);
+};
+
+const getCountryIso2 = (countries: Country[], countryName: string): string => {
+    const country = getCountryByName(countries, countryName);
+    return country?.iso2 || 'US'; // Fallback to US if not found
+};
+
 // Component for displaying item price
 const CheckoutItemPrice: React.FC<{ price: number; quantity: number }> = ({ price, quantity }) => {
     const itemTotal = price * quantity;
-    const { formattedPrice } = usePriceFormat(itemTotal);
+    const { formattedPrice } = usePrice(itemTotal);
     return <p className="font-extralight">{formattedPrice}</p>;
 };
 
 // Payment Form Component (uses Stripe Elements)
 const PaymentForm: React.FC<{
-    formData: any;
+    formData: {
+        firstName: string;
+        lastName: string;
+        email: string;
+        address: string;
+        city: string;
+        postalCode: string;
+        country: string;
+    };
+    countries: Country[];
     onSuccess: () => void;
     onError: (error: string) => void;
     totalPrice: number;
     clientSecret: string;
-}> = ({ formData, onSuccess, onError, totalPrice, clientSecret }) => {
+}> = ({ formData, countries, onSuccess, onError, totalPrice, clientSecret }) => {
     const stripe = useStripe();
     const elements = useElements();
     const [isProcessing, setIsProcessing] = useState(false);
     const [error, setError] = useState<string>('');
-    const { formattedPrice } = usePriceFormat(totalPrice);
+    const { formattedPrice } = usePrice(totalPrice);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -69,9 +89,7 @@ const PaymentForm: React.FC<{
                                 line1: formData.address,
                                 city: formData.city,
                                 postal_code: formData.postalCode,
-                                country: formData.country === 'United States' ? 'US' :
-                                    formData.country === 'Canada' ? 'CA' :
-                                        formData.country === 'United Kingdom' ? 'GB' : 'US',
+                                country: getCountryIso2(countries, formData.country),
                             },
                         },
                     },
@@ -97,7 +115,7 @@ const PaymentForm: React.FC<{
 
     return (
         <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="bg-luxury-white p-6 rounded-lg">
+            <div className="bg-white p-6 rounded-lg">
                 <PaymentElement
                     options={{
                         layout: 'tabs',
@@ -159,12 +177,21 @@ export default function Checkout() {
     const router = useRouter();
     const { items, getTotalPrice, clearCart } = useCartStore();
     const { user, hasHydrated } = useAuthStore();
-    const { currency } = useCurrencyStore();
-    const totalPrice = getTotalPrice();
-    const { formattedPrice: formattedTotal } = usePriceFormat(totalPrice);
+    const { currency, location } = useCurrencyStore();
+    const baseTotalPrice = getTotalPrice();
+    const { formattedPrice: formattedTotal, finalPrice: convertedTotalPrice } = usePrice(baseTotalPrice);
     const [clientSecret, setClientSecret] = useState<string | null>(null);
 
     const { countries, isLoading: isLoadingCountries } = useCountries();
+
+    // Get default country from currencyStore location, fallback to United States
+    const getDefaultCountryName = (): string => {
+        if (location?.country) {
+            return location.country;
+        }
+        return 'United States';
+    };
+
     const [formData, setFormData] = useState({
         firstName: '',
         lastName: '',
@@ -172,21 +199,58 @@ export default function Checkout() {
         address: '',
         city: '',
         postalCode: '',
-        country: 'United States'
+        country: getDefaultCountryName()
     });
 
-    // Set default country when countries are loaded (if current country is not in the list)
+    // Set default country when countries are loaded or location changes
     useEffect(() => {
         if (countries.length > 0) {
-            const countryExists = countries.some(c => c.name === formData.country);
-            if (!countryExists) {
-                const defaultCountry = countries.find(c => c.name === 'United States') || countries[0];
-                if (defaultCountry) {
-                    setFormData(prev => ({ ...prev, country: defaultCountry.name }));
+            // Get the country from currencyStore location
+            let targetCountry: Country | undefined;
+
+            if (location?.country) {
+                // Try to find by country name first
+                targetCountry = getCountryByName(countries, location.country);
+
+                // If not found by name, try to find by countryCode (iso2)
+                if (!targetCountry && location.countryCode) {
+                    targetCountry = countries.find((c: Country) => c.iso2 === location.countryCode);
                 }
             }
+
+            // Fallback to United States if location country not found
+            if (!targetCountry) {
+                targetCountry = countries.find((c: Country) => c.name === 'United States');
+            }
+
+            // Final fallback to first country
+            if (!targetCountry) {
+                targetCountry = countries[0];
+            }
+
+            if (targetCountry) {
+                const targetCountryName = targetCountry.name;
+                const locationCountry = location?.country;
+
+                // Use setTimeout to avoid synchronous setState in effect
+                const timer = setTimeout(() => {
+                    setFormData(prev => {
+                        // Check if current country exists in the loaded countries
+                        const prevCountryExists = getCountryByName(countries, prev.country);
+
+                        // Update if:
+                        // 1. Current country doesn't exist in the list, OR
+                        // 2. Location has a country and it's different from current selection
+                        if (!prevCountryExists || (locationCountry && prev.country !== locationCountry)) {
+                            return { ...prev, country: targetCountryName };
+                        }
+                        return prev;
+                    });
+                }, 0);
+                return () => clearTimeout(timer);
+            }
         }
-    }, [countries, formData.country]);
+    }, [countries, location]);
 
     // Scroll to top when component mounts
     useEffect(() => {
@@ -202,17 +266,17 @@ export default function Checkout() {
         }
     }, [items.length, router]);
 
-    // Require authentication before checkout – redirect guests to signup
+    // Require authentication before checkout – redirect guests to login
     useEffect(() => {
         if (!hasHydrated) return;
         if (!user) {
-            router.push('/signup?redirect=/checkout');
+            router.push('/login?redirect=/checkout');
         }
     }, [hasHydrated, user, router]);
 
     // Create payment intent when component mounts
     useEffect(() => {
-        if (items.length > 0 && totalPrice > 0) {
+        if (items.length > 0 && convertedTotalPrice > 0) {
             const createPaymentIntent = async () => {
                 try {
                     const response = await fetch('/api/create-payment-intent', {
@@ -221,7 +285,7 @@ export default function Checkout() {
                             'Content-Type': 'application/json',
                         },
                         body: JSON.stringify({
-                            amount: totalPrice,
+                            amount: convertedTotalPrice, // Use converted price, not base price
                             currency: currency.toLowerCase(),
                             items: items.map(item => ({
                                 id: item.id,
@@ -257,7 +321,7 @@ export default function Checkout() {
 
             createPaymentIntent();
         }
-    }, [items, totalPrice, currency, user]);
+    }, [items, convertedTotalPrice, currency, user]);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         setFormData({
@@ -283,8 +347,17 @@ export default function Checkout() {
         });
     };
 
-    if (items.length === 0) {
-        return null; // Will redirect via useEffect
+    // Show loading state while checking authentication or if cart is empty
+    if (!hasHydrated || items.length === 0 || !user) {
+        return (
+            <div className="min-h-screen bg-white flex items-center justify-center">
+                <div className="text-center">
+                    <p className="text-luxury-cool-grey font-extralight">
+                        {!hasHydrated ? 'Loading...' : items.length === 0 ? 'Redirecting to cart...' : 'Redirecting to login...'}
+                    </p>
+                </div>
+            </div>
+        );
     }
 
     return (
@@ -424,12 +497,16 @@ export default function Checkout() {
                                         >
                                             {isLoadingCountries ? (
                                                 <option value="">Loading countries...</option>
+                                            ) : countries.length === 0 ? (
+                                                <option value="">No countries available</option>
                                             ) : (
-                                                countries.map((country) => (
-                                                    <option key={country.code || country.name} value={country.name}>
-                                                        {country.name}
-                                                    </option>
-                                                ))
+                                                [...countries]
+                                                    .sort((a: Country, b: Country) => a.name.localeCompare(b.name))
+                                                    .map((country: Country) => (
+                                                        <option key={country.iso2 || `country-${country.id}`} value={country.name}>
+                                                            {country.name}
+                                                        </option>
+                                                    ))
                                             )}
                                         </select>
                                     </div>
@@ -451,7 +528,7 @@ export default function Checkout() {
                                                 theme: 'stripe',
                                                 variables: {
                                                     colorPrimary: '#6B46C1',
-                                                    colorBackground: '#F5F5F0',
+                                                    colorBackground: '#ffffff',
                                                     colorText: '#1A1A1A',
                                                     colorDanger: '#EF4444',
                                                     fontFamily: 'system-ui, sans-serif',
@@ -463,14 +540,15 @@ export default function Checkout() {
                                     >
                                         <PaymentForm
                                             formData={formData}
+                                            countries={countries}
                                             onSuccess={handlePaymentSuccess}
                                             onError={handlePaymentError}
-                                            totalPrice={totalPrice}
+                                            totalPrice={baseTotalPrice}
                                             clientSecret={clientSecret}
                                         />
                                     </Elements>
                                 ) : (
-                                    <div className="bg-luxury-white p-6 rounded-lg">
+                                    <div className="bg-white p-6 rounded-lg">
                                         <p className="text-luxury-cool-grey font-extralight text-sm">
                                             Initializing payment...
                                         </p>
@@ -486,7 +564,7 @@ export default function Checkout() {
                             initial={{ opacity: 0, x: 20 }}
                             animate={{ opacity: 1, x: 0 }}
                             transition={{ duration: 0.6, delay: 0.2 }}
-                            className="bg-luxury-white p-8 sticky top-8"
+                            className="bg-white p-8 sticky top-8"
                         >
                             <h3 className="text-2xl font-extralight text-luxury-black mb-6 uppercase">
                                 Order Summary
@@ -496,11 +574,15 @@ export default function Checkout() {
                                 {items.map((item: CartItem) => (
                                     <div key={item.id} className="flex justify-between items-center">
                                         <div className="flex items-center gap-3">
-                                            <img
-                                                src={item.image}
-                                                alt={item.name}
-                                                className="w-12 h-12 object-cover"
-                                            />
+                                            <div className="relative w-12 h-12 shrink-0">
+                                                <Image
+                                                    src={item.image}
+                                                    alt={item.name}
+                                                    fill
+                                                    className="object-cover"
+                                                    sizes="48px"
+                                                />
+                                            </div>
                                             <div>
                                                 <p className="font-extralight text-sm">{item.name}</p>
                                                 <p className="text-luxury-cool-grey font-extralight text-xs">

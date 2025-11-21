@@ -1,18 +1,19 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { motion } from 'framer-motion';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { LuMail, LuLock, LuEye, LuEyeOff } from 'react-icons/lu';
 import { authService } from '@/services/authService';
 
-export default function Login() {
+function LoginContent() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [showPassword, setShowPassword] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const router = useRouter();
+    const searchParams = useSearchParams();
 
     useEffect(() => {
         if (typeof window !== 'undefined') {
@@ -27,7 +28,9 @@ export default function Login() {
         const result = await authService.signIn(email, password);
 
         if (result.success) {
-            router.push('/');
+            // Redirect to the specified page or home
+            const redirectTo = searchParams.get('redirect') || '/';
+            router.push(redirectTo);
         }
 
         setIsLoading(false);
@@ -136,6 +139,18 @@ export default function Login() {
                 </motion.form>
             </div>
         </div>
+    );
+}
+
+export default function Login() {
+    return (
+        <Suspense fallback={
+            <div className="min-h-screen bg-white flex items-center justify-center">
+                <div className="text-luxury-cool-grey font-extralight">Loading...</div>
+            </div>
+        }>
+            <LoginContent />
+        </Suspense>
     );
 }
 

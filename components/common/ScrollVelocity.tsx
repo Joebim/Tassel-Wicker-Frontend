@@ -29,6 +29,8 @@ interface VelocityTextProps {
     scrollerClassName?: string;
     parallaxStyle?: React.CSSProperties;
     scrollerStyle?: React.CSSProperties;
+    itemSpacing?: string;
+    scroll?: 'auto' | 'right' | 'left';
 }
 
 interface ScrollVelocityProps {
@@ -44,6 +46,8 @@ interface ScrollVelocityProps {
     scrollerClassName?: string;
     parallaxStyle?: React.CSSProperties;
     scrollerStyle?: React.CSSProperties;
+    itemSpacing?: string;
+    scroll?: 'auto' | 'right' | 'left';
 }
 
 function useElementWidth<T extends HTMLElement>(ref: React.RefObject<T | null>): number {
@@ -76,13 +80,19 @@ function VelocityText({
     parallaxClassName = 'parallax',
     scrollerClassName = 'scroller',
     parallaxStyle,
-    scrollerStyle
+    scrollerStyle,
+    itemSpacing = '150px',
+    scroll = 'auto'
 }: VelocityTextProps) {
     const [isMounted, setIsMounted] = useState(false);
     const baseX = useMotionValue(0);
-    
+
     useEffect(() => {
-        setIsMounted(true);
+        // Use setTimeout to avoid synchronous setState in effect
+        const timer = setTimeout(() => {
+            setIsMounted(true);
+        }, 0);
+        return () => clearTimeout(timer);
     }, []);
 
     // Always call hooks unconditionally (React rules), but they'll handle SSR gracefully
@@ -131,10 +141,18 @@ function VelocityText({
 
             let moveBy = directionFactor.current * baseVelocity * (delta / 1000);
 
-            if (velocityFactor.get() < 0) {
-                directionFactor.current = -1;
-            } else if (velocityFactor.get() > 0) {
+            // Handle scroll direction based on prop
+            if (scroll === 'right') {
                 directionFactor.current = 1;
+            } else if (scroll === 'left') {
+                directionFactor.current = -1;
+            } else if (scroll === 'auto') {
+                // Auto mode: change direction based on scroll velocity
+                if (velocityFactor.get() < 0) {
+                    directionFactor.current = -1;
+                } else if (velocityFactor.get() > 0) {
+                    directionFactor.current = 1;
+                }
             }
 
             moveBy += directionFactor.current * moveBy * velocityFactor.get();
@@ -150,7 +168,7 @@ function VelocityText({
                 cancelAnimationFrame(animationFrameRef.current);
             }
         };
-    }, [isMounted, baseVelocity, velocityFactor, baseX]);
+    }, [isMounted, baseVelocity, velocityFactor, baseX, scroll]);
 
     // Always render the same number of spans to prevent hydration mismatch
     const spans = [];
@@ -160,7 +178,7 @@ function VelocityText({
                 className={className}
                 key={i}
                 ref={i === 0 ? copyRef : null}
-                style={{ marginRight: '150px' }}
+                style={{ marginRight: itemSpacing }}
             >
                 {children}
             </span>
@@ -169,10 +187,16 @@ function VelocityText({
 
     // Always render the same structure to prevent hydration mismatch
     // The x transform will be applied by Framer Motion, which handles SSR gracefully
+    // Default text sizing if not provided via className
+    const defaultScrollerClass = scrollerClassName || 'scroller';
+    const finalScrollerClass = defaultScrollerClass.includes('text-')
+        ? defaultScrollerClass
+        : `${defaultScrollerClass} text-2xl md:text-3xl`;
+
     return (
         <div className={parallaxClassName || 'parallax'} style={parallaxStyle}>
-            <motion.div 
-                className={scrollerClassName || 'scroller'} 
+            <motion.div
+                className={finalScrollerClass}
                 style={{ x, ...scrollerStyle }}
             >
                 {spans}
@@ -193,14 +217,10 @@ const ScrollVelocity: React.FC<ScrollVelocityProps> = ({
     parallaxClassName = 'parallax',
     scrollerClassName = 'scroller',
     parallaxStyle,
-    scrollerStyle
+    scrollerStyle,
+    itemSpacing = '150px',
+    scroll = 'auto'
 }) => {
-    const [isMounted, setIsMounted] = useState(false);
-
-    useEffect(() => {
-        setIsMounted(true);
-    }, []);
-
     // Always render the same structure to prevent hydration mismatch
     // Render VelocityText wrapper on both server and client, but disable animations during SSR
     return (
@@ -219,6 +239,8 @@ const ScrollVelocity: React.FC<ScrollVelocityProps> = ({
                     scrollerClassName={scrollerClassName}
                     parallaxStyle={parallaxStyle}
                     scrollerStyle={scrollerStyle}
+                    itemSpacing={itemSpacing}
+                    scroll={scroll}
                 >
                     {text}
                     {' '}

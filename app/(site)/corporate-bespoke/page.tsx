@@ -97,21 +97,21 @@ export default function CorporateBespoke() {
                     <div className="absolute inset-0 bg-black opacity-50"></div>
                 </div>
                 <div className="relative z-10 h-full w-full flex flex-row items-end sm:items-start justify-end lg:items-end lg:justify-between gap-7 sm:gap-10 px-6 sm:px-10 lg:px-12 pb-12">
-                    <div className=" flex flex-row items-end self-end">
+                    <div className=" flex flex-row items-end self-end w-full">
                         <div className="max-w-5xl text-white text-left lg:text-left">
                             <ScrollTextAnimation
-                                className="text-[35px] sm:text-[90px] font-extralight tracking-wide uppercase leading-none"
+                                className="text-[30px] sm:text-[90px] font-extralight tracking-wide uppercase leading-none"
                                 delay={0.3}
                                 duration={1.2}
                             >
-                                CORPORATE
+                                CORPORATE &
                             </ScrollTextAnimation>
                             <ScrollTextAnimation
-                                className="text-[32px] sm:text-[90px] font-extralight tracking-wide uppercase leading-none"
+                                className="text-[30px] sm:text-[90px] font-extralight tracking-wide uppercase leading-none"
                                 delay={0.5}
                                 duration={1.2}
                             >
-                                & BESPOKE SERVICE
+                                BESPOKE SERVICE
                             </ScrollTextAnimation>
                         </div>
                         <div className="relative">
@@ -126,10 +126,10 @@ export default function CorporateBespoke() {
                                 aria-label="Learn more"
                             >
                                 <CircularText
-                                    text="DISCOVER MORE • DISCOVER MORE • "
+                                    text="DISCOVER • DISCOVER • "
                                     spinDuration={15}
                                     onHover="speedUp"
-                                    className="w-[90px] h-[90px] leading-0.5 sm:w-[120px] sm:h-[120px]"
+                                    className="w-[70px] h-[70px] leading-0.5 sm:w-[120px] sm:h-[120px] text-[11px] sm:text-[12px]"
                                 />
                                 <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
                                     <LuChevronDown size={24} className="text-white animate-bounce" aria-hidden="true" />

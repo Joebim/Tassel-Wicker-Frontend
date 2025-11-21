@@ -9,7 +9,6 @@ export default function Contact() {
     const [formData, setFormData] = useState({
         name: '',
         email: '',
-        phone: '',
         message: '',
     });
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -36,7 +35,7 @@ export default function Contact() {
                     title: 'Message Sent',
                     message: 'Thank you for your message! We\'ll get back to you soon.',
                 });
-                setFormData({ name: '', email: '', phone: '', message: '' });
+                setFormData({ name: '', email: '', message: '' });
             } else {
                 console.error('Contact form error:', result);
                 addToast({
@@ -118,20 +117,6 @@ export default function Contact() {
                                 onChange={handleChange}
                                 required
                                 placeholder="EMAIL ADDRESS *"
-                                className="w-full px-6 py-4 bg-transparent border-2 border-white/60 text-white placeholder-white/80 font-extralight uppercase tracking-wide focus:outline-none focus:border-luxury-white transition-all duration-300"
-                            />
-                        </div>
-
-                        {/* Phone Number */}
-                        <div>
-                            <input
-                                type="tel"
-                                id="phone"
-                                name="phone"
-                                value={formData.phone}
-                                onChange={handleChange}
-                                required
-                                placeholder="PHONE NUMBER *"
                                 className="w-full px-6 py-4 bg-transparent border-2 border-white/60 text-white placeholder-white/80 font-extralight uppercase tracking-wide focus:outline-none focus:border-luxury-white transition-all duration-300"
                             />
                         </div>

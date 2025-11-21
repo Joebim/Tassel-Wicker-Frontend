@@ -5,11 +5,27 @@ import Image from 'next/image';
 import { LuChevronDown } from 'react-icons/lu';
 import { motion, useInView } from 'framer-motion';
 import dynamic from 'next/dynamic';
+import { Great_Vibes } from 'next/font/google';
 
 const CircularText = dynamic(() => import('@/components/common/CircularText'), { ssr: false });
 const ScrollTextAnimation = dynamic(() => import('@/components/common/ScrollTextAnimation'), { ssr: false });
 
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselPrevious,
+  CarouselNext,
+} from "@/components/ui/carousel";
 import VideoCard from '@/components/about/VideoCard';
+
+// Google Font for signature
+const greatVibes = Great_Vibes({
+  weight: '400',
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-great-vibes',
+});
 
 export default function About() {
   // ---------------------------------------------------------------
@@ -100,16 +116,16 @@ export default function About() {
         <div className="relative z-10 h-full w-full p-6 sm:p-10 lg:p-12 flex flex-col items-start justify-end lg:flex-row lg:items-end lg:justify-between gap-10">
           <div className="w-full flex flex-row items-end justify-between self-end">
 
-            <div className="flex flex-col text-white max-w-3xl text-center lg:text-left">
+            <div className="flex flex-col text-white text-center lg:text-left">
               <ScrollTextAnimation
-                className="text-[35px] sm:text-[100px] font-extralight tracking-wide uppercase leading-none"
+                className="text-[30px] sm:text-[90px] font-extralight tracking-wide uppercase leading-none"
                 delay={0.2}
                 duration={1.2}
               >
                 ABOUT
               </ScrollTextAnimation>
               <ScrollTextAnimation
-                className="text-[35px] sm:text-[100px] text-left font-extralight tracking-wide uppercase leading-none"
+                className="text-[30px] sm:text-[90px] text-left font-extralight tracking-wide uppercase leading-none"
                 delay={0.4}
                 duration={1.2}
               >
@@ -160,9 +176,9 @@ export default function About() {
           animate={(ourStoryInView || ourStoryVisible) ? 'visible' : 'hidden'}
           variants={containerVariants}
         >
-          <div className="max-w-7xl mx-auto px-8 sm:px-12 lg:px-16 space-y-24">
+          <div className="max-w-7xl mx-auto px-8 sm:px-12 lg:px-16 space-y-8 sm:space-y-24">
             {/* Row 1 */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 sm:gap-16 items-center">
               <motion.div variants={itemVariants}>
                 <motion.div className="mb-8" variants={itemVariants}>
                   <motion.div
@@ -176,7 +192,7 @@ export default function About() {
                     variants={headingVariants}
                   >
                     <ScrollTextAnimation delay={0.3} duration={0.8}>
-                      My Why
+                      MY WHY
                     </ScrollTextAnimation>
                   </motion.h2>
                 </motion.div>
@@ -203,7 +219,7 @@ export default function About() {
                 className="relative w-full h-[600px]"
               >
                 <Image
-                  src="https://res.cloudinary.com/dygrsvya5/image/upload/q_auto:low/v1761542826/ABOUT_PAGE_IMAGE_v9jgbs.jpg"
+                  src="https://res.cloudinary.com/dygrsvya5/image/upload/q_auto:low/v1763713791/ABOUT_PAGE_yciiey.jpg"
                   alt="My Why"
                   fill
                   className="object-cover"
@@ -212,7 +228,7 @@ export default function About() {
             </div>
 
             {/* Row 2 */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 sm:gap-16 items-center">
               <motion.div
                 variants={itemVariants}
                 whileHover={{ scale: 1.02 }}
@@ -220,7 +236,7 @@ export default function About() {
                 className="lg:order-1 order-2 relative w-full h-[600px]"
               >
                 <Image
-                  src="https://res.cloudinary.com/dygrsvya5/image/upload/v1761149640/_2MK9308_dcgky8.jpg"
+                  src="https://res.cloudinary.com/dygrsvya5/image/upload/q_auto:low/v1763659375/ABOUT_zhap9y.jpg"
                   alt="Signature Celebration Basket"
                   fill
                   className="object-cover"
@@ -251,14 +267,16 @@ export default function About() {
                   </motion.p>
                 </motion.div>
 
-                <motion.div className="mt-8 pt-8 border-t border-gray-300" variants={itemVariants}>
-                  <p className="text-lg text-gray-600 leading-relaxed font-extralight mb-2">
+                <motion.div className="mt-8 pt-6 border-t border-gray-300/30" variants={itemVariants}>
+                  <p className="text-lg text-gray-600 leading-relaxed font-extralight mb-4 italic">
                     With love and intention,
                   </p>
-                  <p className="text-lg text-gray-600 leading-relaxed font-extralight">
-                    Dee
-                  </p>
-                  <p className="text-lg text-gray-600 leading-relaxed font-extralight">
+                  <div className={`mb-2 ${greatVibes.variable}`}>
+                    <p className={`text-4xl md:text-5xl text-gray-700 leading-relaxed tracking-wide transform rotate-[-0.5deg] ${greatVibes.className}`}>
+                      Dee
+                    </p>
+                  </div>
+                  <p className="text-sm text-gray-500 leading-relaxed font-extralight italic mt-2">
                     Founder, Tassel & Wicker
                   </p>
                 </motion.div>
@@ -276,12 +294,12 @@ export default function About() {
           variants={containerVariants}
         >
           <div className="max-w-7xl mx-auto px-8 sm:px-12 lg:px-16">
-            <motion.div className="mb-16" variants={itemVariants}>
+            <motion.div className="sm:mb-16 mb-8" variants={itemVariants}>
               <motion.h2
-                className="text-5xl font-extralight text-white mb-4"
+                className="text-5xl font-extralight text-white mb-0 sm:mb-4"
                 variants={headingVariants}
               >
-                <ScrollTextAnimation delay={0.2} duration={0.8}>
+                <ScrollTextAnimation delay={0.2} duration={0.8} className='text-[28px] sm:text-[39px]'>
                   IT&apos;S THE{' '}
                   <span className="line-through decoration-5 decoration-white">
                     THOUGHT
@@ -294,29 +312,58 @@ export default function About() {
                 className="text-5xl font-extralight text-white"
                 variants={headingVariants}
               >
-                <ScrollTextAnimation delay={0.4} duration={0.8}>
+                <ScrollTextAnimation delay={0.4} duration={0.8} className='text-[28px] sm:text-[39px]'>
                   THAT COUNTS.
                 </ScrollTextAnimation>
               </motion.h2>
             </motion.div>
 
-            <div className="grid grid-cols-4 md:grid-cols-2 lg:grid-cols-4 gap-8">
-              {[
-                'https://res.cloudinary.com/dygrsvya5/video/upload/v1762582893/VIDEO_1_qemvjg.mp4',
-                'https://res.cloudinary.com/dygrsvya5/video/upload/v1762582835/VIDEO_2_rybtlw.mp4',
-                'https://res.cloudinary.com/dygrsvya5/video/upload/v1762582847/VIDEO_3_yitmo6.mp4',
-                'https://res.cloudinary.com/dygrsvya5/video/upload/v1762582806/VIDEO_4_lxnmu0.mp4',
-              ].map((video, idx) => (
-                <motion.div
-                  key={idx}
-                  variants={itemVariants}
-                  whileHover={{ scale: 1.02 }}
-                  transition={{ duration: 0.3 }}
-                >
-                  <VideoCard videoSrc={video} buttonLabel="Shop Baskets" />
-                </motion.div>
-              ))}
-            </div>
+            <motion.div variants={itemVariants} className="w-full">
+              <Carousel
+                opts={{
+                  align: "start",
+                  loop: true,
+                  slidesToScroll: 1,
+                }}
+                className="w-full"
+                setApi={(api) => {
+                  // Start at the middle set (position 4) for seamless infinite scroll
+                  if (api) {
+                    setTimeout(() => {
+                      api.scrollTo(4, false); // false = no animation, jump directly
+                    }, 0);
+                  }
+                }}
+              >
+                <CarouselContent className="ml-0 md:-ml-4">
+                  {(() => {
+                    // Duplicate videos for proper infinite scroll on desktop
+                    const videos = [
+                      'https://res.cloudinary.com/dygrsvya5/video/upload/v1762582893/VIDEO_1_qemvjg.mp4',
+                      'https://res.cloudinary.com/dygrsvya5/video/upload/v1762582835/VIDEO_2_rybtlw.mp4',
+                      'https://res.cloudinary.com/dygrsvya5/video/upload/v1762582847/VIDEO_3_yitmo6.mp4',
+                      'https://res.cloudinary.com/dygrsvya5/video/upload/v1762582806/VIDEO_4_lxnmu0.mp4',
+                    ];
+                    // Create 3 sets for seamless infinite scroll
+                    const duplicatedVideos = [...videos, ...videos, ...videos];
+                    return duplicatedVideos.map((video, index) => (
+                      <CarouselItem
+                        key={index}
+                        className={`${index === 0 ? 'pl-0 pr-2' : 'pl-2 pr-2'} md:pl-4 md:pr-0 basis-[82%]! md:basis-1/4!`}
+                      >
+                        <div className="p-1 md:p-1">
+                          <div className="mx-auto w-full">
+                            <VideoCard videoSrc={video} buttonLabel="Shop Baskets" className='rounded-sm' />
+                          </div>
+                        </div>
+                      </CarouselItem>
+                    ));
+                  })()}
+                </CarouselContent>
+                <CarouselPrevious className="hidden md:flex left-0 md:left-4 w-10 h-10 md:w-12 md:h-12 z-30" />
+                <CarouselNext className="hidden md:flex right-0 md:right-4 w-10 h-10 md:w-12 md:h-12 z-30" />
+              </Carousel>
+            </motion.div>
           </div>
         </motion.section>
 

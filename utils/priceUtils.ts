@@ -14,12 +14,12 @@ export const CURRENCY_INFO: Record<CurrencyCode, { symbol: string; name: string;
 };
 
 /**
- * Converts a base price (USD) to the current currency
- * @param basePrice - Price in USD
+ * Converts a base price (GBP) to the current currency
+ * @param basePrice - Price in GBP
  * @param currency - Target currency code
  * @returns Converted price
  */
-export function convertPrice(basePrice: number, currency: CurrencyCode = 'USD'): number {
+export function convertPrice(basePrice: number, currency: CurrencyCode = 'GBP'): number {
   const store = useCurrencyStore.getState();
   const exchangeRate = store.getExchangeRate();
   return basePrice * exchangeRate;
@@ -42,7 +42,7 @@ export function applyPriceAdjustment(price: number): number {
 
 /**
  * Gets the final price after currency conversion and location adjustment
- * @param basePrice - Base price in USD
+ * @param basePrice - Base price in GBP
  * @returns Final price in current currency with adjustments
  */
 export function getFinalPrice(basePrice: number): number {
@@ -86,7 +86,7 @@ export function formatPrice(price: number, currency?: CurrencyCode): string {
 
 /**
  * Formats a price with currency symbol and applies all conversions/adjustments
- * @param basePrice - Base price in USD
+ * @param basePrice - Base price in GBP
  * @param currency - Currency code (optional)
  * @returns Formatted price string
  */

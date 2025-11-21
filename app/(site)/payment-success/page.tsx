@@ -85,7 +85,7 @@ function PaymentSuccessContent() {
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.6, delay: 0.4 }}
-                        className="bg-luxury-white p-8"
+                        className="bg-white p-8"
                     >
                         <h2 className="text-2xl font-extralight text-luxury-black mb-6 uppercase">
                             What&apos;s Next?

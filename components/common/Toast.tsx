@@ -9,51 +9,25 @@ const ToastComponent: React.FC = () => {
     const getToastIcon = (type: Toast["type"]) => {
         switch (type) {
             case "success":
-                return <LuCheck className="text-brand-purple-light" size={20} />;
+                return <LuCheck className="text-white" size={20} />;
             case "error":
-                return <LuCircle className="text-red-500" size={20} />;
+                return <LuCircle className="text-white" size={20} />;
             case "warning":
-                return <LuTriangle className="text-yellow-500" size={20} />;
+                return <LuTriangle className="text-white" size={20} />;
             case "info":
-                return <LuInfo className="text-brand-purple-light" size={20} />;
+                return <LuInfo className="text-white" size={20} />;
             default:
-                return <LuInfo className="text-luxury-white" size={20} />;
+                return <LuInfo className="text-white" size={20} />;
         }
     };
 
     const getToastStyles = (type: Toast["type"]) => {
-        switch (type) {
-            case "success":
-                return {
-                    bg: "bg-brand-purple/50",
-                    border: "border-brand-purple/15",
-                    text: "text-luxury-white",
-                };
-            case "error":
-                return {
-                    bg: "bg-red-500/50",
-                    border: "border-red-500/15",
-                    text: "text-luxury-white",
-                };
-            case "warning":
-                return {
-                    bg: "bg-yellow-500/50",
-                    border: "border-yellow-500/15",
-                    text: "text-luxury-white",
-                };
-            case "info":
-                return {
-                    bg: "bg-brand-purple/50",
-                    border: "border-brand-purple/15",
-                    text: "text-luxury-white",
-                };
-            default:
-                return {
-                    bg: "bg-brand-purple/50",
-                    border: "border-brand-purple/15",
-                    text: "text-luxury-white",
-                };
-        }
+        // All toast states use the same transparent black with frosted blur styling
+        return {
+            bg: "bg-black/60",
+            border: "border-white/20",
+            text: "text-white",
+        };
     };
 
     return (
@@ -74,7 +48,7 @@ const ToastComponent: React.FC = () => {
                             }}
                             className={`
                 ${styles.bg} ${styles.border} ${styles.text}
-                border rounded-lg shadow-lg backdrop-blur-sm
+                border rounded-lg shadow-lg backdrop-blur-md
                 min-w-[320px] max-w-[400px] p-4
                 flex items-start gap-3
               `}
@@ -99,9 +73,9 @@ const ToastComponent: React.FC = () => {
                             {/* Close Button */}
                             <button
                                 onClick={() => removeToast(toast.id)}
-                                className="shrink-0 p-1 hover:bg-black/5 rounded transition-colors duration-200"
+                                className="shrink-0 p-1 hover:bg-white/10 rounded transition-colors duration-200"
                             >
-                                <LuX size={16} className="opacity-60 hover:opacity-100" />
+                                <LuX size={16} className="text-white opacity-60 hover:opacity-100" />
                             </button>
                         </motion.div>
                     );

@@ -21,7 +21,7 @@ export default function ToteBagDetail() {
     const product = {
         id: '4',
         name: 'Branded Tote Bag',
-        price: 120,
+        price: 63,
         image: 'https://res.cloudinary.com/dygrsvya5/image/upload/q_auto:low/v1761525451/BRANDED_TOTE_BAG_jno028.jpg',
         category: 'Accessories',
         description: 'Made from recycled cotton and polyester, this unisex, lightweight and durable bag is built for everyday use. Its simple, timeless design makes it a practical and sustainable choice.',
@@ -33,7 +33,8 @@ export default function ToteBagDetail() {
         }
     };
 
-    const { formattedPrice } = usePrice(product.price);
+    // Format price with currency conversion
+    const { formattedPrice, finalPrice } = usePrice(product.price);
 
     useEffect(() => {
         window.scrollTo(0, 0);
@@ -43,7 +44,7 @@ export default function ToteBagDetail() {
         addItem({
             id: product.id,
             name: product.name,
-            price: product.price,
+            price: finalPrice, // Use converted price
             image: product.image,
             category: product.category,
             description: product.description
@@ -66,7 +67,7 @@ export default function ToteBagDetail() {
             {/* Main Product Section */}
             <div className="grid grid-cols-1 lg:grid-cols-2 min-h-screen">
                 {/* Left: Image */}
-                <div className="bg-luxury-white relative flex items-center justify-center p-6 sm:p-10 lg:p-12">
+                <div className="bg-white relative flex items-center justify-center p-6 sm:p-10 lg:p-12">
                     <div className="relative w-full max-w-full  h-[400px] sm:h-[600px] rounded-lg overflow-hidden">
                         <Image
                             src={product.image}

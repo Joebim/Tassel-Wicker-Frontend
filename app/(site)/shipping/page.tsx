@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
+import Image from 'next/image';
 import { LuChevronDown } from 'react-icons/lu';
 import { motion } from 'framer-motion';
 import ScrollTextAnimation from '@/components/common/ScrollTextAnimation';
@@ -51,51 +52,56 @@ export default function Shipping() {
             {/* Hero */}
             <section className="relative h-screen w-full overflow-hidden">
                 <div className="absolute inset-0 z-0">
-                    <img
+                    <Image
                         src="https://res.cloudinary.com/dygrsvya5/image/upload/q_auto:low/v1761542808/IMAGE_ONE_iwncig.jpg"
                         alt="Shipping information"
-                        className="w-full h-full object-cover"
+                        fill
+                        className="object-cover"
+                        priority
+                        sizes="100vw"
                     />
                     <div className="absolute inset-0 bg-black opacity-40" />
                 </div>
-                <div className="relative z-10 h-full w-full p-6 sm:p-10 lg:p-12 flex flex-col lg:flex-row lg:items-end lg:justify-between gap-10">
-                    <div className="flex flex-col text-white max-w-3xl text-center lg:text-left">
-                        <ScrollTextAnimation
-                            className="text-[36px] sm:text-[130px] lg:text-[170px] font-extralight tracking-wide uppercase leading-none"
-                            delay={0.2}
-                            duration={1.2}
-                        >
-                            SHIPPING
-                        </ScrollTextAnimation>
-                        <ScrollTextAnimation
-                            className="text-[36px] sm:text-[130px] lg:text-[170px] font-extralight tracking-wide uppercase leading-none"
-                            delay={0.4}
-                            duration={1.2}
-                        >
-                            INFORMATION
-                        </ScrollTextAnimation>
-                    </div>
-                    <div className="relative flex justify-center lg:justify-end">
-                        <button
-                            type="button"
-                            onClick={() => {
-                                if (typeof window !== 'undefined') {
-                                    document.getElementById('shipping-content')?.scrollIntoView({ behavior: 'smooth' });
-                                }
-                            }}
-                            className="relative"
-                            aria-label="Learn More"
-                        >
-                            <CircularText
-                                text="LEARN MORE • LEARN MORE • LEARN MORE • "
-                                spinDuration={15}
-                                onHover="speedUp"
-                                className="w-[100px] h-[100px] text-[11px] leading-0.5 sm:w-[120px] sm:h-[120px] sm:text-[12px]"
-                            />
-                            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-                                <LuChevronDown size={24} className="cursor-pointer text-white animate-bounce" aria-hidden="true" />
-                            </div>
-                        </button>
+                <div className="relative z-10 h-full w-full p-6 sm:p-10 lg:p-12 flex flex-row items-end sm:items-start justify-end lg:flex-row lg:items-end lg:justify-between gap-10">
+                    <div className="w-full flex flex-row items-end justify-between self-end">
+                        <div className="flex flex-col text-white max-w-3xl text-center lg:text-left">
+                            <ScrollTextAnimation
+                                className="text-[39px] sm:text-5xl lg:text-[110px] font-extralight tracking-wide uppercase leading-none"
+                                delay={0.2}
+                                duration={1.2}
+                            >
+                                SHIPPING
+                            </ScrollTextAnimation>
+                            <ScrollTextAnimation
+                                className="text-[39px] sm:text-5xl lg:text-[110px] font-extralight tracking-wide uppercase leading-none"
+                                delay={0.2}
+                                duration={1.2}
+                            >
+                                INFORMATION
+                            </ScrollTextAnimation>
+                        </div>
+                        <div className="relative flex justify-center lg:justify-end">
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    if (typeof window !== 'undefined') {
+                                        document.getElementById('shipping-content')?.scrollIntoView({ behavior: 'smooth' });
+                                    }
+                                }}
+                                className="relative"
+                                aria-label="Learn More"
+                            >
+                                <CircularText
+                                    text="LEARN MORE • LEARN MORE • LEARN MORE • "
+                                    spinDuration={15}
+                                    onHover="speedUp"
+                                    className="w-[70px] h-[70px] text-[11px] leading-0.5 sm:w-[120px] sm:h-[120px] sm:text-[12px]"
+                                />
+                                <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+                                    <LuChevronDown size={24} className="cursor-pointer text-white animate-bounce" aria-hidden="true" />
+                                </div>
+                            </button>
+                        </div>
                     </div>
                 </div>
             </section>

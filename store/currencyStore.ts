@@ -132,17 +132,18 @@ const DEFAULT_LOCATION_ADJUSTMENTS: Record<string, LocationPriceAdjustment> = {
   CY: { country: "Cyprus", countryCode: "CY", currency: "EUR", adjustment: 2 },
 };
 
-// Fallback exchange rates (base: USD = 1.0)
+// Fallback exchange rates (base: GBP = 1.0)
 // Used when API is unavailable or during initial load
+// Rates represent how much of each currency equals 1 GBP
 const FALLBACK_EXCHANGE_RATES: Record<CurrencyCode, number> = {
-  USD: 1.0,
-  GBP: 0.79,
-  EUR: 0.92,
-  CAD: 1.36,
-  AUD: 1.52,
-  JPY: 149.5,
-  NGN: 1500.0,
-  ZAR: 18.75,
+  GBP: 1.0,
+  EUR: 1.17, // £1 = €1.17
+  USD: 1.27, // Approximately £1 = $1.27
+  CAD: 1.73, // Approximately
+  AUD: 1.93, // Approximately
+  JPY: 190.2, // Approximately
+  NGN: 1908.0, // Approximately
+  ZAR: 23.84, // Approximately
 };
 
 interface CurrencyStore {
@@ -163,7 +164,7 @@ interface CurrencyStore {
 export const useCurrencyStore = create<CurrencyStore>()(
   persist(
     (set, get) => ({
-      currency: "USD",
+      currency: "GBP",
       location: null,
       isLocationDetected: false,
       exchangeRates: {},
@@ -202,7 +203,7 @@ export const useCurrencyStore = create<CurrencyStore>()(
         try {
           // Call server-side API route to fetch exchange rates
           // This keeps the API key secure on the server
-          const response = await fetch("/api/currency/rates?base=USD");
+          const response = await fetch("/api/currency/rates?base=GBP");
 
           if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
@@ -239,23 +240,23 @@ export const useCurrencyStore = create<CurrencyStore>()(
               // Fetch exchange rates for detected currency
               get().fetchExchangeRates();
             } else {
-              // Default to USD if country not found
+              // Default to GBP if country not found
               get().setLocation({
                 country: data.country_name || "Unknown",
                 countryCode: countryCode,
-                currency: "USD",
+                currency: "GBP",
                 adjustment: 0,
               });
               get().fetchExchangeRates();
             }
           }
         } catch (error) {
-          console.warn("Failed to detect location, defaulting to USD:", error);
-          // Default to USD on error
+          console.warn("Failed to detect location, defaulting to GBP:", error);
+          // Default to GBP on error
           get().setLocation({
-            country: "United States",
-            countryCode: "US",
-            currency: "USD",
+            country: "United Kingdom",
+            countryCode: "GB",
+            currency: "GBP",
             adjustment: 0,
           });
           get().fetchExchangeRates();
@@ -272,11 +273,11 @@ export const useCurrencyStore = create<CurrencyStore>()(
         const exchangeRates = get().exchangeRates;
 
         // Use real-time rates if available
-        // API returns rates relative to USD (base currency)
+        // API returns rates relative to GBP (base currency)
         if (exchangeRates && Object.keys(exchangeRates).length > 0) {
-          // Rates are in format: { USD: 1, EUR: 0.92, GBP: 0.79, ... }
-          // So EUR rate of 0.92 means 1 USD = 0.92 EUR
-          // For conversion: price in USD * rate = price in target currency
+          // Rates are in format: { GBP: 1, EUR: 1.17, USD: 1.27, ... }
+          // So EUR rate of 1.17 means 1 GBP = 1.17 EUR
+          // For conversion: price in GBP * rate = price in target currency
           return (
             exchangeRates[currency] || FALLBACK_EXCHANGE_RATES[currency] || 1.0
           );

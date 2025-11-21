@@ -68,7 +68,7 @@ const BasketItem: React.FC<{
             }}
         >
             {/* Item Image */}
-            <div className="bg-luxury-white relative flex items-center justify-center p-6 sm:p-12">
+            <div className="relative flex items-center justify-center p-6 sm:p-12">
                 <div className="relative w-full h-[450px] sm:h-[700px]">
                     <Image
                         src={item.image}
@@ -77,10 +77,6 @@ const BasketItem: React.FC<{
                         className="w-full h-full object-cover object-center"
                     />
 
-                    {/* Vertical Text - Left */}
-                    <div className="absolute -left-8 top-1/2 transform -translate-y-1/2 -rotate-90 text-luxury-charcoal text-sm font-extralight tracking-wider uppercase">
-                        Item {index + 1}
-                    </div>
                 </div>
             </div>
 
@@ -437,7 +433,7 @@ export default function ProductDetail() {
             {/* Main Product Section */}
             <div className="grid grid-cols-1 lg:grid-cols-2 min-h-screen gap-y-12 lg:gap-y-0">
                 {/* Left Panel - Product Image with Carousel */}
-                <div className="bg-luxury-cream-light relative flex items-center justify-center p-6 sm:p-10 lg:p-12">
+                <div className="bg-white relative flex items-center justify-center p-6 sm:p-10 lg:p-12">
                     <div className="relative w-full max-w-[600px]">
                         {/* Carousel Container */}
                         <div className="relative overflow-hidden rounded-lg">
@@ -639,7 +635,7 @@ export default function ProductDetail() {
                         </div>
 
 
-                        <div className="space-y-24">
+                        <div className="space-y-12 sm:space-y-24">
                             {(product.items as Array<ShopProductItem>).map((item, index: number) => {
                                 const currentVariant = getDefaultVariant(product);
                                 return (

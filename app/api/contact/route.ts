@@ -25,11 +25,11 @@ function createEmailTemplate(formData: {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>New Contact Form Submission</title>
 </head>
-<body style="margin: 0; padding: 0; font-family: 'Balgin', 'Mathilda', system-ui, sans-serif; background-color: #fffdf6; color: #1a1a1a;">
-    <table role="presentation" style="width: 100%; border-collapse: collapse; background-color: #fffdf6;">
+<body style="margin: 0; padding: 0; font-family: 'Balgin', 'Mathilda', system-ui, sans-serif; background-color: #ffffff; color: #1a1a1a;">
+    <table role="presentation" style="width: 100%; border-collapse: collapse; background-color: #ffffff;">
         <tr>
             <td align="center" style="padding: 40px 20px;">
-                <table role="presentation" style="max-width: 600px; width: 100%; border-collapse: collapse; background-color: #fffdf6; border: 1px solid #e6e6e6;">
+                <table role="presentation" style="max-width: 600px; width: 100%; border-collapse: collapse; background-color: #ffffff; border: 1px solid #e6e6e6;">
                     <!-- Header -->
                     <tr>
                         <td style="padding: 40px 40px 30px; text-align: center; background-color: #000000;">
