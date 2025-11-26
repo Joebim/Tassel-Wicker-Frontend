@@ -101,14 +101,16 @@ export default function About() {
   return (
     <div className="bg-white">
       {/* HERO */}
-      <div className="relative h-screen w-full overflow-hidden">
+      <div className="relative h-screen w-full overflow-hidden bg-black">
         <div className="absolute inset-0 z-0">
           <Image
-            src="https://res.cloudinary.com/dygrsvya5/image/upload/q_auto:low/v1761542804/IMAGE_NINE_cdzxti.jpg"
+            src="https://res.cloudinary.com/dygrsvya5/image/upload/q_auto:good,f_auto/v1761542804/IMAGE_NINE_cdzxti.jpg"
             alt="About Header"
             fill
             className="object-cover"
             priority
+            sizes="100vw"
+            fetchPriority="high"
           />
           <div className="absolute inset-0 bg-black opacity-40" />
         </div>

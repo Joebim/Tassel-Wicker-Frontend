@@ -64,15 +64,17 @@ export default function Contact() {
     };
 
     return (
-        <div className="relative w-full overflow-hidden pb-20">
+        <div className="relative w-full overflow-hidden pb-20 bg-black">
             {/* Background Image */}
             <div className="absolute inset-0 z-0">
                 <Image
-                    src="https://res.cloudinary.com/dygrsvya5/image/upload/q_auto:low/v1761149638/_2MK9323_vyzwqm.jpg"
+                    src="https://res.cloudinary.com/dygrsvya5/image/upload/q_auto:good,f_auto/v1761149638/_2MK9323_vyzwqm.jpg"
                     alt="Contact Background"
                     fill
                     className="object-cover"
                     priority
+                    sizes="100vw"
+                    fetchPriority="high"
                 />
                 {/* Overlay */}
                 <div className="absolute inset-0 bg-black/50"></div>

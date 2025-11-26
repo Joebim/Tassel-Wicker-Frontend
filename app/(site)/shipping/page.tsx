@@ -50,15 +50,16 @@ export default function Shipping() {
     return (
         <div className="min-h-screen bg-white text-luxury-black">
             {/* Hero */}
-            <section className="relative h-screen w-full overflow-hidden">
+            <section className="relative h-screen w-full overflow-hidden bg-black">
                 <div className="absolute inset-0 z-0">
                     <Image
-                        src="https://res.cloudinary.com/dygrsvya5/image/upload/q_auto:low/v1763659377/SHIPPING_INFORMATION_ipsodq.jpg"
+                        src="https://res.cloudinary.com/dygrsvya5/image/upload/q_auto:good,f_auto/v1763659377/SHIPPING_INFORMATION_ipsodq.jpg"
                         alt="Shipping information"
                         fill
                         className="object-cover"
                         priority
                         sizes="100vw"
+                        fetchPriority="high"
                     />
                     <div className="absolute inset-0 bg-black opacity-40" />
                 </div>

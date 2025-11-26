@@ -102,15 +102,16 @@ export default function PrivacyPolicy() {
     return (
         <div className="min-h-screen bg-white text-luxury-black">
             {/* Hero */}
-            <section className="relative h-screen w-full overflow-hidden">
+            <section className="relative h-screen w-full overflow-hidden bg-black">
                 <div className="absolute inset-0 z-0">
                     <Image
-                        src="https://res.cloudinary.com/dygrsvya5/image/upload/q_auto:low/v1763661131/PRIVACY_POLICY_ntaqhz.jpg"
+                        src="https://res.cloudinary.com/dygrsvya5/image/upload/q_auto:good,f_auto/v1763661131/PRIVACY_POLICY_ntaqhz.jpg"
                         alt="Privacy Policy"
                         fill
                         className="object-cover"
                         priority
                         sizes="100vw"
+                        fetchPriority="high"
                     />
                     <div className="absolute inset-0 bg-black opacity-40" />
                 </div>
@@ -167,9 +168,9 @@ export default function PrivacyPolicy() {
                         </p>
                         <p className="text-base text-luxury-black font-extralight mb-8">
                             Learn more about how we care for your information{' '}
-                            <a 
-                                href="/document-viewer/privacy-policy" 
-                                target="_blank" 
+                            <a
+                                href="/document-viewer/privacy-policy"
+                                target="_blank"
                                 rel="noopener noreferrer"
                                 className="underline hover:text-brand-purple transition-colors"
                             >
@@ -181,10 +182,10 @@ export default function PrivacyPolicy() {
                         {sections.map((section) => (
                             <div key={section.title} className="mb-8">
                                 <h2 className="text-xl font-extralight uppercase text-luxury-black mb-4 mt-8">
-                                {section.title}
-                            </h2>
+                                    {section.title}
+                                </h2>
                                 <div className="text-base text-luxury-black font-extralight leading-relaxed whitespace-pre-line mb-6">
-                                {renderTextWithEmailLinks(section.content)}
+                                    {renderTextWithEmailLinks(section.content)}
                                 </div>
                                 {section.hasTable && section.tableData && (
                                     <div className="mt-6 mb-8 overflow-x-auto">
@@ -227,7 +228,7 @@ export default function PrivacyPolicy() {
                                                             </>
                                                         )}
                                                     </tr>
-                    ))}
+                                                ))}
                                             </tbody>
                                         </table>
                                     </div>

@@ -80,15 +80,16 @@ export default function TermsOfService() {
     return (
         <div className="min-h-screen bg-white text-luxury-black">
             {/* Hero */}
-            <section className="relative h-screen w-full overflow-hidden">
+            <section className="relative h-screen w-full overflow-hidden bg-black">
                 <div className="absolute inset-0 z-0">
                     <Image
-                        src="https://res.cloudinary.com/dygrsvya5/image/upload/q_auto:low/v1764174598/TERMS_OF_SERVICE_1_lbuift.jpg"
+                        src="https://res.cloudinary.com/dygrsvya5/image/upload/q_auto:good,f_auto/v1764174598/TERMS_OF_SERVICE_1_lbuift.jpg"
                         alt="Terms of Service"
                         fill
                         className="object-cover"
                         priority
                         sizes="100vw"
+                        fetchPriority="high"
                     />
                     <div className="absolute inset-0 bg-black opacity-40" />
                 </div>
