@@ -4,7 +4,7 @@ import { stripe } from "@/lib/stripe";
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { amount, currency = "gbp", items, metadata } = body;
+    const { amount, currency = "gbp", items, metadata, shippingCost = 0, shippingAddress } = body;
 
     // Validate required fields
     if (!amount || amount <= 0) {
@@ -21,7 +21,8 @@ export async function POST(request: NextRequest) {
     // Amount is already converted to the user's currency (from currencyStore)
     // No conversion needed - use the amount and currency as-is
     const targetCurrency = currency.toLowerCase();
-    const finalAmount = amount;
+    // Include shipping cost in the total amount
+    const finalAmount = amount + (shippingCost || 0);
 
     // Convert amount to smallest currency unit (cents for most currencies)
     // For JPY, it's already in the smallest unit
@@ -43,7 +44,13 @@ export async function POST(request: NextRequest) {
         ...metadata,
         items: JSON.stringify(items || []),
         originalAmount: amount.toString(),
+        shippingCost: (shippingCost || 0).toString(),
         currency: targetCurrency,
+        ...(shippingAddress && {
+          shippingCountry: shippingAddress.country,
+          shippingCity: shippingAddress.city,
+          shippingPostalCode: shippingAddress.postalCode,
+        }),
       },
     });
 

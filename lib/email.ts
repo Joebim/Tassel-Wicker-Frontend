@@ -16,8 +16,6 @@ function createTransporter() {
   const smtpPort = parseInt(process.env.SMTP_PORT || "587", 10);
   const smtpUser = process.env.SMTP_USER;
   const smtpPassword = process.env.SMTP_PASSWORD;
-  const smtpFrom =
-    process.env.SMTP_FROM || smtpUser || "info@tasselandwicker.com";
 
   if (!smtpUser || !smtpPassword) {
     console.warn(

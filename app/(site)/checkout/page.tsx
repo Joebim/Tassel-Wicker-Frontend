@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { loadStripe } from '@stripe/stripe-js';
@@ -13,6 +13,8 @@ import { useToastStore } from '@/store/toastStore';
 import { usePrice } from '@/hooks/usePrice';
 import { useCurrencyStore } from '@/store/currencyStore';
 import useCountries, { type Country } from '@/hooks/useCountries';
+import { getShippingRates, getShippingRateById, type ShippingRate } from '@/utils/shippingRates';
+import { convertPrice } from '@/utils/priceUtils';
 
 // Initialize Stripe
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || '');
@@ -49,13 +51,14 @@ const PaymentForm: React.FC<{
     onSuccess: () => void;
     onError: (error: string) => void;
     totalPrice: number;
+    shippingCost: number;
     clientSecret: string;
-}> = ({ formData, countries, onSuccess, onError, totalPrice, clientSecret }) => {
+}> = ({ formData, countries, onSuccess, onError, totalPrice, shippingCost, clientSecret }) => {
     const stripe = useStripe();
     const elements = useElements();
     const [isProcessing, setIsProcessing] = useState(false);
     const [error, setError] = useState<string>('');
-    const { formattedPrice } = usePrice(totalPrice);
+    const { formattedPrice } = usePrice(totalPrice + shippingCost);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -99,6 +102,15 @@ const PaymentForm: React.FC<{
                                 postal_code: formData.postalCode,
                                 country: getCountryIso2(countries, formData.country),
                             },
+                        },
+                    },
+                    shipping: {
+                        name: `${formData.firstName} ${formData.lastName}`,
+                        address: {
+                            line1: formData.address,
+                            city: formData.city,
+                            postal_code: formData.postalCode,
+                            country: getCountryIso2(countries, formData.country),
                         },
                     },
                 },
@@ -246,6 +258,10 @@ export default function Checkout() {
         country: getDefaultCountryName()
     });
 
+    // Shipping state
+    const [selectedShippingRate, setSelectedShippingRate] = useState<string | null>(null);
+    const [availableShippingRates, setAvailableShippingRates] = useState<ShippingRate[]>([]);
+
     // Set default country when countries are loaded or location changes
     useEffect(() => {
         if (countries.length > 0) {
@@ -296,6 +312,21 @@ export default function Checkout() {
         }
     }, [countries, location]);
 
+    // Update shipping rates when country changes
+    useEffect(() => {
+        if (formData.country && countries.length > 0) {
+            const country = getCountryByName(countries, formData.country);
+            if (country?.iso2) {
+                const rates = getShippingRates(country.iso2);
+                setAvailableShippingRates(rates);
+                // Auto-select first shipping rate if none selected
+                if (!selectedShippingRate && rates.length > 0) {
+                    setSelectedShippingRate(rates[0].id);
+                }
+            }
+        }
+    }, [formData.country, countries, selectedShippingRate]);
+
     // Scroll to top when component mounts
     useEffect(() => {
         if (typeof window !== 'undefined') {
@@ -318,7 +349,26 @@ export default function Checkout() {
         }
     }, [hasHydrated, user, router]);
 
-    // Create payment intent when component mounts or when cart/price changes
+    // Calculate shipping cost
+    const shippingCost = useMemo(() => {
+        if (!selectedShippingRate || !formData.country || countries.length === 0) {
+            return 0;
+        }
+        const country = getCountryByName(countries, formData.country);
+        if (!country?.iso2) return 0;
+
+        const rate = getShippingRateById(selectedShippingRate, country.iso2);
+        if (!rate) return 0;
+
+        // Convert shipping cost from GBP to user's currency
+        return convertPrice(rate.price, currency as 'GBP' | 'USD' | 'EUR' | 'CAD' | 'AUD' | 'JPY' | 'NGN' | 'ZAR');
+    }, [selectedShippingRate, formData.country, countries, currency]);
+
+    // Calculate shipping and total prices for display
+    const { formattedPrice: shippingFormattedPrice } = usePrice(shippingCost);
+    const { formattedPrice: totalFormattedPrice } = usePrice(convertedTotalPrice + shippingCost);
+
+    // Create payment intent when component mounts or when cart/price/shipping changes
     // Note: Customer info (formData.email, formData.firstName, formData.lastName) is intentionally
     // not in dependencies to avoid recreating payment intent on every form field change.
     // Customer info is also captured in the confirmPayment call and will be available in webhook.
@@ -326,6 +376,7 @@ export default function Checkout() {
         if (items.length > 0 && convertedTotalPrice > 0) {
             const createPaymentIntent = async () => {
                 try {
+                    const country = getCountryByName(countries, formData.country);
                     const response = await fetch('/api/create-payment-intent', {
                         method: 'POST',
                         headers: {
@@ -334,6 +385,12 @@ export default function Checkout() {
                         body: JSON.stringify({
                             amount: convertedTotalPrice, // Use converted price, not base price
                             currency: currency.toLowerCase(),
+                            shippingCost: shippingCost,
+                            shippingAddress: country ? {
+                                country: country.iso2,
+                                city: formData.city,
+                                postalCode: formData.postalCode,
+                            } : undefined,
                             items: items.map(item => ({
                                 id: item.id,
                                 name: item.name,
@@ -347,6 +404,7 @@ export default function Checkout() {
                                 customerName: formData.firstName && formData.lastName
                                     ? `${formData.firstName} ${formData.lastName}`
                                     : '',
+                                shippingMethod: selectedShippingRate || '',
                             },
                         }),
                     });
@@ -374,7 +432,7 @@ export default function Checkout() {
             createPaymentIntent();
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [items, convertedTotalPrice, currency, user]);
+    }, [items, convertedTotalPrice, currency, user, shippingCost, selectedShippingRate, formData.country, formData.city, formData.postalCode, countries]);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         setFormData({
@@ -566,6 +624,54 @@ export default function Checkout() {
                                 </div>
                             </div>
 
+                            {/* Shipping Options */}
+                            {availableShippingRates.length > 0 && (
+                                <div>
+                                    <h2 className="text-2xl font-extralight text-luxury-black mb-6 uppercase flex items-center gap-3">
+                                        <LuMapPin size={20} />
+                                        Shipping Method
+                                    </h2>
+                                    <div className="space-y-3">
+                                        {availableShippingRates.map((rate) => {
+                                            const ratePrice = convertPrice(rate.price, currency as 'GBP' | 'USD' | 'EUR' | 'CAD' | 'AUD' | 'JPY' | 'NGN' | 'ZAR');
+                                            const ShippingRatePriceDisplay: React.FC = () => {
+                                                const { formattedPrice } = usePrice(ratePrice);
+                                                return <p className="font-extralight text-luxury-black">{formattedPrice}</p>;
+                                            };
+                                            return (
+                                                <label
+                                                    key={rate.id}
+                                                    className={`flex items-center justify-between p-4 border-2 rounded-lg cursor-pointer transition-colors ${selectedShippingRate === rate.id
+                                                        ? 'border-brand-purple bg-purple-50'
+                                                        : 'border-luxury-cool-grey hover:border-brand-purple/50'
+                                                        }`}
+                                                >
+                                                    <div className="flex items-center gap-3">
+                                                        <input
+                                                            type="radio"
+                                                            name="shipping"
+                                                            value={rate.id}
+                                                            checked={selectedShippingRate === rate.id}
+                                                            onChange={(e) => setSelectedShippingRate(e.target.value)}
+                                                            className="w-4 h-4 text-brand-purple focus:ring-brand-purple"
+                                                        />
+                                                        <div>
+                                                            <p className="font-extralight text-luxury-black">{rate.name}</p>
+                                                            <p className="text-sm text-luxury-cool-grey font-extralight">
+                                                                {rate.description}
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                    <div className="text-right">
+                                                        <ShippingRatePriceDisplay />
+                                                    </div>
+                                                </label>
+                                            );
+                                        })}
+                                    </div>
+                                </div>
+                            )}
+
                             {/* Payment Information - Stripe Elements */}
                             <div>
                                 <h2 className="text-2xl font-extralight text-luxury-black mb-6 uppercase">
@@ -597,6 +703,7 @@ export default function Checkout() {
                                             onSuccess={handlePaymentSuccess}
                                             onError={handlePaymentError}
                                             totalPrice={baseTotalPrice}
+                                            shippingCost={shippingCost}
                                             clientSecret={clientSecret}
                                         />
                                     </Elements>
@@ -655,12 +762,14 @@ export default function Checkout() {
                                 </div>
                                 <div className="flex justify-between">
                                     <span className="text-luxury-cool-grey font-extralight">Shipping</span>
-                                    <span className="font-extralight">Free</span>
+                                    <span className="font-extralight">
+                                        {shippingCost > 0 ? shippingFormattedPrice : 'Free'}
+                                    </span>
                                 </div>
                                 <div className="flex justify-between text-lg">
                                     <span className="text-luxury-black font-extralight">Total</span>
                                     <span className="text-luxury-black font-extralight">
-                                        {formattedTotal}
+                                        {totalFormattedPrice}
                                     </span>
                                 </div>
                             </div>

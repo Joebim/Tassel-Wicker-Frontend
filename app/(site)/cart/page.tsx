@@ -3,6 +3,7 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { LuArrowLeft, LuPlus, LuMinus, LuTrash2, LuShoppingBag } from 'react-icons/lu';
 import { useCartStore, type CartItem } from '@/store/cartStore';
@@ -118,11 +119,13 @@ export default function Cart() {
                                 className="grid grid-cols-1 md:grid-cols-4 gap-6 p-6 border border-luxury-white/20"
                             >
                                 {/* Product Image */}
-                                <div className="md:col-span-1">
-                                    <img
+                                <div className="md:col-span-1 relative w-full h-full">
+                                    <Image
                                         src={item.image}
                                         alt={item.name}
-                                        className="w-full h-full object-cover"
+                                        fill
+                                        className="object-cover"
+                                        sizes="(max-width: 768px) 100vw, 25vw"
                                     />
                                 </div>
 
@@ -153,12 +156,14 @@ export default function Cart() {
                                                                     {itemsToShow.map((basketItem: { name: string; image: string }, idx: number) => (
                                                                         <div
                                                                             key={idx}
-                                                                            className="w-12 h-12 rounded-sm overflow-hidden border border-luxury-warm-grey/20 shrink-0"
+                                                                            className="w-12 h-12 rounded-sm overflow-hidden border border-luxury-warm-grey/20 shrink-0 relative"
                                                                         >
-                                                                            <img
+                                                                            <Image
                                                                                 src={basketItem.image}
                                                                                 alt={basketItem.name}
-                                                                                className="w-full h-full object-cover"
+                                                                                fill
+                                                                                className="object-cover"
+                                                                                sizes="48px"
                                                                             />
                                                                         </div>
                                                                     ))}
