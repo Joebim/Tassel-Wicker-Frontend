@@ -20,6 +20,11 @@ export const CURRENCY_INFO: Record<CurrencyCode, { symbol: string; name: string;
  * @returns Converted price
  */
 export function convertPrice(basePrice: number, currency: CurrencyCode = 'GBP'): number {
+  // Skip conversion if currency is GBP (default/base currency)
+  if (currency === 'GBP') {
+    return basePrice;
+  }
+  
   const store = useCurrencyStore.getState();
   const exchangeRate = store.getExchangeRate();
   return basePrice * exchangeRate;
@@ -47,6 +52,12 @@ export function applyPriceAdjustment(price: number): number {
  */
 export function getFinalPrice(basePrice: number): number {
   const store = useCurrencyStore.getState();
+  
+  // Skip conversion if currency is GBP (default/base currency)
+  if (store.currency === 'GBP') {
+    // Only apply location-based adjustment for GBP
+    return applyPriceAdjustment(basePrice);
+  }
   
   // First convert to target currency
   const convertedPrice = convertPrice(basePrice, store.currency);

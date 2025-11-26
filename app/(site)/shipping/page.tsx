@@ -3,9 +3,9 @@
 import { useEffect } from 'react';
 import Image from 'next/image';
 import { LuChevronDown } from 'react-icons/lu';
-import { motion } from 'framer-motion';
 import ScrollTextAnimation from '@/components/common/ScrollTextAnimation';
 import CircularText from '@/components/common/CircularText';
+import { renderTextWithEmailLinks } from '@/utils/textUtils';
 
 export default function Shipping() {
     useEffect(() => {
@@ -16,32 +16,32 @@ export default function Shipping() {
 
     const sections = [
         {
-            title: 'Processing Time',
+            title: 'PROCESSING TIME',
             content:
-                'Please allow 2–3 business days for processing before your parcel begins its journey. During busy seasons or for custom items, processing may take a little longer as we ensure everything is just right.',
+                'Please allow 3-5 business days for processing before your parcel begins its journey. During busy seasons or for custom items, processing may take a little longer as we ensure everything is just right.',
         },
         {
-            title: 'Shipping Options',
+            title: 'SHIPPING OPTIONS',
             content:
                 'We currently offer standard shipping across the United Kingdom. Shipping costs are calculated at checkout based on your location and order size.',
         },
         {
-            title: 'Delivery Timeline',
+            title: 'DELIVERY TIMELINE',
             content:
-                'Once dispatched, standard delivery typically arrives within 3–7 business days, depending on your location.',
+                'Once dispatched, standard delivery typically arrives within 2-3 business days, depending on your location.',
         },
         {
-            title: 'Order Tracking',
+            title: 'ORDER TRACKING',
             content:
                 'When your order is on its way, you will receive a confirmation email with tracking details so you can follow its journey home to you.',
         },
         {
-            title: 'International Shipping',
+            title: 'INTERNATIONAL SHIPPING',
             content:
-                'At this time, we do not offer international shipping, but we look forward to making our products available globally in the future.',
+                'We provide international shipping to most countries around the world. Please be aware that customs fees or import duties may apply based on your location. Shipping options and delivery estimates will be shown at checkout and full tracking will be provided once your order is dispatched.',
         },
         {
-            title: 'Questions or Special Requests',
+            title: 'QUESTIONS OR SPECIAL REQUEST',
             content:
                 'If you have a special request, a note to include, or any questions about your delivery, we\'d love to hear from you. You can reach out to us at info@tasselandwicker.com.',
         },
@@ -53,7 +53,7 @@ export default function Shipping() {
             <section className="relative h-screen w-full overflow-hidden">
                 <div className="absolute inset-0 z-0">
                     <Image
-                        src="https://res.cloudinary.com/dygrsvya5/image/upload/q_auto:low/v1761542808/IMAGE_ONE_iwncig.jpg"
+                        src="https://res.cloudinary.com/dygrsvya5/image/upload/q_auto:low/v1763659377/SHIPPING_INFORMATION_ipsodq.jpg"
                         alt="Shipping information"
                         fill
                         className="object-cover"
@@ -107,30 +107,25 @@ export default function Shipping() {
             </section>
 
             {/* Content */}
-            <section id="shipping-content" className="py-24">
-                <div className="max-w-5xl mx-auto px-4 sm:px-8 lg:px-12 space-y-16">
-                    <div className="text-center mb-16">
-                        <p className="text-lg text-luxury-cool-grey font-extralight leading-relaxed max-w-3xl mx-auto">
+            <section id="shipping-content" className="py-16">
+                <div className="max-w-4xl mx-auto px-6 sm:px-8 lg:px-12">
+                    <div className="mb-8">
+                        <p className="text-base text-luxury-black font-extralight mb-8">
                             At Tassel & Wicker, every order is prepared with care and attention. From the moment your baskets are wrapped to the moment they arrive at your home, we want the experience to feel considered.
                         </p>
                     </div>
-                    {sections.map((section, index) => (
-                        <motion.div
-                            key={section.title}
-                            initial={{ opacity: 0, y: 30 }}
-                            whileInView={{ opacity: 1, y: 0 }}
-                            viewport={{ once: true, amount: 0.3 }}
-                            transition={{ duration: 0.6, delay: index * 0.05 }}
-                            className="border border-luxury-warm-grey/20 rounded-3xl p-8 md:p-12 bg-white/60 backdrop-blur-sm"
-                        >
-                            <h2 className="text-2xl md:text-3xl font-extralight uppercase tracking-[0.25em] text-luxury-charcoal mb-4">
-                                {section.title}
-                            </h2>
-                            <p className="text-luxury-cool-grey font-extralight text-base md:text-lg leading-relaxed">
-                                {section.content}
-                            </p>
-                        </motion.div>
-                    ))}
+                    <div className="prose prose-lg max-w-none text-luxury-black leading-relaxed space-y-8">
+                        {sections.map((section) => (
+                            <div key={section.title} className="mb-8">
+                                <h2 className="text-xl font-extralight uppercase text-luxury-black mb-4 mt-8">
+                                    {section.title}
+                                </h2>
+                                <div className="text-base text-luxury-black font-extralight leading-relaxed whitespace-pre-line mb-6">
+                                    {renderTextWithEmailLinks(section.content)}
+                                </div>
+                            </div>
+                        ))}
+                    </div>
                 </div>
             </section>
         </div>

@@ -13,7 +13,7 @@ import { useToastStore } from '@/store/toastStore';
 
 function PaymentSuccessContent() {
     const searchParams = useSearchParams();
-    const { clearCart, items } = useCartStore();
+    const { clearCart } = useCartStore();
     const [hasClearedCart, setHasClearedCart] = useState(false);
     const [emailSent, setEmailSent] = useState(false);
 
@@ -39,17 +39,28 @@ function PaymentSuccessContent() {
 
     // Send order confirmation email
     const sendOrderEmail = useCallback(async () => {
-        if (!paymentIntent || emailSent) return;
+        if (!paymentIntent || emailSent) {
+            console.log('[CLIENT] Email send skipped:', { paymentIntent: !!paymentIntent, emailSent });
+            return;
+        }
 
         const customerEmail = getCustomerEmail();
         const customerName = getCustomerName();
 
+        console.log('[CLIENT] Attempting to send order email:', {
+            paymentIntent,
+            customerEmail: customerEmail ? `${customerEmail.substring(0, 3)}***` : 'missing',
+            customerName: customerName || 'missing',
+        });
+
         if (!customerEmail) {
-            console.warn('No customer email found, skipping email send');
+            console.warn('[CLIENT] No customer email found in localStorage, skipping email send');
+            console.warn('[CLIENT] localStorage keys:', Object.keys(localStorage));
             return;
         }
 
         try {
+            console.log('[CLIENT] Sending POST request to /api/send-order-email');
             const response = await fetch('/api/send-order-email', {
                 method: 'POST',
                 headers: {
@@ -62,15 +73,19 @@ function PaymentSuccessContent() {
                 }),
             });
 
+            console.log('[CLIENT] Response status:', response.status);
             const data = await response.json();
+            console.log('[CLIENT] Response data:', data);
+
             if (data.success) {
                 setEmailSent(true);
-                console.log('Order confirmation email sent successfully');
+                console.log('[CLIENT] Order confirmation email sent successfully');
             } else {
-                console.error('Failed to send order confirmation email:', data.error);
+                console.error('[CLIENT] Failed to send order confirmation email:', data.error);
             }
         } catch (error) {
-            console.error('Error sending order confirmation email:', error);
+            console.error('[CLIENT] Error sending order confirmation email:', error);
+            console.error('[CLIENT] Error details:', error instanceof Error ? error.stack : error);
         }
     }, [paymentIntent, emailSent]);
 
@@ -100,20 +115,33 @@ function PaymentSuccessContent() {
 
     // Send order confirmation email when payment intent is available
     useEffect(() => {
+        console.log('[CLIENT] Email effect triggered:', { paymentIntent, emailSent });
+
         if (paymentIntent && !emailSent) {
+            console.log('[CLIENT] Setting up email send timer (1 second delay)');
             // Delay slightly to ensure payment is fully processed
             const timer = setTimeout(async () => {
+                console.log('[CLIENT] Timer fired, calling sendOrderEmail');
                 await sendOrderEmail();
                 // Clean up localStorage after email is sent (or attempted)
                 if (typeof window !== 'undefined') {
                     setTimeout(() => {
+                        console.log('[CLIENT] Cleaning up localStorage');
                         localStorage.removeItem('checkout_customer_email');
                         localStorage.removeItem('checkout_first_name');
                         localStorage.removeItem('checkout_last_name');
                     }, 5000); // Keep for 5 seconds in case of retries
                 }
             }, 1000);
-            return () => clearTimeout(timer);
+            return () => {
+                console.log('[CLIENT] Cleaning up email timer');
+                clearTimeout(timer);
+            };
+        } else {
+            console.log('[CLIENT] Email effect conditions not met:', {
+                hasPaymentIntent: !!paymentIntent,
+                emailSent,
+            });
         }
     }, [paymentIntent, emailSent, sendOrderEmail]);
 

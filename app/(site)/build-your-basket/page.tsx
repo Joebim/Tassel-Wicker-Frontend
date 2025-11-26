@@ -55,18 +55,27 @@ export default function BuildYourBasket() {
 
     const allProducts = getAllProducts();
 
+    // Filter out black and natural wicker baskets from build your basket products
+    const availableProducts = useMemo(() => {
+        return allProducts.filter((product) => {
+            const productName = product.name.toLowerCase();
+            return !productName.includes('black wicker basket') &&
+                !productName.includes('natural wicker basket');
+        });
+    }, [allProducts]);
+
     // Get unique categories
-    const categories = ['All', ...Array.from(new Set(allProducts.map((p) => p.category)))];
+    const categories = ['All', ...Array.from(new Set(availableProducts.map((p) => p.category)))];
 
     // Filter products based on search and category
     const filteredProducts = useMemo(() => {
-        return allProducts.filter((product) => {
+        return availableProducts.filter((product) => {
             const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                 product.description.toLowerCase().includes(searchTerm.toLowerCase());
             const matchesCategory = selectedCategory === 'All' || product.category === selectedCategory;
             return matchesSearch && matchesCategory;
         });
-    }, [allProducts, searchTerm, selectedCategory]);
+    }, [availableProducts, searchTerm, selectedCategory]);
 
     const handleBasketTypeSelect = (type: 'natural' | 'black') => {
         setBasketType(type);
@@ -332,7 +341,7 @@ export default function BuildYourBasket() {
                     >
                         <div className="max-w-3xl text-center">
                             <h2 className="text-3xl md:text-4xl font-extralight uppercase tracking-[0.35em] text-luxury-charcoal mb-6">
-                                Create a celebration basket that&apos;s uniquely yours
+                                Create a celebration basket that is uniquely yours
                             </h2>
                             <p className="text-luxury-cool-grey font-extralight text-lg leading-relaxed mb-8">
                                 Choose from our range of handpicked products and build a personalised basket for any occasion.
@@ -380,7 +389,7 @@ export default function BuildYourBasket() {
                             Select Your Wicker Basket
                         </h2>
                         <p className="text-luxury-cool-grey font-extralight mb-6 max-w-2xl mx-auto">
-                            Begin by choosing the wicker basket that sets the tone for your gift. Each colour is handcrafted by skilled weavers and finished with our signature liner.
+                            Begin by choosing the wicker basket that sets the tone for your gift. Each basket is handcrafted by skilled weavers and finished with our signature liner.
                         </p>
                         <p className="text-xs uppercase tracking-[0.35em] text-brand-purple mb-10">
                             N:B Our wicker baskets are available exclusively as part of a personalised set and are not available for individual purchase.
@@ -565,9 +574,8 @@ export default function BuildYourBasket() {
                                                     <p
                                                         className="text-xs text-luxury-cool-grey font-extralight mb-2"
                                                         style={{ display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}
-                                                    >
-                                                        {product.description}
-                                                    </p>
+                                                        dangerouslySetInnerHTML={{ __html: product.description }}
+                                                    />
 
                                                     {/* Variant Selector */}
                                                     {hasVariants && (
@@ -827,9 +835,10 @@ export default function BuildYourBasket() {
 
                                             {/* Description */}
                                             <div>
-                                                <p className="text-black/70 leading-relaxed font-extralight text-[15px]">
-                                                    {selectedProduct.description}
-                                                </p>
+                                                <p
+                                                    className="text-black/70 leading-relaxed font-extralight text-[15px]"
+                                                    dangerouslySetInnerHTML={{ __html: selectedProduct.description }}
+                                                />
                                             </div>
 
                                             {/* Add to Basket Button */}

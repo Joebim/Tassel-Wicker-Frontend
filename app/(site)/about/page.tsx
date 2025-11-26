@@ -176,111 +176,115 @@ export default function About() {
           animate={(ourStoryInView || ourStoryVisible) ? 'visible' : 'hidden'}
           variants={containerVariants}
         >
-          <div className="max-w-7xl mx-auto px-8 sm:px-12 lg:px-16 space-y-8 sm:space-y-24">
-            {/* Row 1 */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 sm:gap-16 items-center">
-              <motion.div variants={itemVariants}>
-                <motion.div className="mb-8" variants={itemVariants}>
-                  <motion.div
-                    className="h-1 w-16 bg-brand-purple mb-6"
-                    initial={{ width: 0 }}
-                    animate={(ourStoryInView || ourStoryVisible) ? { width: 64 } : { width: 0 }}
-                    transition={{ duration: 0.6, delay: 0.2 }}
-                  />
-                  <motion.h2
-                    className="text-5xl font-extralight text-gray-900 leading-tight"
-                    variants={headingVariants}
-                  >
-                    <ScrollTextAnimation delay={0.3} duration={0.8}>
-                      MY WHY
-                    </ScrollTextAnimation>
-                  </motion.h2>
+          <div className="max-w-7xl mx-auto px-8 sm:px-12 lg:px-16">
+            {/* Mobile: Single flex container, Desktop: Two separate grid rows with spacing */}
+            <div className="flex flex-col lg:contents gap-8 sm:gap-16">
+              {/* Row 1 - Desktop Grid, Mobile: flex children */}
+              <div className="flex flex-col lg:grid lg:grid-cols-2 gap-8 sm:gap-16 lg:items-center lg:mb-24">
+                {/* Heading - Order 1 on mobile */}
+                <motion.div variants={itemVariants} className="order-1">
+                  <motion.div className="" variants={itemVariants}>
+                    <motion.div
+                      className="h-1 w-16 bg-brand-purple mb-6"
+                      initial={{ width: 0 }}
+                      animate={(ourStoryInView || ourStoryVisible) ? { width: 64 } : { width: 0 }}
+                      transition={{ duration: 0.6, delay: 0.2 }}
+                    />
+                    <motion.h2
+                      className="text-5xl font-extralight text-gray-900 leading-tight"
+                      variants={headingVariants}
+                    >
+                      <ScrollTextAnimation delay={0.3} duration={0.8}>
+                        MY WHY
+                      </ScrollTextAnimation>
+                    </motion.h2>
+                  </motion.div>
                 </motion.div>
 
-                <motion.p
-                  className="text-lg text-gray-600 mb-6 leading-relaxed font-extralight"
+                {/* First Image - Order 2 on mobile */}
+                <motion.div
                   variants={itemVariants}
+                  whileHover={{ scale: 1.02 }}
+                  transition={{ duration: 0.3 }}
+                  className="relative w-full h-[600px] order-2 lg:row-span-2"
                 >
-                  Tassel & Wicker was created from a love for the little things that make life feel elevated and intentional. My vision is for it to become a symbol of thoughtfulness—a reminder to celebrate everyday moments and surround ourselves with pieces that bring joy and meaning.
-                </motion.p>
+                  <Image
+                    src="https://res.cloudinary.com/dygrsvya5/image/upload/q_auto:low/v1763659367/UPDATED_ABOUT_IMAGE_ogsr4o.jpg"
+                    alt="My Why"
+                    fill
+                    className="object-cover"
+                  />
+                </motion.div>
 
-                <motion.p
-                  className="text-lg text-gray-600 leading-relaxed font-extralight"
-                  variants={itemVariants}
-                >
-                  Through every product and experience, I hope to inspire a way of living that feels genuine, joyful, and deeply considered.
-                </motion.p>
-              </motion.div>
-
-              <motion.div
-                variants={itemVariants}
-                whileHover={{ scale: 1.02 }}
-                transition={{ duration: 0.3 }}
-                className="relative w-full h-[600px]"
-              >
-                <Image
-                  src="https://res.cloudinary.com/dygrsvya5/image/upload/q_auto:low/v1763659367/UPDATED_ABOUT_IMAGE_ogsr4o.jpg"
-                  alt="My Why"
-                  fill
-                  className="object-cover"
-                />
-              </motion.div>
-            </div>
-
-            {/* Row 2 */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 sm:gap-16 items-center">
-              <motion.div
-                variants={itemVariants}
-                whileHover={{ scale: 1.02 }}
-                transition={{ duration: 0.3 }}
-                className="lg:order-1 order-2 relative w-full h-[600px]"
-              >
-                <Image      
-                  src="https://res.cloudinary.com/dygrsvya5/image/upload/v1761149640/_2MK9308_dcgky8.jpg"
-                  alt="Signature Celebration Basket"
-                  fill
-                  className="object-cover"
-                />
-              </motion.div>
-
-              <motion.div className="lg:order-2 order-1" variants={itemVariants}>
-                <motion.div className="mb-6" variants={itemVariants}>
+                {/* Text Content - Order 3 on mobile */}
+                <motion.div variants={itemVariants} className="order-3">
                   <motion.p
                     className="text-lg text-gray-600 mb-6 leading-relaxed font-extralight"
                     variants={itemVariants}
                   >
-                    Our story starts with a collection of signature celebration baskets, the first step toward our envisioned line of home and lifestyle pieces.
-                  </motion.p>
-
-                  <motion.p
-                    className="text-lg text-gray-600 mb-6 leading-relaxed font-extralight"
-                    variants={itemVariants}
-                  >
-                    Through our celebration baskets, I invite you to reimagine how you express appreciation—not as a routine gesture, but as a chance to delight, honor individuality, and create moments that linger.
+                    Tassel & Wicker was created from a love for the little things that make life feel elevated and intentional. Think soft woven throw blankets, polished crystals, marble coasters, tin cookies, incense cones, tassel key chains, linen notepads, duck feather cushions…little tokens of comfort that slow us down, center us and help transform an ordinary space into a sanctuary of calm and creativity.
                   </motion.p>
 
                   <motion.p
                     className="text-lg text-gray-600 leading-relaxed font-extralight"
                     variants={itemVariants}
                   >
-                    Here&apos;s to celebrating the little moments that matter most.
+                    My vision is for Tassel & Wicker to stand as a symbol of thoughtfulness; a reminder to celebrate everyday moments and surround ourselves with quality pieces that bring joy and meaning. Through every product and experience, I hope to inspire a way of living that feels elevated, joyful and deeply considered.
                   </motion.p>
                 </motion.div>
+              </div>
 
-                <motion.div className="mt-8 pt-6 border-t border-gray-300/30" variants={itemVariants}>
-                  <p className="text-lg text-gray-600 leading-relaxed font-extralight mb-4 italic">
-                    With love and intention,
-                  </p>
-                  <div className={`mb-2 ${greatVibes.variable}`}>
-                    <p className={`text-4xl md:text-5xl text-gray-700 leading-relaxed tracking-wide transform rotate-[-0.5deg] ${greatVibes.className}`}>
-                      Dee
-                    </p>
-                  </div>
-                  <p className="text-sm text-gray-500 leading-relaxed font-extralight italic mt-2">
-                    Founder, Tassel & Wicker
-                  </p>
+              {/* Row 2 - Desktop Grid, Mobile: flex children */}
+              <div className="flex flex-col lg:grid lg:grid-cols-2 gap-8 sm:gap-16 lg:items-center">
+                {/* Second Image - Order 4 on mobile (after text) */}
+                <motion.div
+                  variants={itemVariants}
+                  whileHover={{ scale: 1.02 }}
+                  transition={{ duration: 0.3 }}
+                  className="lg:order-1 order-4 relative w-full h-[600px]"
+                >
+                  <Image
+                    src="https://res.cloudinary.com/dygrsvya5/image/upload/v1761149640/_2MK9308_dcgky8.jpg"
+                    alt="Signature Celebration Basket"
+                    fill
+                    className="object-cover"
+                  />
                 </motion.div>
-              </motion.div>
+
+                {/* Rest of Text Content - Order 5 on mobile */}
+                <motion.div className="lg:order-2 order-5" variants={itemVariants}>
+
+                  <motion.div className="mb-6" variants={itemVariants}>
+                    <motion.p
+                      className="text-lg text-gray-600 mb-6 leading-relaxed font-extralight"
+                      variants={itemVariants}
+                    >
+                      Our story starts with a collection of signature celebration baskets, the first step toward our envisioned line of home and lifestyle pieces. Through our celebration baskets, I invite you to reimagine how you express appreciation; not as a routine gesture, but as a chance to connect, honor individuality and create beautiful memories.
+                    </motion.p>
+
+                    <motion.p
+                      className="text-lg text-gray-600 leading-relaxed font-extralight"
+                      variants={itemVariants}
+                    >
+                      Here&apos;s to celebrating the little things and moments that make life feel special.
+                    </motion.p>
+                  </motion.div>
+
+                  <motion.div className="mt-8 pt-6" variants={itemVariants}>
+                    <p className="text-lg text-gray-600 leading-relaxed font-extralight mb-4 italic">
+                      With love and intention,
+                    </p>
+                    <div className={`mb-2 ${greatVibes.variable}`}>
+                      <p className={`text-4xl md:text-5xl text-gray-700 leading-relaxed tracking-wide transform rotate-[-0.5deg] ${greatVibes.className}`}>
+                        Dee
+                      </p>
+                    </div>
+                    <p className="text-lg text-gray-500 leading-relaxed font-extralight italic mt-2">
+                      Founder, Tassel & Wicker
+                    </p>
+                  </motion.div>
+                </motion.div>
+              </div>
             </div>
           </div>
         </motion.section>
@@ -294,7 +298,7 @@ export default function About() {
           variants={containerVariants}
         >
           <div className="max-w-7xl mx-auto px-8 sm:px-12 lg:px-16">
-            <motion.div className="sm:mb-16 mb-8 gap-1 flex flex-row sm:flex-col" variants={itemVariants}>
+            <motion.div className="sm:mb-16 mb-8 gap-1 sm:gap-2 flex flex-row" variants={itemVariants}>
               <motion.h2
                 className="text-5xl font-extralight text-white mb-0 sm:mb-4"
                 variants={headingVariants}
@@ -304,16 +308,7 @@ export default function About() {
                   <span className="line-through decoration-1 sm:decoration-5 decoration-white">
                     THOUGHT
                   </span>{' '}
-                  GIFT
-                </ScrollTextAnimation>
-              </motion.h2>
-
-              <motion.h2
-                className="text-5xl font-extralight text-white"
-                variants={headingVariants}
-              >
-                <ScrollTextAnimation delay={0.4} duration={0.8} className='text-[18px] sm:text-[39px]'>
-                  THAT COUNTS.
+                  GIFT THAT COUNTS
                 </ScrollTextAnimation>
               </motion.h2>
             </motion.div>

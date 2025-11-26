@@ -478,7 +478,6 @@ export const getAdditionalProducts = (): StandaloneProduct[] => [
       5.5
     ),
     details: {
-      ingredients: ["100% fresh apples"],
       volume: "250ml",
       storage:
         "Once opened, keep refrigerated below 7°C and consume within 5 days.",
@@ -486,9 +485,9 @@ export const getAdditionalProducts = (): StandaloneProduct[] => [
   },
   {
     id: "add-8",
-    name: "Maegen Red Bubble Matches",
+    name: "MAEGEN ORANGE BLOSSOM & BASIL CANDLE",
     description:
-      "Add a touch of colour to your interiors with the Maegen bubble matches. Housed in a stylish, tactile glass bottle, they pair perfectly with your favourite candle.",
+      "Bold and contemporary, these colourful striped glass candles feature a range of refreshing new scents. Designed for those who appreciate statement design and vibrant fragrance, each vessel can be reused as distinctive glassware once the candle is finished.",
     category: "Home & Living",
     variants: createVariantFromLegacy(
       "https://res.cloudinary.com/dygrsvya5/image/upload/q_auto:low/v1761224785/MAEGEN_ATINA_CANDLE_IN_RED_khefmd.jpg",

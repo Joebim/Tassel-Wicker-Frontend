@@ -139,10 +139,21 @@ export default function Shop() {
           <span className="line-through decoration-2 decoration-black">thought</span>{' '}
           gift that <br />counts
         </h2>
-        <p className="w-[88%]! mx-auto text-[16px] sm:text-lg text-luxury-black font-extralight text-center wrap-break-word [hyphens:auto]">
-          The Tassel &amp; Wicker signature baskets are<br /> inspired by the friendships and <br />relationships that sustain us.
-          <br /><br />We believe that when we give thoughtfully,<br /> we communicate presence, intention, and<br /> appreciation in ways words alone cannot
-        </p>
+
+        {/* Mobile view - with line breaks */}
+        <div className="lg:hidden w-[88%] mx-auto">
+          <p className="text-[16px] sm:text-lg text-luxury-black font-extralight text-center wrap-break-word [hyphens:auto]">
+            The Tassel &amp; Wicker signature baskets are<br /> inspired by the friendships and <br />relationships that sustain us.
+            <br /><br />We believe that when we give thoughtfully,<br /> we communicate presence, intention, and<br /> appreciation in ways words alone cannot
+          </p>
+        </div>
+
+        {/* Desktop view - plain text, two separate paragraphs, percentage width, centered */}
+        <div className="hidden lg:flex flex-col items-center justify-center w-[75%] mx-auto">
+          <p className="text-lg text-luxury-black font-extralight text-center mb-4">
+            The Tassel &amp; Wicker signature baskets are inspired by the friendships and relationships that sustain us. We believe that when we give thoughtfully, we communicate presence, intention, and appreciation in ways words alone cannot.
+          </p>
+        </div>
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-25 py-16" id="shop-content">

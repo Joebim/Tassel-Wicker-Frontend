@@ -3,7 +3,6 @@
 import { useEffect } from 'react';
 import Image from 'next/image';
 import { LuChevronDown } from 'react-icons/lu';
-import { motion } from 'framer-motion';
 import ScrollTextAnimation from '@/components/common/ScrollTextAnimation';
 import CircularText from '@/components/common/CircularText';
 
@@ -16,44 +15,65 @@ export default function CookiePolicy() {
 
     const sections = [
         {
-            title: 'General Introduction About Cookies',
+            title: '1. General Introduction About Cookies',
             content:
-                'This Cookie Policy explains what cookies are, how we use them on our website www.tasselandwicker.com (the &quot;Website&quot;), and what your choices are regarding their use. This policy should be read alongside our Privacy Policy which sets out how we process your personal data.',
+                'This Cookie Policy explains what cookies are, how we use them on our website www.tasselandwicker.com(the "Website"), and what your choices are regarding their use.\n\nThis policy should be read alongside our Privacy Policy which sets out how we process your personal data.',
         },
         {
-            title: 'What are Cookies?',
+            title: '2. What are Cookies?',
             content:
-                'Cookies are small text files that are placed on your computer or mobile device when you visit a website. They are widely used to make websites work more efficiently and to provide reporting information. Cookies can be: Session Cookies: These are temporary and expire once you close your browser. Persistent Cookies: These remain on your device for a set period or until you delete them. Cookies can also be: First-Party Cookies: Set directly by the Website you are visiting. Third-Party Cookies: Set by a different domain (a third party) than the one you are visiting, typically for advertising or analytics.',
+                'Cookies are small text files that are placed on your computer or mobile device when you visit a website. They are widely used to make websites work more efficiently and to provide reporting information.\n\nCookies can be:\n\nSession Cookies: These are temporary and expire once you close your browser.\n\nPersistent Cookies: These remain on your device for a set period or until you delete them.\n\nCookies can also be:\n\nFirst-Party Cookies: Set directly by the Website you are visiting.\n\nThird-Party Cookies: Set by a different domain (a third party) than the one you are visiting, typically for advertising or analytics.',
         },
         {
-            title: 'How We Use Cookies',
+            title: '3. How We Use Cookies',
             content:
-                'We can only store cookies on your device if they are strictly necessary for the operation of this Website or the provision of a service you have explicitly requested like maintaining your shopping cart. For all other non-essential cookies like analytics, performance, and marketing cookies, we must obtain your prior, informed, and explicit consent before setting them.',
+                'We can only store cookies on your device if they are strictly necessary for the operation of this Website or the provision of a service you have explicitly requested like maintaining your shopping cart.\n\nFor all other non-essential cookies like analytics, performance, and marketing cookies, we must obtain your prior, informed, and explicit consent before setting them.',
+            subsections: [
+                {
+                    title: '3.1 Category of Cookies:',
+                    content:
+                        'We use the following categories of cookies for the purposes detailed below. You have the right to choose which non-essential cookies we can use.\n\nStrictly Necessary Cookies\n\nEssential for the core functionality of the website like security, networking, accessibility, remembering items in a shopping basket. This type of cookie does not require consent.\n\nPerformance/Analytics Cookies\n\nAllows us to count visits and traffic sources so we can measure and improve the performance of our site. Data is typically aggregated like Google Analytics.\n\nFunctional/Preference Cookies\n\nEnables the website to provide enhanced functionality and personalisation like  remembering your language, region, or login details.\n\nTargeting/Advertising Cookies\n\nSet through our site by our advertising partners. They are used to build a profile of your interests and show you relevant adverts on other sites.',
+                },
+                {
+                    title: '3.2 Objectives, aims',
+                    content:
+                        'We use the cookies to:\n\nEnsure efficient and safe functioning of the Website; we use cookies to enable and support our security features, and to help us detect malicious activity on our Website;\n\nUnderstand, improve, and research products, features, and services, including when you access our Website from other websites, applications, or devices such as your work computer or your mobile device;\n\nRecognize the returning visitors of the Website; cookies help us show you the right information and personalize your experience; cookies also help avoiding re-registration or re-filling of the information by you each time you visit the Website;\n\nAnalyse your habits so that the functioning of the Website would be convenient, efficient and would conform to your needs and expectations, for example, by ensuring that the Visitors would, without difficulty, find everything they are looking for;\n\nMeasure the flows of the information and data being sent to our Website; we use the cookies for accumulation of statistical data about the number of users of the Website and their use of the Website;\n\nTargeting and advertising; by using the cookies we may collect information so that only relevant content is displayed for the browser by creating different target groups; we may use cookies to show you relevant advertising both on and off our Website.\n\nWe may, to the extent allowed by applicable laws, link the data, received from the cookies, with other information obtained about you from other legal sources (i.e., information about the use of the services, online account, etc.).',
+                },
+                {
+                    title: '3.3 Third Party Cookies Disclosure',
+                    content:
+                        'Our website includes content and functionality provided by third parties. When you interact with these services, the third-party provider may process your data using cookies or similar technologies. These providers include:\n\nAdvertising & Marketing Partners:\n\nPayment Processors:',
+                },
+                {
+                    title: '3.4. Detailed Cookie List:',
+                    content:
+                        '',
+                    hasTable: true,
+                    tableData: [
+                        { cookieName: '_stripe_mid', provider: 'Stripe', purpose: 'Used for fraud prevention and distinguishing users during payment. Helps Stripe identify the device for secure checkout.', type: 'Third party(Strict)', expiry: '1 year', category: 'Strictly Necessary' },
+                        { cookieName: '__vercel_toolbar', provider: 'Vercel', purpose: 'Enables the Vercel developer toolbar in preview environments. Not used for tracking.', type: 'First-party', expiry: '17 days', category: 'Functional/Performance' },
+                        { cookieName: 'auth-storage', provider: 'This Website(Next.js + Firebase Auth)', purpose: 'Stores encoded authentication/session data for logged-in users', type: 'First-Party', expiry: '128', category: 'Strictly Necessary' },
+                        { cookieName: 'cookieConsent', provider: 'This Website', purpose: 'Stores whether the user accepted the cookie banner', type: 'First-Party', expiry: '21 days', category: 'Preferences' },
+                    ],
+                },
+            ],
         },
         {
-            title: 'Category of Cookies',
+            title: '4. Your Consent and How to Manage Cookies',
             content:
-                'We use the following categories of cookies for the purposes detailed below. You have the right to choose which non-essential cookies we can use. Strictly Necessary Cookies: Essential for the core functionality of the website like security, networking, accessibility, remembering items in a shopping basket. This type of cookie does not require consent. Performance/Analytics Cookies: Allows us to count visits and traffic sources so we can measure and improve the performance of our site. Data is typically aggregated like Google Analytics. Functional/Preference Cookies: Enables the website to provide enhanced functionality and personalisation like remembering your language, region, or login details. Targeting/Advertising Cookies: Set through our site by our advertising partners. They are used to build a profile of your interests and show you relevant adverts on other sites.',
+                'You have control over the use of non-essential cookies. When you first visit our Website, you will be presented with a clear consent tool (a cookie banner) that gives you the following options:\n\n"Accept All": To consent to all cookie categories.\n\n"Reject All" (or "Block All"): To decline all non-essential cookies.\n\n"Manage Preferences" (or "Customise"): To choose which specific categories you consent to (e.g., accepting analytics but rejecting marketing).',
+            subsections: [
+                {
+                    title: '4.1 How to Change Your Preferences:',
+                    content:
+                        'To change your cookie preferences, please follow this link  depending on your device and browser\n\nAlternatively, most web browsers allow you to control cookies through their settings. You can usually find these settings in the \'options\' or \'preferences\' menu of your browser. For more information, you can visit the links below:\n\nChrome Cookie Settings: https://policies.google.com/technologies/cookies?hl=en-US/\n\nFirefox Cookie Setting: https://www.firefox.com/en-US/privacy/websites/cookie-settings/\n\nSafari Cookie Setting: https://support.apple.com/en-ca/guide/safari/ibrw850f6c51/mac\n\nEdge/IE Cookie Settings: https://support.microsoft.com/en-us/windows/manage-cookies-in-microsoft-edge-view-allow-block-delete-and-use-168dab11-0753-043d-7c16-ede5947fc64',
+                },
+            ],
         },
         {
-            title: 'Objectives and Aims',
+            title: '5. Changes to this Cookie Policy',
             content:
-                'We use the cookies to: Ensure efficient and safe functioning of the Website; we use cookies to enable and support our security features, and to help us detect malicious activity on our Website. Understand, improve, and research products, features, and services, including when you access our Website from other websites, applications, or devices such as your work computer or your mobile device. Recognize the returning visitors of the Website; cookies help us show you the right information and personalize your experience; cookies also help avoiding re-registration or re-filling of the information by you each time you visit the Website. Analyse your habits so that the functioning of the Website would be convenient, efficient and would conform to your needs and expectations, for example, by ensuring that the Visitors would, without difficulty, find everything they are looking for. Measure the flows of the information and data being sent to our Website; we use the cookies for accumulation of statistical data about the number of users of the Website and their use of the Website. Targeting and advertising; by using the cookies we may collect information so that only relevant content is displayed for the browser by creating different target groups; we may use cookies to show you relevant advertising both on and off our Website. We may, to the extent allowed by applicable laws, link the data, received from the cookies, with other information obtained about you from other legal sources (i.e., information about the use of the services, online account, etc.).',
-        },
-        {
-            title: 'Third Party Cookies Disclosure',
-            content:
-                'Our website includes content and functionality provided by third parties. When you interact with these services, the third-party provider may process your data using cookies or similar technologies. These providers include: Advertising & Marketing Partners and Payment Processors. Detailed Cookie List: _stripe_mid (Stripe) - Used for fraud prevention and distinguishing users during payment. Helps Stripe identify the device for secure checkout. Third party (Strict), 1 year expiry, Strictly Necessary. __vercel_toolbar (Vercel) - Enables the Vercel developer toolbar in preview environments. Not used for tracking. First-party, 17 days expiry, Functional/Performance. auth-storage (This Website - Next.js + Firebase Auth) - Stores encoded authentication/session data for logged-in users. First-Party, 128 days expiry, Strictly Necessary. cookieConsent (This Website) - Stores whether the user accepted the cookie banner. First-Party, 21 days expiry, Preferences.',
-        },
-        {
-            title: 'Your Consent and How to Manage Cookies',
-            content:
-                'You have control over the use of non-essential cookies. When you first visit our Website, you will be presented with a clear consent tool (a cookie banner) that gives you the following options: "Accept All": To consent to all cookie categories. "Reject All" (or "Block All"): To decline all non-essential cookies. "Manage Preferences" (or "Customise"): To choose which specific categories you consent to (e.g., accepting analytics but rejecting marketing). How to Change Your Preferences: To change your cookie preferences, please follow this link depending on your device and browser. Alternatively, most web browsers allow you to control cookies through their settings. You can usually find these settings in the \'options\' or \'preferences\' menu of your browser. For more information, you can visit: Chrome Cookie Settings: https://policies.google.com/technologies/cookies?hl=en-US/. Firefox Cookie Setting: https://www.firefox.com/en-US/privacy/websites/cookie-settings/. Safari Cookie Setting: https://support.apple.com/en-ca/guide/safari/ibrw850f6c51/mac. Edge/IE Cookie Settings: https://support.microsoft.com/en-us/windows/manage-cookies-in-microsoft-edge-view-allow-block-delete-and-use-168dab11-0753-043d-7c16-ede5947fc64.',
-        },
-        {
-            title: 'Changes to this Cookie Policy',
-            content:
-                'We may update this policy from time to time to reflect changes to the cookies we use or for other operational, legal, or regulatory reasons. Please revisit this Cookie Policy regularly to stay informed about our use of cookies and related technologies. This policy was last updated on: November 19, 2025. (Change to the date when you are ready to publish)',
+                'We may update this policy from time to time to reflect changes to the cookies we use or for other operational, legal, or regulatory reasons. Please revisit this Cookie Policy regularly to stay informed about our use of cookies and related technologies. This policy was last updated on November 19, 2025.',
         },
     ];
 
@@ -117,30 +137,81 @@ export default function CookiePolicy() {
             </section>
 
             {/* Content */}
-            <section id="cookie-content" className="py-24">
-                <div className="max-w-5xl mx-auto px-4 sm:px-8 lg:px-12 space-y-16">
-                    <div className="text-center mb-16">
-                        <p className="text-lg text-luxury-cool-grey font-extralight leading-relaxed max-w-3xl mx-auto">
-                            Tassel and Wicker, legal entity with registered address, 7 Westland Drive, Newark, Nottinghamshire, England, (hereinafter referred to as the &quot;Company,&quot; or &quot;we&quot;), shall undertake to ensure the security of personal information and the protection of rights of the visitors of the website (hereinafter referred to as the &quot;Visitors&quot;) while you use Tassel and Wickers website including but not limited to www.tasselandwicker.com, (hereinafter referred to as the &quot;Website&quot;) and the content of it. First and foremost, we DO NOT sell your personal information. However, when you visit or interact with our sites, services, applications, tools or messaging, we or our authorized service providers may use cookies, web beacons, and other similar technologies to make your experience better, faster and safer, for advertising purposes and to allow us to continuously improve our sites, services, applications and tools.
+            <section id="cookie-content" className="py-16">
+                <div className="max-w-4xl mx-auto px-6 sm:px-8 lg:px-12">
+                    <div className="mb-8">
+                        <p className="text-base text-luxury-black font-extralight mb-4">
+                            Tassel and Wicker (hereinafter referred to as the &quot;Company,&quot; or &quot;we&quot;), shall undertake to ensure the security of personal information and the protection of rights of the visitors of the website (hereinafter referred to as the &quot;Visitors&quot;) while you use Tassel and Wickers website including but not limited to  www.tasselandwicker.com, (hereinafter referred to as the &quot;Website&quot;) and the content of it.
+                        </p>
+                        <p className="text-base text-luxury-black font-extralight mb-4">
+                            First and foremost, we DO NOT sell your personal information. However, when you visit or interact with our sites, services, applications, tools or messaging, we or our authorized service providers may use cookies, web beacons, and other similar technologies to make your experience better, faster and safer, for advertising purposes and to allow us to continuously improve our sites, services, applications and tools.
+                        </p>
+                        <p className="text-base text-luxury-black font-extralight mb-8">
+                            Read through our Cookie policy{' '}
+                            <a
+                                href="/document-viewer/cookie-policy"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="underline hover:text-brand-purple transition-colors"
+                            >
+                                here
+                            </a>.
                         </p>
                     </div>
-                    {sections.map((section, index) => (
-                        <motion.div
-                            key={section.title}
-                            initial={{ opacity: 0, y: 30 }}
-                            whileInView={{ opacity: 1, y: 0 }}
-                            viewport={{ once: true, amount: 0.3 }}
-                            transition={{ duration: 0.6, delay: index * 0.05 }}
-                            className="border border-luxury-warm-grey/20 rounded-3xl p-8 md:p-12 bg-white/60 backdrop-blur-sm"
-                        >
-                            <h2 className="text-2xl md:text-3xl font-extralight uppercase tracking-[0.25em] text-luxury-charcoal mb-4">
-                                {section.title}
-                            </h2>
-                            <p className="text-luxury-cool-grey font-extralight text-base md:text-lg leading-relaxed">
-                                {section.content}
-                            </p>
-                        </motion.div>
-                    ))}
+                    <div className="prose prose-lg max-w-none text-luxury-black leading-relaxed space-y-8">
+                        {sections.map((section) => (
+                            <div key={section.title} className="mb-8">
+                                <h2 className="text-xl font-extralight uppercase text-luxury-black mb-4 mt-8">
+                                    {section.title}
+                                </h2>
+                                {section.content && (
+                                    <div className="text-base text-luxury-black font-extralight leading-relaxed whitespace-pre-line mb-6">
+                                        {section.content}
+                                    </div>
+                                )}
+                                {section.subsections && section.subsections.map((subsection: { title: string; content?: string; hasTable?: boolean; tableData?: Array<{ cookieName: string; provider: string; purpose: string; type: string; expiry: string; category: string }> }, subIndex: number) => (
+                                    <div key={subIndex} className="mb-6">
+                                        <h3 className="text-lg font-extralight uppercase text-luxury-black mb-3 mt-6">
+                                            {subsection.title}
+                                        </h3>
+                                        {subsection.content && (
+                                            <div className="text-base text-luxury-black font-extralight leading-relaxed whitespace-pre-line mb-4">
+                                                {subsection.content}
+                                            </div>
+                                        )}
+                                        {subsection.hasTable && subsection.tableData && (
+                                            <div className="mt-6 mb-8 overflow-x-auto">
+                                                <table className="w-full border-collapse border border-gray-300 mt-4 text-sm">
+                                                    <thead>
+                                                        <tr className="bg-gray-100">
+                                                            <th className="border border-gray-300 px-4 py-3 text-left font-extralight uppercase text-luxury-black">Cookie Name</th>
+                                                            <th className="border border-gray-300 px-4 py-3 text-left font-extralight uppercase text-luxury-black">Provider</th>
+                                                            <th className="border border-gray-300 px-4 py-3 text-left font-extralight uppercase text-luxury-black">Purpose</th>
+                                                            <th className="border border-gray-300 px-4 py-3 text-left font-extralight uppercase text-luxury-black">Type</th>
+                                                            <th className="border border-gray-300 px-4 py-3 text-left font-extralight uppercase text-luxury-black">Expiry</th>
+                                                            <th className="border border-gray-300 px-4 py-3 text-left font-extralight uppercase text-luxury-black">Category</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        {subsection.tableData?.map((row, rowIndex: number) => (
+                                                            <tr key={rowIndex}>
+                                                                <td className="border border-gray-300 px-4 py-3 font-extralight">{row.cookieName}</td>
+                                                                <td className="border border-gray-300 px-4 py-3 font-extralight">{row.provider}</td>
+                                                                <td className="border border-gray-300 px-4 py-3 font-extralight">{row.purpose}</td>
+                                                                <td className="border border-gray-300 px-4 py-3 font-extralight">{row.type}</td>
+                                                                <td className="border border-gray-300 px-4 py-3 font-extralight">{row.expiry}</td>
+                                                                <td className="border border-gray-300 px-4 py-3 font-extralight">{row.category}</td>
+                                                            </tr>
+                                                        ))}
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        )}
+                                    </div>
+                                ))}
+                            </div>
+                        ))}
+                    </div>
                 </div>
             </section>
         </div>

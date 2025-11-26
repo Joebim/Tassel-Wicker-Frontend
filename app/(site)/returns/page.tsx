@@ -3,7 +3,6 @@
 import { useEffect } from 'react';
 import Image from 'next/image';
 import { LuChevronDown } from 'react-icons/lu';
-import { motion } from 'framer-motion';
 import ScrollTextAnimation from '@/components/common/ScrollTextAnimation';
 import CircularText from '@/components/common/CircularText';
 
@@ -13,44 +12,6 @@ export default function ReturnsExchanges() {
             window.scrollTo(0, 0);
         }
     }, []);
-
-    const sections = [
-        {
-            title: 'Our Approach',
-            content:
-                'Each Tassel & Wicker piece is chosen with intention, and we hope you love your order as much as we enjoyed curating it. Because many baskets are assembled to order, we review every return or exchange on an individual basis.',
-        },
-        {
-            title: 'Eligibility Window',
-            content:
-                'If something is not quite right, please contact us within 7 days of delivery. We kindly ask that items remain unused and in their original packaging so we can assess next steps together.',
-        },
-        {
-            title: 'How to Begin',
-            content:
-                'Email us at info@tasselandwicker.com with your order number, item details, and the reason for your request. Our team will respond within 1–2 business days with personalised guidance.',
-        },
-        {
-            title: 'Custom & Perishable Items',
-            content:
-                'Custom celebration baskets, perishable treats, and personalised pieces are final sale. Should anything arrive damaged, please share photos within 48 hours so we can make it right.',
-        },
-        {
-            title: 'Exchanges & Gift Orders',
-            content:
-                'Where available, we are happy to help you exchange an item for an alternative of equal value. For gifted baskets, we can arrange a credit note for the recipient to enjoy at a later date.',
-        },
-        {
-            title: 'Return Shipping',
-            content:
-                'Return shipping costs are the responsibility of the sender unless the item was damaged in transit or we made an error with your order.',
-        },
-        {
-            title: 'Need Assistance?',
-            content:
-                'We are always here to support you. If you have any questions about your order, please reach out to info@tasselandwicker.com and we will be delighted to help.',
-        },
-    ];
 
     return (
         <div className="min-h-screen bg-white text-luxury-black">
@@ -112,30 +73,31 @@ export default function ReturnsExchanges() {
             </section>
 
             {/* Content */}
-            <section id="returns-content" className="py-24">
-                <div className="max-w-5xl mx-auto px-4 sm:px-8 lg:px-12 space-y-16">
-                    <div className="text-center mb-16">
-                        <p className="text-lg text-luxury-cool-grey font-extralight leading-relaxed max-w-3xl mx-auto">
-                            Should you need support after your order arrives, our team will guide you through every step with the same care and attention that defines Tassel & Wicker.
-                        </p>
-                    </div>
-                    {sections.map((section, index) => (
-                        <motion.div
-                            key={section.title}
-                            initial={{ opacity: 0, y: 30 }}
-                            whileInView={{ opacity: 1, y: 0 }}
-                            viewport={{ once: true, amount: 0.3 }}
-                            transition={{ duration: 0.6, delay: index * 0.05 }}
-                            className="border border-luxury-warm-grey/20 rounded-3xl p-8 md:p-12 bg-white/60 backdrop-blur-sm"
-                        >
-                            <h2 className="text-2xl md:text-3xl font-extralight uppercase tracking-[0.25em] text-luxury-charcoal mb-4">
-                                {section.title}
-                            </h2>
-                            <p className="text-luxury-cool-grey font-extralight text-base md:text-lg leading-relaxed">
-                                {section.content}
+            <section id="returns-content" className="py-16">
+                <div className="max-w-4xl mx-auto px-6 sm:px-8 lg:px-12">
+                    <div className="prose prose-lg max-w-none text-luxury-black leading-relaxed space-y-8">
+                        <div className="mb-8">
+                            <p className="text-base text-luxury-black font-extralight leading-relaxed mb-6">
+                                Due to the nature of our small-batch collections and the attention that goes into each order, we currently do not offer returns once a purchase has been made.
                             </p>
-                        </motion.div>
-                    ))}
+                            <p className="text-base text-luxury-black font-extralight leading-relaxed mb-6">
+                                That said, we understand that life happens and that receiving your parcel in excellent condition matters. If your order arrives and there&apos;s an issue with the condition of the item(s), please reach out to us within 7 days of delivery. We&apos;ll be happy to assist with an exchange or resolution if the product is returned in its original, unused condition and packaging.
+                            </p>
+                            <p className="text-base text-luxury-black font-extralight leading-relaxed mb-6">
+                                To begin an exchange or to share any concerns, kindly contact us at{' '}
+                                <a
+                                    href="mailto:info@tasselandwicker.com"
+                                    className="underline hover:text-brand-purple transition-colors"
+                                >
+                                    info@tasselandwicker.com
+                                </a>
+                                {' '}with your order number and a brief note about your situation. Our team will guide you through the next steps with care.
+                            </p>
+                            <p className="text-base text-luxury-black font-extralight leading-relaxed mb-6">
+                                We deeply value your trust in Tassel & Wicker and appreciate your understanding as we uphold the integrity and craftsmanship behind each item we send out.
+                            </p>
+                        </div>
+                    </div>
                 </div>
             </section>
         </div>

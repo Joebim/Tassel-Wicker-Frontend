@@ -137,13 +137,6 @@ export default function Cart() {
                                                 {item.category}
                                             </p>
                                         )}
-                                        <p
-                                            className="text-luxury-cool-grey font-extralight text-sm max-w-md"
-                                            style={{ display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}
-                                            title={item.description}
-                                        >
-                                            {item.description}
-                                        </p>
 
                                         {/* Basket Items Photos - Custom or Normal Baskets */}
                                         {((item.category === 'Custom Basket' && item.customItems && item.customItems.length > 0) ||

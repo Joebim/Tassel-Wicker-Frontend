@@ -102,9 +102,10 @@ export default function ToteBagDetail() {
                         <div className="w-16 h-px bg-luxury-charcoal mb-8"></div>
 
                         <div className="mb-8">
-                            <p className="text-luxury-cool-grey leading-relaxed font-extralight">
-                                {product.description}
-                            </p>
+                            <p 
+                                className="text-luxury-cool-grey leading-relaxed font-extralight"
+                                dangerouslySetInnerHTML={{ __html: product.description }}
+                            />
                         </div>
 
                         <button

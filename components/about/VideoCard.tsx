@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import { useInView } from 'framer-motion';
 
 interface VideoCardProps {
@@ -15,18 +15,51 @@ const VideoCard: React.FC<VideoCardProps> = ({
     className = ''
 }) => {
     const ref = useRef<HTMLDivElement>(null);
+    const videoRef = useRef<HTMLVideoElement>(null);
     const isInView = useInView(ref, { once: false, amount: 0.3 });
+    const [isLoading, setIsLoading] = useState(true);
+    const [hasError, setHasError] = useState(false);
+
+    const handleVideoLoaded = () => {
+        setIsLoading(false);
+        setHasError(false);
+    };
+
+    const handleVideoError = () => {
+        setIsLoading(false);
+        setHasError(true);
+    };
 
     return (
-        <div ref={ref} className={`group relative aspect-9/16 md:aspect-9/16 overflow-hidden bg-white h-[500px] md:h-auto ${className}`}>
+        <div ref={ref} className={`group relative aspect-9/16 md:aspect-9/16 overflow-hidden h-[500px] md:h-auto ${className}`}>
             <video
+                ref={videoRef}
                 src={videoSrc}
                 className="w-full h-full object-cover absolute top-0 left-0 z-0"
                 autoPlay
                 muted
                 loop
                 playsInline
+                onLoadedData={handleVideoLoaded}
+                onError={handleVideoError}
             />
+
+            {/* Loading State with Subtle Pulse Animation */}
+            {isLoading && (
+                <div className="absolute inset-0 z-5 flex items-center justify-center bg-transparent">
+                    <div className="w-20 h-20 border-2 border-gray-300/30 rounded-full animate-pulse opacity-40"></div>
+                </div>
+            )}
+
+            {/* Error State with Subtle Pulse Animation */}
+            {hasError && (
+                <div className="absolute inset-0 z-5 bg-transparent">
+                    <div className="absolute inset-0 flex items-center justify-center">
+                        <div className="w-24 h-24 border-2 border-gray-300/20 rounded-full animate-pulse opacity-30"></div>
+                    </div>
+                </div>
+            )}
+
             <div className="absolute inset-0 z-10 p-3 flex items-end justify-center pointer-events-none">
                 <button
                     type="button"

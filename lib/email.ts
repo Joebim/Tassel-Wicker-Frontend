@@ -1,4 +1,4 @@
-import nodemailer from 'nodemailer';
+import nodemailer from "nodemailer";
 
 // Email configuration interface
 interface EmailConfig {
@@ -12,8 +12,8 @@ interface EmailConfig {
 
 // Initialize nodemailer transporter with Google SMTP
 function createTransporter() {
-  const smtpHost = process.env.SMTP_HOST || 'smtp.gmail.com';
-  const smtpPort = parseInt(process.env.SMTP_PORT || '587', 10);
+  const smtpHost = process.env.SMTP_HOST || "smtp.gmail.com";
+  const smtpPort = parseInt(process.env.SMTP_PORT || "587", 10);
   const smtpUser = process.env.SMTP_USER;
   const smtpPassword = process.env.SMTP_PASSWORD;
   const smtpFrom =
@@ -21,7 +21,7 @@ function createTransporter() {
 
   if (!smtpUser || !smtpPassword) {
     console.warn(
-      'SMTP credentials not configured. Please set SMTP_USER and SMTP_PASSWORD environment variables.'
+      "SMTP credentials not configured. Please set SMTP_USER and SMTP_PASSWORD environment variables."
     );
     return null;
   }
@@ -51,11 +51,12 @@ export async function sendEmail(config: EmailConfig): Promise<{
 }> {
   try {
     const transporter = createTransporter();
-    
+
     if (!transporter) {
       return {
         success: false,
-        error: 'Email service is not configured. Please set SMTP_USER and SMTP_PASSWORD environment variables.',
+        error:
+          "Email service is not configured. Please set SMTP_USER and SMTP_PASSWORD environment variables.",
       };
     }
 
@@ -63,16 +64,24 @@ export async function sendEmail(config: EmailConfig): Promise<{
       process.env.SMTP_FROM ||
       process.env.SMTP_USER ||
       "info@tasselandwicker.com";
-    const fromName = process.env.SMTP_FROM_NAME || 'Tassel & Wicker';
+    const fromName = process.env.SMTP_FROM_NAME || "Tassel & Wicker";
 
     const mailOptions = {
       from: `"${fromName}" <${fromAddress}>`,
-      to: Array.isArray(config.to) ? config.to.join(', ') : config.to,
+      to: Array.isArray(config.to) ? config.to.join(", ") : config.to,
       subject: config.subject,
       html: config.html,
       replyTo: config.replyTo,
-      cc: config.cc ? (Array.isArray(config.cc) ? config.cc.join(', ') : config.cc) : undefined,
-      bcc: config.bcc ? (Array.isArray(config.bcc) ? config.bcc.join(', ') : config.bcc) : undefined,
+      cc: config.cc
+        ? Array.isArray(config.cc)
+          ? config.cc.join(", ")
+          : config.cc
+        : undefined,
+      bcc: config.bcc
+        ? Array.isArray(config.bcc)
+          ? config.bcc.join(", ")
+          : config.bcc
+        : undefined,
     };
 
     const info = await transporter.sendMail(mailOptions);
@@ -82,9 +91,9 @@ export async function sendEmail(config: EmailConfig): Promise<{
       messageId: info.messageId,
     };
   } catch (error) {
-    console.error('Error sending email:', error);
+    console.error("Error sending email:", error);
     const errorMessage =
-      error instanceof Error ? error.message : 'Failed to send email';
+      error instanceof Error ? error.message : "Failed to send email";
     return {
       success: false,
       error: errorMessage,
@@ -102,24 +111,23 @@ export async function verifySMTPConnection(): Promise<{
 }> {
   try {
     const transporter = createTransporter();
-    
+
     if (!transporter) {
       return {
         success: false,
-        error: 'SMTP transporter not configured',
+        error: "SMTP transporter not configured",
       };
     }
 
     await transporter.verify();
     return { success: true };
   } catch (error) {
-    console.error('SMTP verification error:', error);
+    console.error("SMTP verification error:", error);
     const errorMessage =
-      error instanceof Error ? error.message : 'SMTP verification failed';
+      error instanceof Error ? error.message : "SMTP verification failed";
     return {
       success: false,
       error: errorMessage,
     };
   }
 }
-

@@ -109,9 +109,45 @@ const PaymentForm: React.FC<{
                 setError(confirmError.message || 'Payment failed. Please try again.');
                 setIsProcessing(false);
             } else {
-                // Payment succeeded, will redirect to return_url
-                // Cart will be cleared in payment-success page
-                onSuccess();
+                // Payment succeeded - check if we got a payment intent back
+                // If no redirect happened, we need to extract the payment intent ID
+                const result = await stripe.retrievePaymentIntent(clientSecret);
+
+                if (result.paymentIntent?.status === 'succeeded') {
+                    const paymentIntentId = result.paymentIntent.id;
+                    console.log('[CHECKOUT] Payment succeeded without redirect, payment intent:', paymentIntentId);
+
+                    // Send email immediately since no redirect will happen
+                    console.log('[CHECKOUT] Sending email from checkout page...');
+                    try {
+                        const emailResponse = await fetch('/api/send-order-email', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({
+                                paymentIntentId: paymentIntentId,
+                                customerEmail: formData.email,
+                                customerName: `${formData.firstName} ${formData.lastName}`,
+                            }),
+                        });
+                        const emailData = await emailResponse.json();
+                        if (emailData.success) {
+                            console.log('[CHECKOUT] Email sent successfully from checkout page');
+                        } else {
+                            console.error('[CHECKOUT] Failed to send email:', emailData.error);
+                        }
+                    } catch (emailError) {
+                        console.error('[CHECKOUT] Error sending email:', emailError);
+                    }
+
+                    // Redirect to success page manually
+                    window.location.href = `/payment-success?payment_intent=${paymentIntentId}&payment_intent_client_secret=${clientSecret}`;
+                } else {
+                    // Payment requires redirect, will redirect to return_url
+                    // Cart will be cleared in payment-success page
+                    onSuccess();
+                }
             }
         } catch (err) {
             const errorMessage = err instanceof Error ? err.message : 'An unexpected error occurred';

@@ -43,6 +43,20 @@ const nextConfig: NextConfig = {
       fileLoaderRule.exclude = /\.svg$/i;
     }
 
+    // Configure for react-pdf
+    config.resolve.alias = {
+      ...config.resolve.alias,
+      canvas: false,
+    };
+
+    // Handle pdfjs-dist properly
+    config.resolve.fallback = {
+      ...config.resolve.fallback,
+      fs: false,
+      path: false,
+      crypto: false,
+    };
+
     return config;
   },
 };

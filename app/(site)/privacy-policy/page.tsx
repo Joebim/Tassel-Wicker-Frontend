@@ -3,9 +3,9 @@
 import { useEffect } from 'react';
 import Image from 'next/image';
 import { LuChevronDown } from 'react-icons/lu';
-import { motion } from 'framer-motion';
 import ScrollTextAnimation from '@/components/common/ScrollTextAnimation';
 import CircularText from '@/components/common/CircularText';
+import { renderTextWithEmailLinks } from '@/utils/textUtils';
 
 export default function PrivacyPolicy() {
     useEffect(() => {
@@ -16,69 +16,86 @@ export default function PrivacyPolicy() {
 
     const sections = [
         {
-            title: 'Introduction',
+            title: '1. Introduction',
             content:
-                'Effective Date: November 19, 2025 (Change to the date when it is published). At Tassel & Wicker (referred to as "we," "us," or "our"), we value your privacy and are committed to protecting your personal data. This Privacy Notice explains how we collect, use, and protect your personal data when you use our website, purchase items from the organisation, or interact with us. We are committed to protecting your privacy and handling your personal data in an open and transparent manner. This Privacy Policy sets out how we collect, use, store, and share your personal data, and explains your rights under UK data protection law.',
+                'Effective Date: November 19, 2025\n\nAt Tassel & Wicker (referred to as "we," "us," or "our"), we value your privacy and are committed to protecting your personal data. This Privacy Notice explains how we collect, use, and protect your personal data when you use our website, purchase items from the organisation, or interact with us.\n\nWe are committed to protecting your privacy and handling your personal data in an open and transparent manner. This Privacy Policy sets out how we collect, use, store, and share your personal data, and explains your rights under UK data protection law.',
         },
         {
-            title: 'Who We Are',
+            title: '2. Who We Are',
             content:
-                'Business Name: Tassel & Wicker. Jurisdiction: United Kingdom. Type of Business: Retail business specialising in lifestyle products, home goods and gifts. Contact Email for privacy: info@tasselandwicker.com (Change to a specific email for privacy matters). For all privacy and data protection inquiries, or to exercise your data subject rights, please contact us directly at the email address provided above: info@tasselandwicker.com. (Change to a specific email for privacy matters)',
+                'Business Name: Tassel & Wicker\n\nJurisdiction: United Kingdom\n\nType of Business: Retail business specialising in lifestyle products, home goods and gifts.\n\nContact Email for privacy: Info@tasselandwicker.com\n\nFor all privacy and data protection inquiries, or to exercise your data subject rights, please contact us directly at the email address provided above: info@tasselandwicker.com.',
         },
         {
-            title: 'Personal Data We Collect',
+            title: '3. Personal Data We Collect',
             content:
-                'We collect and process the following categories of personal information: Identifiers: Names, Email addresses, Phone numbers, Addresses, Photos, ID or passport information. Commercial Information: Payment Details, Location data. Internet Activity Information: Website activity or cookies. Personal information is anything that directly or indirectly identifies and relates to a living person, such as a name, address, telephone number, date of birth, unique identification number, photographs, video recordings. WE DO NOT COLLECT video recordings. Some personal information is \'special category data\' and needs more protection due to its sensitivity. This includes any information about an identifiable individual that can reveal their sexuality and sexual health, religious or philosophical beliefs, racial origin, ethnicity, physical or mental health, trade union membership, political opinion, genetic/biometric data. Personal information relating to criminal offences and convictions, although not \'special category data\', is still sensitive in nature and merits higher protection. We do not collect Health information or Employment details.',
+                'We collect and process the following categories of personal information:\n\nIdentifiers: Names, Email addresses, Phone numbers, Addresses, Photos, ID or passport information\n\nCommercial Information: Payment Details, Location data.\n\nInternet Activity Information: Website activity or cookies.\n\nPersonal information is anything that directly or indirectly identifies and relates to a living person, such as a name, address, telephone number, date of birth, unique identification number, photographs, video recordings. WE DO NOT COLLECT video recordings.\n\nSome personal information is \'special category data\' and needs more protection due to its sensitivity. This includes any information about an identifiable individual that can reveal their sexuality and sexual health, religious or philosophical beliefs, racial origin, ethnicity, physical or mental health, trade union membership, political opinion, genetic/biometric data. Personal information relating to criminal offences and convictions, although not \'special category data\', is still sensitive in nature and merits higher protection.\n\nWe do not collect Health information or Employment details.',
         },
         {
-            title: 'How We Collect Your Data',
+            title: '4. How We Collect Your Data',
             content:
-                'We collect data through the following methods: Website forms when you populate them. Sign-up sheets. Newsletter Subscription forms. Cookies. Social media interactions.',
+                'We collect data through the following methods:\n\n• Website forms when you populate them.\n• Sign-up sheets\n• Newsletter Subscription forms\n• Cookies\n• Social media interactions',
         },
         {
-            title: 'Why We Collect and Use Your Data (Our Lawful Basis)',
+            title: '5. Why We Collect and Use Your Data (Our Lawful Basis)',
             content:
-                'We collect your personal data for the following purposes, based on the identified lawful basis: To provide a product or service - Lawful Basis: Performance of a contract with you. To process payments or invoices - Lawful Basis: Performance of a contract with you. To contact customers or respond to enquiries - Lawful Basis: Legitimate Interests (responding to customer requests). To send marketing or newsletters - Lawful Basis: Consent (where required) or Legitimate Interests (for existing customers). To improve our website or services - Lawful Basis: Legitimate Interests (improving customer experience). To meet legal or tax requirements - Lawful Basis: Compliance with a legal obligation. To recruit staff or volunteers - Lawful Basis: Legitimate Interests or Pre-contractual steps.',
+                'We collect your personal data for the following purposes, based on the identified lawful basis:',
+            hasTable: true,
+            tableData: [
+                { purpose: 'To provide a product or service', basis: 'Performance of a contract with you' },
+                { purpose: 'To process payments or invoices', basis: 'Performance of a contract with you' },
+                { purpose: 'To contact customers or respond to enquiries', basis: 'Legitimate Interests (responding to customer requests)' },
+                { purpose: 'To send marketing or newsletters', basis: 'Consent (where required) or Legitimate Interests (for existing customers)' },
+                { purpose: 'To improve our website or services', basis: 'Legitimate Interests (improving customer experience)' },
+                { purpose: 'To meet legal or tax requirements', basis: 'Compliance with a legal obligation' },
+                { purpose: 'To recruit staff or volunteers', basis: 'Legitimate Interests or Pre-contractual steps.' },
+            ],
         },
         {
-            title: 'Sharing Your Personal Data',
+            title: '6. Sharing Your Personal Data',
             content:
-                'We share your personal data with third-party service providers and partners to operate our business effectively. We will only share data necessary for them to perform their services. Examples of parties we share data with: Newsletter/Marketing Providers: Email addresses shared with services to send you marketing communications. Financial Services Providers: Payment Details shared with services to process your payments. Other Service Providers: As needed depending on the context, which may include logistics partners, IT service providers, etc. We take steps to ensure all third parties are compliant with UK General Data Protection Regulation (GDPR).',
+                'We share your personal data with third-party service providers and partners to operate our business effectively. We will only share data necessary for them to perform their services.\n\nExamples of parties we share data with:\n\nNewsletter/Marketing Providers: Email addresses shared with services to send you marketing communications.\n\nFinancial Services Providers: Payment Details shared with services to process your payments.\n\nOther Service Providers: As needed depending on the context, which may include logistics partners, IT service providers, etc.\n\nWe take steps to ensure all third parties are compliant with UK General Data Protection Regulation(GDPR).',
         },
         {
-            title: 'Data Storage and Security',
+            title: '7. Data Storage and Security',
             content:
-                'Storage Locations: We store data on company computers, on our website database, and in the cloud (iCloud). Security Measures: We use the following measures to protect your data: Passwords: Data is stored in locations accessible only with a password. Encryption: We use methods such as hashing, pseudonymisation, and anonymization to encrypt data. Access Controls: Security measures ensure only authorised individuals can access personal data, systems, or files when required.',
+                'Storage Locations: We store data on company computers, on our website database, and in the cloud (iCloud).\n\nSecurity Measures: We use the following measures to protect your data:\n\nPasswords: Data is stored in locations accessible only with a password.\n\nEncryption: We use methods such as hashing, pseudonymisation, and anonymization to encrypt data.\n\nAccess Controls: Security measures ensure only authorised individuals can access personal data, systems, or files when required.',
         },
         {
-            title: 'International Data Transfers',
+            title: '8. International Data Transfers',
             content:
-                'Some of our third-party service providers may host data outside the UK. Where this is the case, we will ensure appropriate safeguards such as Standard Contractual Clauses are in place to ensure your personal data is protected to the same standard as in the UK. We share your personal data with certain service providers who are based outside the UK and the European Economic Area (EEA). This is necessary to facilitate our business operations, such as: Using cloud hosting services (for website and data storage). Utilising specific software platforms like email marketing, customer relationship management. When we transfer your personal data outside the UK, we ensure a similar degree of protection is afforded to it by ensuring at least one of the following safeguards is implemented: 1. Adequacy Decisions - We may transfer your data to countries that have been deemed to provide an adequate level of protection for personal data by the UK government. 2. Appropriate Safeguards (Contractual Clauses) - Where an adequacy decision does not exist, we will use appropriate safeguards, which include implementing: The International Data Transfer Agreement (IDTA) issued by the UK Information Commissioner\'s Office (ICO); OR The International Data Transfer Addendum to the European Commission\'s Standard Contractual Clauses (SCCs). These contractual documents provide specific obligations on the recipient of the data to protect your personal data to the standard required by UK data protection law. 3. Necessity/Derogations: In the absence of an adequacy decision or appropriate safeguards, we may rely on a specific derogation for the transfer such as where the transfer is necessary for the performance of a contract between you and us, or you have given explicit consent to the proposed transfer after being informed of the risks. This is typically only for one-off or non-systematic transfers.',
+                'Some of our third-party service providers may host data outside the UK. Where this is the case, we will ensure appropriate safeguards such as Standard Contractual Clauses are in place to ensure your personal data is protected to the same standard as in the UK.\n\nWe share your personal data with certain service providers who are based outside the UK and the European Economic Area (EEA). This is necessary to facilitate our business operations, such as:\n\n• Using cloud hosting services (for website and data storage).\n• Utilising specific software platforms like email marketing, customer relationship management.\n\nWhen we transfer your personal data outside the UK, we ensure a similar degree of protection is afforded to it by ensuring at least one of the following safeguards is implemented:\n\n1. Adequacy Decisions\n\nWe may transfer your data to countries that have been deemed to provide an adequate level of protection for personal data by the UK government.\n\n2. Appropriate Safeguards (Contractual Clauses)\n\nWhere an adequacy decision does not exist, we will use appropriate safeguards, which include implementing:\n\nThe International Data Transfer Agreement (IDTA) issued by the UK Information Commissioner\'s Office (ICO); OR\n\nThe International Data Transfer Addendum to the European Commission\'s Standard Contractual Clauses (SCCs).\n\nThese contractual documents provide specific obligations on the recipient of the data to protect your personal data to the standard required by UK data protection law.\n\n3. Necessity/Derogations:\n\nIn the absence of an adequacy decision or appropriate safeguards, we may rely on a specific derogation for the transfer such as where the transfer is necessary for the performance of a contract between you and us, or you have given explicit consent to the proposed transfer after being informed of the risks. This is typically only for one-off or non-systematic transfers.',
         },
         {
-            title: 'Your Data Protection Rights',
+            title: '9. Your Data Protection Rights',
             content:
-                'Under UK data protection law, you have the following rights, which you can exercise by contacting us at info@tasselandwicker.com: (Change to a specific email for privacy matters). Right to Opt-out of Marketing: You can always opt out of marketing by following the unsubscribe link provided in our marketing emails. Right to Access (Subject Access Request): You have the right to ask for a copy of the personal data we hold about you. Right to Rectification: You have the right to ask us to correct data that you believe is inaccurate or incomplete. Right to Erasure (\'Right to be Forgotten\'): You have the right to ask us to delete your personal data. If you wish to exercise your rights (Access, Correction, Deletion), please contact us via info@tasselandwicker.com, and we will process your request manually. (Change to a specific email for privacy matters)',
+                'Under UK data protection law, you have the following rights, which you can exercise by contacting us at Info@tasselandwicker.com\n\nRight to Opt-out of Marketing: You can always opt out of marketing by following the unsubscribe link provided in our marketing emails.\n\nRight to Access (Subject Access Request): You have the right to ask for a copy of the personal data we hold about you.\n\nRight to Rectification: You have the right to ask us to correct data that you believe is inaccurate or incomplete.\n\nRight to Erasure (\'Right to be Forgotten\'): You have the right to ask us to delete your personal data.\n\nIf you wish to exercise your rights (Access, Correction, Deletion), please contact us via info@tasselandwicker.com, and we will process your request manually.',
         },
         {
-            title: 'Data Retention and Disposal',
+            title: '10. Data Retention and Disposal',
             content:
-                'We will only keep your personal data for as long as necessary to fulfil the purposes we collected it for, including for the purposes of satisfying any legal, accounting, or reporting requirements. To determine the appropriate retention period for personal data, we consider the amount, nature, and sensitivity of the personal data, the potential risk of harm from unauthorized use or disclosure of your personal data, the purposes for which we process your personal data, and any applicable legal requirements. We adhere to the following standard retention periods: Financial & Tax Records: We generally retain financial transaction data (including payment details and associated customer information) for six years after the end of the relevant tax year, to comply with legal obligations set by His Majesty\'s Revenue and Customs (HMRC). Customer Order History: This data is retained for a period of up to one year after the last purchase to cover potential contractual claims, manage warranty issues, and provide customer support. Marketing Consent (Email List): We retain your email address until you unsubscribe.',
+                'We will only keep your personal data for as long as necessary to fulfil the purposes we collected it for, including for the purposes of satisfying any legal, accounting, or reporting requirements.\n\nTo determine the appropriate retention period for personal data, we consider the amount, nature, and sensitivity of the personal data, the potential risk of harm from unauthorized use or disclosure of your personal data, the purposes for which we process your personal data, and any applicable legal requirements.\n\nWe adhere to the following standard retention periods:\n\nFinancial & Tax Records: We generally retain financial transaction data (including payment details and associated customer information) for six years after the end of the relevant tax year, to comply with legal obligations set by His Majesty\'s Revenue and Customs (HMRC).\n\nCustomer Order History: This data is retained for a period of up to one year after the last purchase to cover potential contractual claims, manage warranty issues, and provide customer support.\n\nMarketing Consent (Email List): We retain your email address until you unsubscribe.',
         },
         {
-            title: 'Disposal Methods',
+            title: '11. Disposal Methods',
             content:
-                'When data is no longer needed, we will safely dispose of it by: Digital Data (Website/Computers/iCloud): We use methods such as secure deletion (wiping) software to ensure data is permanently removed and cannot be recovered. Where data is highly sensitive, we may use anonymisation to retain statistical information without identifying you.',
+                'When data is no longer needed, we will safely dispose of it by:\n\nDigital Data (Website/Computers/iCloud): We use methods such as secure deletion (wiping) software to ensure data is permanently removed and cannot be recovered. Where data is highly sensitive, we may use anonymisation to retain statistical information without identifying you.',
         },
         {
-            title: 'Website Cookies and Tracking',
+            title: '12. Website Cookies and Tracking',
             content:
-                'We use tracking tools and cookies on our website such as: _stripe_mid (Stripe) - Used for fraud prevention and distinguishing users during payment. Helps Stripe identify the device for secure checkout. Third party (Strict), 1 year expiry, Strictly Necessary. __vercel_toolbar (Vercel) - Enables the Vercel developer toolbar in preview environments. Not used for tracking. First-party, 17 days expiry, Functional/Performance. auth-storage (This Website - Next.js + Firebase Auth) - Stores encoded authentication/session data for logged-in users. First-Party, 128 days expiry, Strictly Necessary. cookieConsent (This Website) - Stores whether the user accepted the cookie banner. First-Party, 21 days expiry, Preferences.',
+                'We use tracking tools and cookies on our website such as:',
+            hasTable: true,
+            tableData: [
+                { cookieName: '_stripe_mid', provider: 'Stripe', purpose: 'Used for fraud prevention and distinguishing users during payment. Helps Stripe identify the device for secure checkout.', type: 'Third party(Strict)', expiry: '1 year', category: 'Strictly Necessary' },
+                { cookieName: '__vercel_toolbar', provider: 'Vercel', purpose: 'Enables the Vercel developer toolbar in preview environments. Not used for tracking.', type: 'First-party', expiry: '17 days', category: 'Functional/Performance' },
+                { cookieName: 'auth-storage', provider: 'This Website(Next.js + Firebase Auth)', purpose: 'Stores encoded authentication/session data for logged-in users', type: 'First-Party', expiry: '128', category: 'Strictly Necessary' },
+                { cookieName: 'cookieConsent', provider: 'This Website', purpose: 'Stores whether the user accepted the cookie banner', type: 'First-Party', expiry: '21 days', category: 'Preferences' },
+            ],
         },
         {
-            title: 'Data Breach Procedure',
+            title: '13. Data Breach Procedure',
             content:
-                'A personal data breach is a security incident that leads to the accidental or unlawful destruction, loss, alteration, unauthorised disclosure of, or access to, personal data transmitted, stored, or otherwise processed. We have a procedure in place to deal with any suspected personal data breach and will follow these steps: Containment & Assessment: We will immediately take steps to contain the breach and assess the risk level and the extent of the data compromised. Notification to the ICO: If the breach is likely to result in a risk to the rights and freedoms of individuals, we will report the breach to the Information Commissioner\'s Office (ICO) in the UK within 72 hours of becoming aware of it. Notification to Affected Individuals: If the breach is likely to result in a high risk to the rights and freedoms of individuals like identity theft, or financial loss, we will inform the affected individuals directly and without undue delay, advising them on the steps they can take to protect themselves. Investigation & Remediation: We will investigate the cause of the breach and take measures to prevent any reoccurrence like enhancing security protocols, or providing extra staff training. Documentation: We will keep a detailed record of all personal data breaches, regardless of whether we are required to notify the ICO or the individuals.',
+                'A personal data breach is a security incident that leads to the accidental or unlawful destruction, loss, alteration, unauthorised disclosure of, or access to, personal data transmitted, stored, or otherwise processed.\n\nWe have a procedure in place to deal with any suspected personal data breach and will follow these steps:\n\nContainment & Assessment: We will immediately take steps to contain the breach and assess the risk level and the extent of the data compromised.\n\nNotification to the ICO: If the breach is likely to result in a risk to the rights and freedoms of individuals, we will report the breach to the Information Commissioner\'s Office (ICO) in the UK within 72 hours of becoming aware of it.\n\nNotification to Affected Individuals: If the breach is likely to result in a high risk to the rights and freedoms of individuals like identity theft, or financial loss, we will inform the affected individuals directly and without undue delay, advising them on the steps they can take to protect themselves.\n\nInvestigation & Remediation: We will investigate the cause of the breach and take measures to prevent any reoccurrence like enhancing security protocols, or  providing extra staff training.\n\nDocumentation: We will keep a detailed record of all personal data breaches, regardless of whether we are required to notify the ICO or the individuals.',
         },
     ];
 
@@ -142,30 +159,82 @@ export default function PrivacyPolicy() {
             </section>
 
             {/* Content */}
-            <section id="privacy-content" className="py-24">
-                <div className="max-w-5xl mx-auto px-4 sm:px-8 lg:px-12 space-y-16">
-                    <div className="text-center mb-16">
-                        <p className="text-lg text-luxury-cool-grey font-extralight leading-relaxed max-w-3xl mx-auto">
-                            At Tassel & Wicker, we value your privacy and are committed to protecting your personal data. This Privacy Notice explains how we collect, use, and protect your personal data when you use our website, purchase items from the organisation, or interact with us.
+            <section id="privacy-content" className="py-16">
+                <div className="max-w-4xl mx-auto px-6 sm:px-8 lg:px-12">
+                    <div className="mb-8">
+                        <p className="text-base text-luxury-black font-extralight mb-4">
+                            <strong className="font-extralight">Effective Date: November 19, 2025</strong>
+                        </p>
+                        <p className="text-base text-luxury-black font-extralight mb-8">
+                            Learn more about how we care for your information{' '}
+                            <a 
+                                href="/document-viewer/privacy-policy" 
+                                target="_blank" 
+                                rel="noopener noreferrer"
+                                className="underline hover:text-brand-purple transition-colors"
+                            >
+                                here
+                            </a>.
                         </p>
                     </div>
-                    {sections.map((section, index) => (
-                        <motion.div
-                            key={section.title}
-                            initial={{ opacity: 0, y: 30 }}
-                            whileInView={{ opacity: 1, y: 0 }}
-                            viewport={{ once: true, amount: 0.3 }}
-                            transition={{ duration: 0.6, delay: index * 0.05 }}
-                            className="border border-luxury-warm-grey/20 rounded-3xl p-8 md:p-12 bg-white/60 backdrop-blur-sm"
-                        >
-                            <h2 className="text-2xl md:text-3xl font-extralight uppercase tracking-[0.25em] text-luxury-charcoal mb-4">
+                    <div className="prose prose-lg max-w-none text-luxury-black leading-relaxed space-y-8">
+                        {sections.map((section) => (
+                            <div key={section.title} className="mb-8">
+                                <h2 className="text-xl font-extralight uppercase text-luxury-black mb-4 mt-8">
                                 {section.title}
                             </h2>
-                            <p className="text-luxury-cool-grey font-extralight text-base md:text-lg leading-relaxed">
-                                {section.content}
-                            </p>
-                        </motion.div>
+                                <div className="text-base text-luxury-black font-extralight leading-relaxed whitespace-pre-line mb-6">
+                                {renderTextWithEmailLinks(section.content)}
+                                </div>
+                                {section.hasTable && section.tableData && (
+                                    <div className="mt-6 mb-8 overflow-x-auto">
+                                        <table className="w-full border-collapse border border-gray-300 mt-4 text-sm">
+                                            <thead>
+                                                <tr className="bg-gray-100">
+                                                    {section.title === '5. Why We Collect and Use Your Data (Our Lawful Basis)' ? (
+                                                        <>
+                                                            <th className="border border-gray-300 px-4 py-3 text-left font-extralight uppercase text-luxury-black">Purpose of Collection</th>
+                                                            <th className="border border-gray-300 px-4 py-3 text-left font-extralight uppercase text-luxury-black">Lawful Basis</th>
+                                                        </>
+                                                    ) : (
+                                                        <>
+                                                            <th className="border border-gray-300 px-4 py-3 text-left font-extralight uppercase text-luxury-black">Cookie Name</th>
+                                                            <th className="border border-gray-300 px-4 py-3 text-left font-extralight uppercase text-luxury-black">Provider</th>
+                                                            <th className="border border-gray-300 px-4 py-3 text-left font-extralight uppercase text-luxury-black">Purpose</th>
+                                                            <th className="border border-gray-300 px-4 py-3 text-left font-extralight uppercase text-luxury-black">Type</th>
+                                                            <th className="border border-gray-300 px-4 py-3 text-left font-extralight uppercase text-luxury-black">Expiry</th>
+                                                            <th className="border border-gray-300 px-4 py-3 text-left font-extralight uppercase text-luxury-black">Category</th>
+                                                        </>
+                                                    )}
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {section.tableData.map((row: { purpose?: string; basis?: string; cookieName?: string; provider?: string; type?: string; expiry?: string; category?: string }, rowIndex: number) => (
+                                                    <tr key={rowIndex}>
+                                                        {section.title === '5. Why We Collect and Use Your Data (Our Lawful Basis)' ? (
+                                                            <>
+                                                                <td className="border border-gray-300 px-4 py-3 font-extralight">{row.purpose}</td>
+                                                                <td className="border border-gray-300 px-4 py-3 font-extralight">{row.basis}</td>
+                                                            </>
+                                                        ) : (
+                                                            <>
+                                                                <td className="border border-gray-300 px-4 py-3 font-extralight">{row.cookieName}</td>
+                                                                <td className="border border-gray-300 px-4 py-3 font-extralight">{row.provider}</td>
+                                                                <td className="border border-gray-300 px-4 py-3 font-extralight">{row.purpose}</td>
+                                                                <td className="border border-gray-300 px-4 py-3 font-extralight">{row.type}</td>
+                                                                <td className="border border-gray-300 px-4 py-3 font-extralight">{row.expiry}</td>
+                                                                <td className="border border-gray-300 px-4 py-3 font-extralight">{row.category}</td>
+                                                            </>
+                                                        )}
+                                                    </tr>
                     ))}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                )}
+                            </div>
+                        ))}
+                    </div>
                 </div>
             </section>
         </div>

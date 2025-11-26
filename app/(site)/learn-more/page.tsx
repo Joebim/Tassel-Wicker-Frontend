@@ -237,7 +237,7 @@ function LearnMoreContent() {
             <div className="grid grid-cols-1 lg:grid-cols-2 min-h-screen">
                 {/* Left Panel - Product Image */}
                 <div className="bg-white relative flex items-center justify-center p-6  sm:p-12">
-                    <div className="relative max-w-lg w-full  h-[400px] sm:h-[600px]">
+                    <div className="relative max-w-lg w-full  h-[400px] sm:h-[700px]">
                         <Image
                             src={itemImage}
                             alt={item.name}
@@ -276,9 +276,10 @@ function LearnMoreContent() {
 
                         {/* Description */}
                         <div className="mb-12">
-                            <p className="text-luxury-cool-grey leading-relaxed font-extralight text-lg">
-                                {item.description}
-                            </p>
+                            <p 
+                                className="text-luxury-cool-grey leading-relaxed font-extralight text-lg"
+                                dangerouslySetInnerHTML={{ __html: item.description }}
+                            />
                         </div>
 
                     </div>

@@ -7,7 +7,7 @@ import PreconnectLinks from './preconnect-links';
 export const metadata: Metadata = {
   metadataBase: new URL('https://tasselandwicker.com'),
   title: {
-    default: "Tassel & Wicker | Luxury Wicker Baskets & Lifestyle Essentials",
+    default: "Tassel & Wicker | Wicker Gift Baskets & Lifestyle Essentials",
     template: "%s | Tassel & Wicker"
   },
   description: "Discover thoughtfully curated wicker baskets and lifestyle essentials at Tassel & Wicker. Quality, aspirational, and timeless pieces for elevated living. Build your custom basket or shop our curated collection.",
@@ -48,14 +48,14 @@ export const metadata: Metadata = {
     alternateLocale: ["en_GB"],
     url: "https://tasselandwicker.com",
     siteName: "Tassel & Wicker",
-    title: "Tassel & Wicker | Luxury Wicker Baskets & Lifestyle Essentials",
+    title: "Tassel & Wicker | Wicker Gift Baskets & Lifestyle Essentials",
     description: "Discover thoughtfully curated wicker baskets and lifestyle essentials. Quality, aspirational, and timeless pieces for elevated living.",
     images: [
       {
         url: "https://tasselandwicker.com/og-image.jpg",
         width: 1200,
         height: 630,
-        alt: "Tassel & Wicker - Luxury Wicker Baskets & Lifestyle Essentials",
+        alt: "Tassel & Wicker - Wicker Gift Baskets & Lifestyle Essentials",
       },
     ],
   },
@@ -63,7 +63,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     site: "@tasselandwicker",
     creator: "@tasselandwicker",
-    title: "Tassel & Wicker | Luxury Wicker Baskets & Lifestyle Essentials",
+    title: "Tassel & Wicker | Wicker Gift Baskets & Lifestyle Essentials",
     description: "Discover thoughtfully curated wicker baskets and lifestyle essentials. Quality, aspirational, and timeless pieces for elevated living.",
     images: ["https://tasselandwicker.com/twitter-card.jpg"],
   },

@@ -3,9 +3,9 @@
 import { useEffect } from 'react';
 import Image from 'next/image';
 import { LuChevronDown } from 'react-icons/lu';
-import { motion } from 'framer-motion';
 import ScrollTextAnimation from '@/components/common/ScrollTextAnimation';
 import CircularText from '@/components/common/CircularText';
+import { renderTextWithEmailLinks } from '@/utils/textUtils';
 
 export default function TermsOfService() {
     useEffect(() => {
@@ -18,37 +18,37 @@ export default function TermsOfService() {
         {
             title: 'Who we are',
             content:
-                'We are tasselandwicker.com a luxury lifestyle online brand.',
+                'We are tasselandwicker.com an online lifestyle brand.',
         },
         {
             title: 'Introduction',
             content:
-                'These Terms and Conditions ("Terms") govern your use of the website located at, www.tasselandwicker.com (the "Website"), which is operated by Tassel and Wicker (the "Company", "we", "us", or "our"), a company registered in England and Wales with its registered office at 7, Westland Drive, Newark, Nottinghamshire, England. By accessing or using the Website, you agree to be bound by these Terms, which constitute a legally binding agreement between you and the Company. If you disagree with any part of the Terms, you must not use the Website.',
+                'These Terms and Conditions ("Terms") govern your use of the website located at, www.tasselandwicker.com (the "Website"), which is operated by Tassel and Wicker (the "Company", "we", "us", or "our"). By accessing or using the Website, you agree to be bound by these Terms, which constitute a legally binding agreement between you and the Company. If you disagree with any part of the Terms, you must not use the Website.',
         },
         {
             title: 'Using Tasselandwicker.com',
             content:
-                'You agree to use tasselandwicker.com only for lawful purposes. You must also use it in a way that does not infringe the rights of, or restrict or inhibit the use and enjoyment of, this site by anyone else. We update tasselandwicker.com all the time. We can change or remove content at any time without notice.',
+                'You agree to use tasselandwicker.com  only for lawful purposes. You must also use it in a way that does not infringe the rights of, or restrict or inhibit the use and enjoyment of, this site by anyone else.\n\nWe update tasselandwicker.com all the time. We can change or remove content at any time without notice.',
         },
         {
             title: 'Changes to the Terms',
             content:
-                'We reserve the right to revise and amend these Terms from time to time. The updated version will be indicated by an updated "Revised" date and the updated version will be effective as soon as it is accessible. You are responsible for regularly reviewing these Terms. Your continued use of the Website after any changes are posted constitutes your acceptance of the new Terms.',
+                'We reserve the right to revise and amend these Terms from time to time. The updated version will be indicated by an updated "Revised" date and the updated version will be effective as soon as it is accessible.\n\nYou are responsible for regularly reviewing these Terms. Your continued use of the Website after any changes are posted constitutes your acceptance of the new Terms.',
         },
         {
             title: 'Intellectual Property Rights',
             content:
-                'Unless otherwise stated, we or our licensors own the intellectual property rights in the Website and material on the Website, including but not limited to all content, text, graphics, logos, images, audio, video, software, and underlying code. All these intellectual property rights are reserved. You may view, download for caching purposes only, and print pages from the Website for your own personal use, subject to the restrictions set out below and elsewhere in these Terms.',
+                'Unless otherwise stated, we or our licensors own the intellectual property rights in the Website and material on the Website, including but not limited to all content, text, graphics, logos, images, audio, video, software, and underlying code.\n\nAll these intellectual property rights are reserved. You may view, download for caching purposes only, and print pages from the Website for your own personal use, subject to the restrictions set out below and elsewhere in these Terms.',
         },
         {
             title: 'Acceptable Use',
             content:
-                'You must not: Republish material from this Website (including republication on another website). Sell, rent, or sub-license material from the Website. Show any material from the Website in public. Reproduce, duplicate, copy, or otherwise exploit material on our Website for a commercial purpose. Redistribute material from this Website. Use our Website in any way that causes, or may cause, damage to the Website or impairment of the availability or accessibility of the Website. Use our Website in any way which is unlawful, illegal, fraudulent, or harmful, or in connection with any unlawful, illegal, fraudulent, or harmful purpose or activity.',
+                'You must not:\n\n• Republish material from this Website (including republication on another website).\n• Sell, rent, or sub-license material from the Website.\n• Show any material from the Website in public.\n• Reproduce, duplicate, copy, or otherwise exploit material on our Website for a commercial purpose.\n• Redistribute material from this Website.\n• Use our Website in any way that causes, or may cause, damage to the Website or impairment of the availability or accessibility of the Website.\n• Use our Website in any way which is unlawful, illegal, fraudulent, or harmful, or in connection with any unlawful, illegal, fraudulent, or harmful purpose or activity.',
         },
         {
             title: 'User Accounts and Registration',
             content:
-                'If any part of the Website requires you to register an account, you agree to provide accurate and complete information and to keep this information up-to-date. You are responsible for maintaining the confidentiality of your account password and are responsible for all activities that occur under your account. We reserve the right to terminate or suspend your account at any time for any breach of these Terms.',
+                'If any part of the Website requires you to register an account, you agree to provide accurate and complete information and to keep this information up-to-date.\n\nYou are responsible for maintaining the confidentiality of your account password and are responsible for all activities that occur under your account.\n\nWe reserve the right to terminate or suspend your account at any time for any breach of these Terms.',
         },
         {
             title: 'Information about you and your visits to tasselandwicker.com',
@@ -58,7 +58,7 @@ export default function TermsOfService() {
         {
             title: 'Limitation of Liability',
             content:
-                'Nothing in these Terms will: (a) limit or exclude our or your liability for death or personal injury resulting from negligence; (b) limit or exclude our or your liability for fraud or fraudulent misrepresentation; (c) limit any of our or your liabilities in any way that is not permitted under applicable UK law; or (d) exclude any of our or your liabilities that may not be excluded under applicable UK law. Subject to the preceding paragraph, the Website and its content are provided on an "as is" and "as available" basis. To the extent permitted by law, we exclude all warranties, representations, conditions, and other terms which might otherwise be implied by statute, common law, or the law of equity. We will not be liable for any loss or damage of any nature, including direct, indirect, or consequential loss, arising under or in connection with the use of, or inability to use, the Website.',
+                'Nothing in these Terms will:\n\n(a) limit or exclude our or your liability for death or personal injury resulting from negligence;\n\n(b) limit or exclude our or your liability for fraud or fraudulent misrepresentation;\n\n(c) limit any of our or your liabilities in any way that is not permitted under applicable UK law;\n\nor\n\n(d) exclude any of our or your liabilities that may not be excluded under applicable UK law.\n\nSubject to the preceding paragraph, the Website and its content are provided on an "as is" and "as available" basis. To the extent permitted by law, we exclude all warranties, representations, conditions, and other terms which might otherwise be implied by statute, common law, or the law of equity.\n\nWe will not be liable for any loss or damage of any nature, including direct, indirect, or consequential loss, arising under or in connection with the use of, or inability to use, the Website.',
         },
         {
             title: 'Indemnity',
@@ -68,12 +68,12 @@ export default function TermsOfService() {
         {
             title: 'Governing Law and Jurisdiction',
             content:
-                'These Terms shall be governed by and construed in accordance with the laws of England and Wales. Any disputes relating to these Terms shall be subject to the exclusive jurisdiction of the courts of England and Wales.',
+                'These Terms shall be governed by and construed in accordance with the laws of England and Wales.\n\nAny disputes relating to these Terms shall be subject to the exclusive jurisdiction of the courts of England and Wales.',
         },
         {
             title: 'Contact Information',
             content:
-                'If you have any questions about these Terms, please contact us at: Email: info@tasselandwicker.com',
+                'If you have any questions about these Terms, please contact us at:\n\nEmail: info@tasselandwicker.com',
         },
     ];
 
@@ -83,7 +83,7 @@ export default function TermsOfService() {
             <section className="relative h-screen w-full overflow-hidden">
                 <div className="absolute inset-0 z-0">
                     <Image
-                        src="https://res.cloudinary.com/dygrsvya5/image/upload/q_auto:low/v1763659375/TERMS_OF_SERVICE_py8opy.jpg"
+                        src="https://res.cloudinary.com/dygrsvya5/image/upload/q_auto:low/v1764174598/TERMS_OF_SERVICE_1_lbuift.jpg"
                         alt="Terms of Service"
                         fill
                         className="object-cover"
@@ -137,30 +137,33 @@ export default function TermsOfService() {
             </section>
 
             {/* Content */}
-            <section id="terms-content" className="py-24">
-                <div className="max-w-5xl mx-auto px-4 sm:px-8 lg:px-12 space-y-16">
-                    <div className="text-center mb-16">
-                        <p className="text-lg text-luxury-cool-grey font-extralight leading-relaxed max-w-3xl mx-auto">
-                            These Terms and Conditions govern your use of tasselandwicker.com. By accessing or using our Website, you agree to be bound by these Terms.
+            <section id="terms-content" className="py-16">
+                <div className="max-w-4xl mx-auto px-6 sm:px-8 lg:px-12">
+                    <div className="mb-8">
+                        <p className="text-base text-luxury-black font-extralight mb-8">
+                            Feel free to look through our Terms of Service{' '}
+                            <a
+                                href="/document-viewer/terms-of-service"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="underline hover:text-brand-purple transition-colors"
+                            >
+                                here
+                            </a>.
                         </p>
                     </div>
-                    {sections.map((section, index) => (
-                        <motion.div
-                            key={section.title}
-                            initial={{ opacity: 0, y: 30 }}
-                            whileInView={{ opacity: 1, y: 0 }}
-                            viewport={{ once: true, amount: 0.3 }}
-                            transition={{ duration: 0.6, delay: index * 0.05 }}
-                            className="border border-luxury-warm-grey/20 rounded-3xl p-8 md:p-12 bg-white/60 backdrop-blur-sm"
-                        >
-                            <h2 className="text-2xl md:text-3xl font-extralight uppercase tracking-[0.25em] text-luxury-charcoal mb-4">
-                                {section.title}
-                            </h2>
-                            <p className="text-luxury-cool-grey font-extralight text-base md:text-lg leading-relaxed">
-                                {section.content}
-                            </p>
-                        </motion.div>
-                    ))}
+                    <div className="prose prose-lg max-w-none text-luxury-black leading-relaxed space-y-8">
+                        {sections.map((section) => (
+                            <div key={section.title} className="mb-8">
+                                <h2 className="text-xl font-extralight uppercase text-luxury-black mb-4 mt-8">
+                                    {section.title}
+                                </h2>
+                                <div className="text-base text-luxury-black font-extralight leading-relaxed whitespace-pre-line mb-6">
+                                    {renderTextWithEmailLinks(section.content)}
+                                </div>
+                            </div>
+                        ))}
+                    </div>
                 </div>
             </section>
         </div>

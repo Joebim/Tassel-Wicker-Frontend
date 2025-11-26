@@ -87,7 +87,7 @@ export default function CorporateBespoke() {
             <section className="relative h-screen w-full overflow-hidden">
                 <div className="absolute inset-0 z-0">
                     <Image
-                        src="https://res.cloudinary.com/dygrsvya5/image/upload/q_auto:low/v1761542829/IMAGE_THREE_fuxzxd.jpg"
+                        src="https://res.cloudinary.com/dygrsvya5/image/upload/q_auto:low/v1761542830/IMAGE_FIVE_c3hzmh.jpg"
                         alt="Corporate and bespoke service"
                         fill
                         className="object-cover"
@@ -97,7 +97,7 @@ export default function CorporateBespoke() {
                     <div className="absolute inset-0 bg-black opacity-50"></div>
                 </div>
                 <div className="relative z-10 h-full w-full flex flex-row items-end sm:items-start justify-end lg:items-end lg:justify-between gap-7 sm:gap-10 px-6 sm:px-10 lg:px-12 pb-12">
-                    <div className=" flex flex-row items-end self-end w-full">
+                    <div className=" flex flex-row items-end justify-between self-end w-full">
                         <div className="max-w-5xl text-white text-left lg:text-left">
                             <ScrollTextAnimation
                                 className="text-[30px] sm:text-[90px] font-extralight tracking-wide uppercase leading-none"
