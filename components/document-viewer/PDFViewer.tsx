@@ -14,8 +14,32 @@ interface PDFViewerProps {
 
 export default function PDFViewer({ docName }: PDFViewerProps) {
   const pdfUrl = documentMap[docName] || null;
+  const [isMobile, setIsMobile] = useState(false);
+
+  // Detect mobile device
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   useEffect(() => {
+    // Set viewport meta tag for proper mobile zoom
+    const viewport = document.querySelector('meta[name="viewport"]');
+    if (viewport) {
+      viewport.setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes');
+    } else {
+      const meta = document.createElement('meta');
+      meta.name = 'viewport';
+      meta.content = 'width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes';
+      document.getElementsByTagName('head')[0].appendChild(meta);
+    }
+
     // Disable right-click context menu
     const handleContextMenu = (e: MouseEvent) => {
       e.preventDefault();
@@ -60,6 +84,11 @@ export default function PDFViewer({ docName }: PDFViewerProps) {
       document.removeEventListener('keydown', handleKeyDown);
       document.removeEventListener('selectstart', handleSelectStart);
       document.removeEventListener('dragstart', handleDragStart);
+      
+      // Restore default viewport on unmount
+      if (viewport) {
+        viewport.setAttribute('content', 'width=device-width, initial-scale=1');
+      }
     };
   }, []);
 
@@ -81,25 +110,26 @@ export default function PDFViewer({ docName }: PDFViewerProps) {
   return (
     <div className="min-h-screen bg-gray-100">
       {/* Toolbar */}
-      <div className="bg-white border-b border-gray-200 sticky top-0 z-50 shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
+      <div className={`bg-white border-b border-gray-200 sticky top-0 z-50 shadow-sm ${isMobile ? 'py-2' : 'py-3'}`}>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-center">
-            <p className="text-luxury-black font-extralight text-sm">
-              Document Viewer - Use browser controls to navigate
+            <p className={`text-luxury-black font-extralight ${isMobile ? 'text-xs' : 'text-sm'}`}>
+              {isMobile ? 'Document Viewer' : 'Document Viewer - Use browser controls to navigate'}
             </p>
           </div>
         </div>
       </div>
 
       {/* PDF Viewer using iframe */}
-      <div className="flex justify-center items-start py-4 px-4 h-[calc(100vh-80px)]">
+      <div className={`flex justify-center items-start py-4 px-4 ${isMobile ? 'h-[calc(100vh-60px)]' : 'h-[calc(100vh-80px)]'}`}>
         <div className="w-full h-full bg-white shadow-lg" style={{ userSelect: 'none' }}>
           <iframe
-            src={`${pdfUrl}#toolbar=0&navpanes=0&scrollbar=0`}
+            src={`${pdfUrl}#toolbar=0&navpanes=0&scrollbar=0${isMobile ? '&zoom=page-width' : '&zoom=auto'}`}
             className="w-full h-full border-0"
             title="PDF Document Viewer"
             style={{
               pointerEvents: 'auto',
+              touchAction: 'pan-x pan-y pinch-zoom',
             }}
             onContextMenu={(e) => e.preventDefault()}
             onDragStart={(e) => e.preventDefault()}
@@ -123,6 +153,13 @@ export default function PDFViewer({ docName }: PDFViewerProps) {
           -moz-user-drag: none;
           -o-user-drag: none;
           user-drag: none;
+        }
+        /* Mobile-specific PDF viewer adjustments */
+        @media (max-width: 768px) {
+          iframe[title="PDF Document Viewer"] {
+            -webkit-overflow-scrolling: touch;
+            overflow: auto;
+          }
         }
       `}</style>
     </div>

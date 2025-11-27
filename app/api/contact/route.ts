@@ -5,12 +5,12 @@ import { createContactFormEmailTemplate } from "@/lib/email-templates";
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { name, email, phone, message } = body;
+    const { name, email, message } = body;
 
     // Validate required fields
-    if (!name || !email || !phone || !message) {
+    if (!name || !email || !message) {
       return NextResponse.json(
-        { success: false, error: "All fields are required" },
+        { success: false, error: "Name, email, and message are required" },
         { status: 400 }
       );
     }
@@ -24,31 +24,39 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Check if SMTP is configured
-    if (!process.env.SMTP_USER || !process.env.SMTP_PASSWORD) {
+    // Check if Resend is configured
+    if (!process.env.RESEND_API_KEY) {
       console.error(
-        "SMTP credentials are not configured in environment variables"
+        "Resend API key is not configured in environment variables"
       );
       return NextResponse.json(
         {
           success: false,
           error:
-            "Email service is not configured. Please set SMTP_USER and SMTP_PASSWORD in your environment variables.",
+            "Email service is not configured. Please set RESEND_API_KEY in your environment variables.",
         },
         { status: 500 }
       );
     }
 
     // Get recipient email from environment or use default
-    const recipientEmail = process.env.CONTACT_FORM_RECIPIENT || process.env.SMTP_USER || "tasselandwicker@gmail.com";
+    const recipientEmail =
+      process.env.CONTACT_FORM_RECIPIENT ||
+      process.env.RESEND_FROM ||
+      process.env.SMTP_USER ||
+      "info@tasselandwicker.com";
 
-    // Send email using Google SMTP
+    // Send email using Resend
     try {
       const emailResult = await sendEmail({
         to: recipientEmail,
         replyTo: email,
         subject: `New Contact Form Submission from ${name}`,
-        html: createContactFormEmailTemplate({ name, email, phone, message }),
+        html: createContactFormEmailTemplate({
+          name,
+          email,
+          message,
+        }),
       });
 
       if (!emailResult.success) {
@@ -56,7 +64,8 @@ export async function POST(request: NextRequest) {
         return NextResponse.json(
           {
             success: false,
-            error: emailResult.error || "Failed to send email. Please try again.",
+            error:
+              emailResult.error || "Failed to send email. Please try again.",
           },
           { status: 500 }
         );
@@ -78,9 +87,7 @@ export async function POST(request: NextRequest) {
           success: false,
           error: errorMessage,
           details:
-            emailError instanceof Error
-              ? emailError.stack
-              : String(emailError),
+            emailError instanceof Error ? emailError.stack : String(emailError),
         },
         { status: 500 }
       );

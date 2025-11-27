@@ -87,7 +87,7 @@ export default function CorporateBespoke() {
             <section className="relative h-screen w-full overflow-hidden bg-black">
                 <div className="absolute inset-0 z-0">
                     <Image
-                        src="https://res.cloudinary.com/dygrsvya5/image/upload/q_auto:good,f_auto/v1761542830/IMAGE_FIVE_c3hzmh.jpg"
+                        src="https://res.cloudinary.com/dygrsvya5/image/upload/q_10/v1761542830/IMAGE_FIVE_c3hzmh.jpg"
                         alt="Corporate and bespoke service"
                         fill
                         className="object-cover"

@@ -38,7 +38,7 @@ function getBaseEmailTemplate(content: string, title?: string): string {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>${title || 'Tassel & Wicker'}</title>
+    <title>${title || "Tassel & Wicker"}</title>
 </head>
 <body style="margin: 0; padding: 0; font-family: 'Balgin', 'Mathilda', system-ui, sans-serif; background-color: #ffffff; color: #1a1a1a;">
     <table role="presentation" style="width: 100%; border-collapse: collapse; background-color: #ffffff;">
@@ -51,7 +51,11 @@ function getBaseEmailTemplate(content: string, title?: string): string {
                             <h1 style="margin: 0; color: #ffffff; font-size: 28px; font-weight: 200; letter-spacing: 2px; text-transform: uppercase;">
                                 Tassel & Wicker
                             </h1>
-                            ${title ? `<p style="margin: 10px 0 0; color: #fff6bd; font-size: 14px; font-weight: 200; letter-spacing: 1px; text-transform: uppercase;">${title}</p>` : ''}
+                            ${
+                              title
+                                ? `<p style="margin: 10px 0 0; color: #fff6bd; font-size: 14px; font-weight: 200; letter-spacing: 1px; text-transform: uppercase;">${title}</p>`
+                                : ""
+                            }
                         </td>
                     </tr>
                     
@@ -88,7 +92,6 @@ function getBaseEmailTemplate(content: string, title?: string): string {
 export function createContactFormEmailTemplate(formData: {
   name: string;
   email: string;
-  phone: string;
   message: string;
 }): string {
   const content = `
@@ -118,16 +121,6 @@ export function createContactFormEmailTemplate(formData: {
             </td>
         </tr>
         <tr>
-            <td style="padding: 15px 0; border-bottom: 1px solid #e6e6e6;">
-                <p style="margin: 0; color: #6b6b6b; font-size: 12px; font-weight: 200; text-transform: uppercase; letter-spacing: 1px;">
-                    Phone Number
-                </p>
-                <p style="margin: 5px 0 0; color: #1a1a1a; font-size: 16px; font-weight: 200;">
-                    <a href="tel:${formData.phone}" style="color: #4c062c; text-decoration: none;">${formData.phone}</a>
-                </p>
-            </td>
-        </tr>
-        <tr>
             <td style="padding: 15px 0;">
                 <p style="margin: 0; color: #6b6b6b; font-size: 12px; font-weight: 200; text-transform: uppercase; letter-spacing: 1px;">
                     Message
@@ -146,15 +139,26 @@ export function createContactFormEmailTemplate(formData: {
     </div>
   `;
 
-  return getBaseEmailTemplate(content, 'New Contact Form Submission');
+  return getBaseEmailTemplate(content, "New Contact Form Submission");
 }
 
 /**
  * Order confirmation email template (sent to customer)
  */
-export function createOrderConfirmationEmailTemplate(order: OrderDetails): string {
+export function createOrderConfirmationEmailTemplate(
+  order: OrderDetails
+): string {
   const formatPrice = (amount: number, currency: string): string => {
-    const symbol = currency === 'GBP' ? '£' : currency === 'USD' ? '$' : currency === 'EUR' ? '€' : currency === 'NGN' ? '₦' : '';
+    const symbol =
+      currency === "GBP"
+        ? "£"
+        : currency === "USD"
+        ? "$"
+        : currency === "EUR"
+        ? "€"
+        : currency === "NGN"
+        ? "₦"
+        : "";
     return `${symbol}${amount.toFixed(2)}`;
   };
 
@@ -175,7 +179,7 @@ export function createOrderConfirmationEmailTemplate(order: OrderDetails): strin
         </tr>
     `
     )
-    .join('');
+    .join("");
 
   const shippingInfo = order.shippingAddress
     ? `
@@ -193,7 +197,7 @@ export function createOrderConfirmationEmailTemplate(order: OrderDetails): strin
             </td>
         </tr>
     `
-    : '';
+    : "";
 
   const content = `
     <p style="margin: 0 0 30px; color: #1a1a1a; font-size: 16px; font-weight: 200; line-height: 1.6;">
@@ -211,7 +215,11 @@ export function createOrderConfirmationEmailTemplate(order: OrderDetails): strin
         <p style="margin: 0; color: #4c062c; font-size: 24px; font-weight: 200; letter-spacing: 2px;">
             ${order.orderId}
         </p>
-        ${order.orderDate ? `<p style="margin: 10px 0 0; color: #6b6b6b; font-size: 12px; font-weight: 200;">Order Date: ${order.orderDate}</p>` : ''}
+        ${
+          order.orderDate
+            ? `<p style="margin: 10px 0 0; color: #6b6b6b; font-size: 12px; font-weight: 200;">Order Date: ${order.orderDate}</p>`
+            : ""
+        }
     </div>
     
     <h2 style="margin: 30px 0 20px; color: #1a1a1a; font-size: 20px; font-weight: 200; text-transform: uppercase; letter-spacing: 1px;">
@@ -223,7 +231,10 @@ export function createOrderConfirmationEmailTemplate(order: OrderDetails): strin
         <tr>
             <td style="padding: 20px 0 0; border-top: 2px solid #1a1a1a;" colspan="2">
                 <p style="margin: 0; color: #1a1a1a; font-size: 18px; font-weight: 200; text-align: right;">
-                    <strong>Total: ${formatPrice(order.totalAmount, order.currency)}</strong>
+                    <strong>Total: ${formatPrice(
+                      order.totalAmount,
+                      order.currency
+                    )}</strong>
                 </p>
             </td>
         </tr>
@@ -231,7 +242,9 @@ export function createOrderConfirmationEmailTemplate(order: OrderDetails): strin
     
     ${shippingInfo}
     
-    ${order.paymentMethod ? `
+    ${
+      order.paymentMethod
+        ? `
         <tr>
             <td style="padding: 15px 0; border-bottom: 1px solid #e6e6e6;">
                 <p style="margin: 0; color: #6b6b6b; font-size: 12px; font-weight: 200; text-transform: uppercase; letter-spacing: 1px;">
@@ -242,7 +255,9 @@ export function createOrderConfirmationEmailTemplate(order: OrderDetails): strin
                 </p>
             </td>
         </tr>
-    ` : ''}
+    `
+        : ""
+    }
     
     <div style="margin-top: 40px; padding: 20px; background-color: #f9f9f9;">
         <p style="margin: 0 0 15px; color: #1a1a1a; font-size: 16px; font-weight: 200; line-height: 1.6;">
@@ -260,15 +275,26 @@ export function createOrderConfirmationEmailTemplate(order: OrderDetails): strin
     </div>
   `;
 
-  return getBaseEmailTemplate(content, 'Order Confirmation');
+  return getBaseEmailTemplate(content, "Order Confirmation");
 }
 
 /**
  * Payment confirmation email template (sent to customer)
  */
-export function createPaymentConfirmationEmailTemplate(order: OrderDetails): string {
+export function createPaymentConfirmationEmailTemplate(
+  order: OrderDetails
+): string {
   const formatPrice = (amount: number, currency: string): string => {
-    const symbol = currency === 'GBP' ? '£' : currency === 'USD' ? '$' : currency === 'EUR' ? '€' : currency === 'NGN' ? '₦' : '';
+    const symbol =
+      currency === "GBP"
+        ? "£"
+        : currency === "USD"
+        ? "$"
+        : currency === "EUR"
+        ? "€"
+        : currency === "NGN"
+        ? "₦"
+        : "";
     return `${symbol}${amount.toFixed(2)}`;
   };
 
@@ -278,7 +304,10 @@ export function createPaymentConfirmationEmailTemplate(order: OrderDetails): str
     </p>
     
     <p style="margin: 0 0 30px; color: #1a1a1a; font-size: 16px; font-weight: 200; line-height: 1.6;">
-        We're pleased to confirm that your payment of <strong>${formatPrice(order.totalAmount, order.currency)}</strong> has been successfully processed.
+        We're pleased to confirm that your payment of <strong>${formatPrice(
+          order.totalAmount,
+          order.currency
+        )}</strong> has been successfully processed.
     </p>
     
     <div style="margin-bottom: 30px; padding: 20px; background-color: #f0f9f0; border-left: 3px solid #4c062c;">
@@ -293,28 +322,43 @@ export function createPaymentConfirmationEmailTemplate(order: OrderDetails): str
     
     <div style="margin-top: 40px; padding-top: 30px; border-top: 1px solid #e6e6e6;">
         <p style="margin: 0; color: #6b6b6b; font-size: 12px; font-weight: 200; text-align: center;">
-            If you have any questions about your order, please contact us at <a href="mailto:${process.env.SMTP_USER || 'info@tasselandwicker.com'}" style="color: #4c062c; text-decoration: none;">${process.env.SMTP_USER || 'info@tasselandwicker.com'}</a>
+            If you have any questions about your order, please contact us at <a href="mailto:${
+              process.env.RESEND_FROM ||
+              process.env.SMTP_USER ||
+              "info@tasselandwicker.com"
+            }" style="color: #4c062c; text-decoration: none;">${
+    process.env.RESEND_FROM ||
+    process.env.SMTP_USER ||
+    "info@tasselandwicker.com"
+  }</a>
         </p>
     </div>
   `;
 
-  return getBaseEmailTemplate(content, 'Payment Confirmation');
+  return getBaseEmailTemplate(content, "Payment Confirmation");
 }
 
 /**
  * Shipping notification email template (sent to customer)
  */
-export function createShippingNotificationEmailTemplate(order: OrderDetails, trackingNumber?: string): string {
+export function createShippingNotificationEmailTemplate(
+  order: OrderDetails,
+  trackingNumber?: string
+): string {
   const content = `
     <p style="margin: 0 0 30px; color: #1a1a1a; font-size: 16px; font-weight: 200; line-height: 1.6;">
         Dear ${order.customerName},
     </p>
     
     <p style="margin: 0 0 30px; color: #1a1a1a; font-size: 16px; font-weight: 200; line-height: 1.6;">
-        Great news! Your order #${order.orderId} has been shipped and is on its way to you.
+        Great news! Your order #${
+          order.orderId
+        } has been shipped and is on its way to you.
     </p>
     
-    ${trackingNumber ? `
+    ${
+      trackingNumber
+        ? `
         <div style="margin-bottom: 30px; padding: 20px; background-color: #f9f9f9; border-left: 3px solid #4c062c;">
             <p style="margin: 0 0 10px; color: #1a1a1a; font-size: 14px; font-weight: 200; text-transform: uppercase; letter-spacing: 1px;">
                 Tracking Number
@@ -323,7 +367,9 @@ export function createShippingNotificationEmailTemplate(order: OrderDetails, tra
                 ${trackingNumber}
             </p>
         </div>
-    ` : ''}
+    `
+        : ""
+    }
     
     <p style="margin: 0 0 30px; color: #1a1a1a; font-size: 16px; font-weight: 200; line-height: 1.6;">
         You can track your shipment using the tracking number above. We expect your order to arrive within 5-7 business days.
@@ -336,6 +382,5 @@ export function createShippingNotificationEmailTemplate(order: OrderDetails, tra
     </div>
   `;
 
-  return getBaseEmailTemplate(content, 'Your Order Has Shipped');
+  return getBaseEmailTemplate(content, "Your Order Has Shipped");
 }
-

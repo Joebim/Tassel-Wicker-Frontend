@@ -355,21 +355,15 @@ export const getAdditionalProducts = (): StandaloneProduct[] => [
   } as StandaloneProduct & { items?: ShopProductItem[] },
   {
     id: "add-2",
-    name: "Le Creuset Mini Cocotte",
+    name: "Le Creuset Mini Cocotte (Chambray)",
     description:
-      "This charming petite casserole is perfect for single servings or small-plate side dishes. Ideal for dips, condiments, and nibbles, it combines playful design with everyday practicality. Finished with a matching lid, it’s perfect for heating sauces or keeping snacks fresh.",
+      "This charming petite casserole is perfect for single servings or small-plate side dishes. Ideal for dips, condiments, and nibbles, it combines playful design with everyday practicality. Finished with a matching lid, it's perfect for heating sauces or keeping snacks fresh.",
     category: "Kitchen & Dining",
     variants: [
       {
         name: "Chambray",
         image:
           "https://res.cloudinary.com/dygrsvya5/image/upload/q_auto:low/v1761224793/LE_CREUSET_MINI_CASSEROLE_IN_CHAMBRAY_zu5tj8.jpg",
-        price: 27,
-      },
-      {
-        name: "Garnet",
-        image:
-          "https://res.cloudinary.com/dygrsvya5/image/upload/q_auto:low/v1761523688/LE_CREUSET_MINI_COCOTTE_IN_GARNET_rnmcgy.jpg",
         price: 27,
       },
     ],

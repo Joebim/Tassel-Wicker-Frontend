@@ -82,7 +82,7 @@ export default function Shop() {
       <div className="relative h-screen w-full overflow-hidden bg-black">
         <div className="absolute inset-0 z-0">
           <Image
-            src="https://res.cloudinary.com/dygrsvya5/image/upload/q_auto:good,f_auto/v1761524366/PROPOSED_HEADER_IMAGE_FOR_PRODUCT_PAGE_mdcg8y.jpg"
+            src="https://res.cloudinary.com/dygrsvya5/image/upload/q_10/v1761524366/PROPOSED_HEADER_IMAGE_FOR_PRODUCT_PAGE_mdcg8y.jpg"
             alt="Shop Header"
             fill
             className="object-cover"
@@ -95,7 +95,7 @@ export default function Shop() {
 
         <div className="relative z-10 h-full w-full p-6 sm:p-10 lg:p-12 flex flex-row items-end sm:items-start justify-end lg:flex-row lg:items-end lg:justify-between gap-10">
           <div className="w-full flex flex-row items-end justify-between self-end">
-            <div className="flex flex-col text-white max-w-3xl text-center lg:text-left">
+            <div className="flex flex-col text-white max-w-3xl text-left">
               <ScrollTextAnimation
                 className="text-[39px] sm:text-5xl lg:text-[110px] font-extralight tracking-wide uppercase leading-none"
                 delay={0.2}
@@ -141,11 +141,10 @@ export default function Shop() {
           gift that <br />counts
         </h2>
 
-        {/* Mobile view - with line breaks */}
+        {/* Mobile view - without line breaks, percentage width */}
         <div className="lg:hidden w-[88%] mx-auto">
-          <p className="text-[16px] sm:text-lg text-luxury-black font-extralight text-center wrap-break-word [hyphens:auto]">
-            The Tassel &amp; Wicker signature baskets are<br /> inspired by the friendships and <br />relationships that sustain us.
-            <br /><br />We believe that when we give thoughtfully,<br /> we communicate presence, intention, and<br /> appreciation in ways words alone cannot
+          <p className="text-[16px] sm:text-lg text-luxury-black font-extralight text-center">
+            The Tassel &amp; Wicker signature baskets are inspired by the friendships and relationships that sustain us. We believe that when we give thoughtfully, we communicate presence, intention, and appreciation in ways words alone cannot.
           </p>
         </div>
 

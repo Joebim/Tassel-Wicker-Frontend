@@ -6,13 +6,21 @@ import { LuChevronDown } from 'react-icons/lu';
 import ScrollTextAnimation from '@/components/common/ScrollTextAnimation';
 import CircularText from '@/components/common/CircularText';
 import { renderTextWithEmailLinks } from '@/utils/textUtils';
+import { useWindowWidth } from '@/hooks/useWindowsWidth';
 
 export default function TermsOfService() {
+    const { isDesktop } = useWindowWidth();
+
     useEffect(() => {
         if (typeof window !== 'undefined') {
             window.scrollTo(0, 0);
         }
     }, []);
+
+    // Set image source based on screen size
+    const heroImageSrc = isDesktop
+        ? 'https://res.cloudinary.com/dygrsvya5/image/upload/v1764234390/_2MK9067_xy8vh2.jpg'
+        : 'https://res.cloudinary.com/dygrsvya5/image/upload/v1764234469/_2MK9038_zdzsag.jpg';
 
     const sections = [
         {
@@ -83,7 +91,7 @@ export default function TermsOfService() {
             <section className="relative h-screen w-full overflow-hidden bg-black">
                 <div className="absolute inset-0 z-0">
                     <Image
-                        src="https://res.cloudinary.com/dygrsvya5/image/upload/q_auto:good,f_auto/v1764174598/TERMS_OF_SERVICE_1_lbuift.jpg"
+                        src={heroImageSrc}
                         alt="Terms of Service"
                         fill
                         className="object-cover"
@@ -95,20 +103,20 @@ export default function TermsOfService() {
                 </div>
                 <div className="relative z-10 h-full w-full p-6 sm:p-10 lg:p-12 flex flex-row items-end sm:items-start justify-end lg:flex-row lg:items-end lg:justify-between gap-10">
                     <div className="w-full flex flex-row items-end justify-between self-end">
-                        <div className="flex flex-col text-white max-w-3xl text-center lg:text-left">
+                        <div className="flex flex-col text-white max-w-3xl text-left">
                             <ScrollTextAnimation
-                                className="text-[39px] sm:text-5xl lg:text-[110px] font-extralight tracking-wide uppercase leading-none"
+                                className="text-[39px] sm:text-5xl lg:text-[100px] font-extralight tracking-wide uppercase leading-none"
                                 delay={0.2}
                                 duration={1.2}
                             >
-                                TERMS OF
+                                TERMS
                             </ScrollTextAnimation>
                             <ScrollTextAnimation
-                                className="text-[39px] sm:text-5xl lg:text-[110px] font-extralight tracking-wide uppercase leading-none"
+                                className="text-[39px] sm:text-5xl lg:text-[100px] font-extralight tracking-wide uppercase leading-none"
                                 delay={0.2}
                                 duration={1.2}
                             >
-                                SERVICE
+                                OF SERVICE
                             </ScrollTextAnimation>
                         </div>
                         <div className="relative flex justify-center lg:justify-end">

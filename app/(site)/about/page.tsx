@@ -104,7 +104,7 @@ export default function About() {
       <div className="relative h-screen w-full overflow-hidden bg-black">
         <div className="absolute inset-0 z-0">
           <Image
-            src="https://res.cloudinary.com/dygrsvya5/image/upload/q_auto:good,f_auto/v1761542804/IMAGE_NINE_cdzxti.jpg"
+            src="https://res.cloudinary.com/dygrsvya5/image/upload/q_10/v1761542804/IMAGE_NINE_cdzxti.jpg"
             alt="About Header"
             fill
             className="object-cover"
@@ -246,7 +246,7 @@ export default function About() {
                   className="lg:order-1 order-4 relative w-full h-[600px]"
                 >
                   <Image
-                    src="https://res.cloudinary.com/dygrsvya5/image/upload/v1761149640/_2MK9308_dcgky8.jpg"
+                    src="https://res.cloudinary.com/dygrsvya5/image/upload/q_10/v1764234195/STACKED_BASKETS_h4nxfk.jpg"
                     alt="Signature Celebration Basket"
                     fill
                     className="object-cover"

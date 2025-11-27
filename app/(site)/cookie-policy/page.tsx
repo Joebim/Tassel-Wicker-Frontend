@@ -83,7 +83,7 @@ export default function CookiePolicy() {
             <section className="relative h-screen w-full overflow-hidden bg-black">
                 <div className="absolute inset-0 z-0">
                     <Image
-                        src="https://res.cloudinary.com/dygrsvya5/image/upload/q_auto:good,f_auto/v1763661133/COOKIE_POLICY_syh1yx.jpg"
+                        src="https://res.cloudinary.com/dygrsvya5/image/upload/q_10/v1763661133/COOKIE_POLICY_syh1yx.jpg"
                         alt="Cookie Policy"
                         fill
                         className="object-cover"
@@ -95,7 +95,7 @@ export default function CookiePolicy() {
                 </div>
                 <div className="relative z-10 h-full w-full p-6 sm:p-10 lg:p-12 flex flex-row items-end sm:items-start justify-end lg:flex-row lg:items-end lg:justify-between gap-10">
                     <div className="w-full flex flex-row items-end justify-between self-end">
-                        <div className="flex flex-col text-white max-w-3xl text-center lg:text-left">
+                        <div className="flex flex-col text-white max-w-3xl text-left">
                             <ScrollTextAnimation
                                 className="text-[39px] sm:text-5xl lg:text-[110px] font-extralight tracking-wide uppercase leading-none"
                                 delay={0.2}
@@ -148,7 +148,7 @@ export default function CookiePolicy() {
                             First and foremost, we DO NOT sell your personal information. However, when you visit or interact with our sites, services, applications, tools or messaging, we or our authorized service providers may use cookies, web beacons, and other similar technologies to make your experience better, faster and safer, for advertising purposes and to allow us to continuously improve our sites, services, applications and tools.
                         </p>
                         <p className="text-base text-luxury-black font-extralight mb-8">
-                            Read through our Cookie policy{' '}
+                            Read through our cookie policy{' '}
                             <a
                                 href="/document-viewer/cookie-policy"
                                 target="_blank"

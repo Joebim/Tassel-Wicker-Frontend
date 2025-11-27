@@ -68,7 +68,7 @@ export default function Contact() {
             {/* Background Image */}
             <div className="absolute inset-0 z-0">
                 <Image
-                    src="https://res.cloudinary.com/dygrsvya5/image/upload/q_auto:good,f_auto/v1761149638/_2MK9323_vyzwqm.jpg"
+                    src="https://res.cloudinary.com/dygrsvya5/image/upload/q_10/v1761149638/_2MK9323_vyzwqm.jpg"
                     alt="Contact Background"
                     fill
                     className="object-cover"
@@ -105,7 +105,7 @@ export default function Contact() {
                                 onChange={handleChange}
                                 required
                                 placeholder="FULL NAME *"
-                                className="w-full px-6 py-4 bg-transparent border-2 border-white/60 text-white placeholder-white/80 font-extralight uppercase tracking-wide focus:outline-none focus:border-luxury-white transition-all duration-300"
+                                className="w-full px-6 py-4 bg-transparent border-2 border-white/60 text-white placeholder-white/80 font-extralight tracking-wide focus:outline-none focus:border-luxury-white transition-all duration-300"
                             />
                         </div>
 
@@ -119,7 +119,7 @@ export default function Contact() {
                                 onChange={handleChange}
                                 required
                                 placeholder="EMAIL ADDRESS *"
-                                className="w-full px-6 py-4 bg-transparent border-2 border-white/60 text-white placeholder-white/80 font-extralight uppercase tracking-wide focus:outline-none focus:border-luxury-white transition-all duration-300"
+                                className="w-full px-6 py-4 bg-transparent border-2 border-white/60 text-white placeholder-white/80 font-extralight tracking-wide focus:outline-none focus:border-luxury-white transition-all duration-300"
                             />
                         </div>
 
@@ -133,7 +133,7 @@ export default function Contact() {
                                 required
                                 rows={5}
                                 placeholder="HOW CAN WE HELP *"
-                                className="w-full px-6 py-4 bg-transparent border-2 border-white/60 text-white placeholder-white/80 font-extralight uppercase tracking-wide focus:outline-none focus:border-brand-cream transition-all duration-300 resize-none"
+                                className="w-full px-6 py-4 bg-transparent border-2 border-white/60 text-white placeholder-white/80 font-extralight tracking-wide focus:outline-none focus:border-brand-cream transition-all duration-300 resize-none"
                             />
                         </div>
 
