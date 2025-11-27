@@ -53,11 +53,12 @@ export default function Shipping() {
             <section className="relative h-screen w-full overflow-hidden bg-black">
                 <div className="absolute inset-0 z-0">
                     <Image
-                        src="https://res.cloudinary.com/dygrsvya5/image/upload/q_10/v1763659377/SHIPPING_INFORMATION_ipsodq.jpg"
+                        src="/images/headers/shipping-header.jpg"
                         alt="Shipping information"
                         fill
                         className="object-cover"
                         priority
+                        unoptimized
                         sizes="100vw"
                         fetchPriority="high"
                     />

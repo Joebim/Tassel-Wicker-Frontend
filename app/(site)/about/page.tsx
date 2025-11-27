@@ -104,11 +104,12 @@ export default function About() {
       <div className="relative h-screen w-full overflow-hidden bg-black">
         <div className="absolute inset-0 z-0">
           <Image
-            src="https://res.cloudinary.com/dygrsvya5/image/upload/q_10/v1761542804/IMAGE_NINE_cdzxti.jpg"
+            src="/images/headers/about-header.jpg"
             alt="About Header"
             fill
             className="object-cover"
             priority
+            unoptimized
             sizes="100vw"
             fetchPriority="high"
           />

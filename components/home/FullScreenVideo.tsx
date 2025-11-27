@@ -49,12 +49,13 @@ const FullScreenVideo: React.FC = () => {
                     playsInline
                     preload="auto"
                     className="w-full h-full object-cover"
+                    style={{ objectFit: 'cover' }}
                     onLoadStart={() => console.log('Video loading started')}
                     onCanPlay={() => console.log('Video can play')}
                     onError={(e) => console.error('Video error:', e)}
                 >
                     <source
-                        src="https://res.cloudinary.com/dygrsvya5/video/upload/q_auto:low/v1761149777/LOOP_VIDEO_isr7h3.mp4"
+                        src="/videos/loop-video.mp4"
                         type="video/mp4"
                     />
                     Your browser does not support the video tag.

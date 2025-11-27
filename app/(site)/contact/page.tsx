@@ -68,11 +68,12 @@ export default function Contact() {
             {/* Background Image */}
             <div className="absolute inset-0 z-0">
                 <Image
-                    src="https://res.cloudinary.com/dygrsvya5/image/upload/q_10/v1761149638/_2MK9323_vyzwqm.jpg"
+                    src="/images/headers/contact-header.jpg"
                     alt="Contact Background"
                     fill
                     className="object-cover"
                     priority
+                    unoptimized
                     sizes="100vw"
                     fetchPriority="high"
                 />

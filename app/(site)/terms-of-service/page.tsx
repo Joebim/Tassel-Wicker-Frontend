@@ -19,8 +19,8 @@ export default function TermsOfService() {
 
     // Set image source based on screen size
     const heroImageSrc = isDesktop
-        ? 'https://res.cloudinary.com/dygrsvya5/image/upload/v1764234390/_2MK9067_xy8vh2.jpg'
-        : 'https://res.cloudinary.com/dygrsvya5/image/upload/v1764234469/_2MK9038_zdzsag.jpg';
+        ? '/images/headers/terms-header-desktop.jpg'
+        : '/images/headers/terms-header-mobile.jpg';
 
     const sections = [
         {
@@ -96,6 +96,7 @@ export default function TermsOfService() {
                         fill
                         className="object-cover"
                         priority
+                        unoptimized
                         sizes="100vw"
                         fetchPriority="high"
                     />

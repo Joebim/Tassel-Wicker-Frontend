@@ -3,6 +3,7 @@ import "./globals.css";
 import Providers from './providers';
 import StructuredData from './structured-data';
 import PreconnectLinks from './preconnect-links';
+import ResourcePreloader from '@/components/common/ResourcePreloader';
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://tasselandwicker.com'),
@@ -103,6 +104,7 @@ export default function RootLayout({
     <html lang="en">
       <body className="antialiased" suppressHydrationWarning>
         <PreconnectLinks />
+        <ResourcePreloader />
         <StructuredData />
         <Providers>
           {children}

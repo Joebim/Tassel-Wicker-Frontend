@@ -82,11 +82,12 @@ export default function Shop() {
       <div className="relative h-screen w-full overflow-hidden bg-black">
         <div className="absolute inset-0 z-0">
           <Image
-            src="https://res.cloudinary.com/dygrsvya5/image/upload/q_10/v1761524366/PROPOSED_HEADER_IMAGE_FOR_PRODUCT_PAGE_mdcg8y.jpg"
+            src="/images/headers/shop-header.jpg"
             alt="Shop Header"
             fill
             className="object-cover"
             priority
+            unoptimized
             sizes="100vw"
             fetchPriority="high"
           />
