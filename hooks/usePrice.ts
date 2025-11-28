@@ -1,4 +1,5 @@
 import { useMemo } from "react";
+import { usePathname } from "next/navigation";
 import { useCurrencyStore } from "@/store/currencyStore";
 import {
   formatPriceWithConversion,
@@ -9,31 +10,48 @@ import {
 
 /**
  * Hook for price formatting and conversion using Stripe FX rates
+ * Only converts prices on the checkout page, otherwise displays in GBP
  * @param basePrice - Base price in GBP
  * @returns Formatted price string and utility functions
  */
 export function usePrice(basePrice: number) {
+  const pathname = usePathname();
   const { currency, getExchangeRate } = useCurrencyStore();
   const exchangeRate = getExchangeRate(currency);
+  
+  // Only convert prices on checkout page
+  const shouldConvert = pathname === "/checkout";
+  
+  // Use GBP and no conversion if not on checkout page
+  const effectiveCurrency = shouldConvert ? currency : "GBP";
+  const effectiveExchangeRate = shouldConvert ? exchangeRate : null;
 
   const formattedPrice = useMemo(() => {
-    return formatPriceWithConversion(basePrice, currency, exchangeRate);
-  }, [basePrice, currency, exchangeRate]);
+    if (shouldConvert) {
+      return formatPriceWithConversion(basePrice, currency, exchangeRate);
+    }
+    // Always show GBP on non-checkout pages
+    return formatPrice(basePrice, "GBP");
+  }, [basePrice, currency, exchangeRate, shouldConvert]);
 
   const finalPrice = useMemo(() => {
-    return getFinalPrice(basePrice, currency, exchangeRate);
-  }, [basePrice, currency, exchangeRate]);
+    if (shouldConvert) {
+      return getFinalPrice(basePrice, currency, exchangeRate);
+    }
+    // Return base price in GBP if not on checkout
+    return basePrice;
+  }, [basePrice, currency, exchangeRate, shouldConvert]);
 
   const currencySymbol = useMemo(() => {
-    return getCurrencySymbol(currency);
-  }, [currency]);
+    return getCurrencySymbol(effectiveCurrency);
+  }, [effectiveCurrency]);
 
   return {
     formattedPrice,
     finalPrice,
     currencySymbol,
-    currency,
-    exchangeRate,
+    currency: effectiveCurrency,
+    exchangeRate: effectiveExchangeRate,
   };
 }
 
