@@ -239,10 +239,6 @@ export default function Cart() {
                                     <span className="text-luxury-cool-grey font-extralight">Subtotal</span>
                                     <span className="font-extralight">{formattedTotal}</span>
                                 </div>
-                                <div className="flex justify-between">
-                                    <span className="text-luxury-cool-grey font-extralight">Shipping</span>
-                                    <span className="font-extralight">Free</span>
-                                </div>
                                 <div className="border-t border-luxury-cool-grey pt-4">
                                     <div className="flex justify-between">
                                         <span className="text-luxury-black font-extralight text-lg">Total</span>
