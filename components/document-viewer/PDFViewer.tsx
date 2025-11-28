@@ -130,7 +130,7 @@ export default function PDFViewer({ docName }: PDFViewerProps) {
   }
 
   if (error) {
-    return (
+  return (
       <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="text-center">
           <h1 className="text-2xl font-extralight text-luxury-black mb-4">
@@ -138,9 +138,9 @@ export default function PDFViewer({ docName }: PDFViewerProps) {
           </h1>
           <p className="text-luxury-cool-grey font-extralight">
             {error}
-          </p>
+            </p>
+          </div>
         </div>
-      </div>
     );
   }
 
@@ -158,8 +158,8 @@ export default function PDFViewer({ docName }: PDFViewerProps) {
                   console.log('PDF loaded:', e.doc.numPages, 'pages');
                   setError(null);
                 }}
-              />
-            </div>
+          />
+        </div>
           </Worker>
         ) : (
           <div className="min-h-screen bg-white flex items-center justify-center">

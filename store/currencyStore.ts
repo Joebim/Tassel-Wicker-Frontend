@@ -132,33 +132,40 @@ const DEFAULT_LOCATION_ADJUSTMENTS: Record<string, LocationPriceAdjustment> = {
   CY: { country: "Cyprus", countryCode: "CY", currency: "EUR", adjustment: 2 },
 };
 
-// Fallback exchange rates (base: GBP = 1.0)
-// Used when API is unavailable or during initial load
-// Rates represent how much of each currency equals 1 GBP
-const FALLBACK_EXCHANGE_RATES: Record<CurrencyCode, number> = {
-  GBP: 1.0,
-  EUR: 1.17, // £1 = €1.17
-  USD: 1.27, // Approximately £1 = $1.27
-  CAD: 1.73, // Approximately
-  AUD: 1.93, // Approximately
-  JPY: 190.2, // Approximately
-  NGN: 1908.0, // Approximately
-  ZAR: 23.84, // Approximately
-};
+// Stripe FX Quote data structure
+export interface StripeFXQuote {
+  id: string;
+  toCurrency: string;
+  lockDuration: string;
+  lockExpiresAt: number | null;
+  lockStatus: string;
+  rates: Record<
+    string,
+    {
+      exchange_rate: number;
+      rate_details?: {
+        base_rate: number;
+        duration_premium: number;
+        fx_fee_rate: number;
+        reference_rate: number;
+        reference_rate_provider: string;
+      };
+    }
+  >;
+}
 
 interface CurrencyStore {
   currency: CurrencyCode;
   location: LocationPriceAdjustment | null;
   isLocationDetected: boolean;
-  exchangeRates: Record<string, number>; // Real-time exchange rates from API
-  lastUpdated: number | null; // Timestamp of last rate update
+  fxQuote: StripeFXQuote | null;
   setCurrency: (currency: CurrencyCode) => void;
   setLocation: (location: LocationPriceAdjustment) => void;
-  setExchangeRates: (rates: Record<string, number>) => void;
   detectLocation: () => Promise<void>;
-  fetchExchangeRates: () => Promise<void>;
   getPriceAdjustment: () => number;
-  getExchangeRate: (targetCurrency?: CurrencyCode) => number;
+  setFXQuote: (quote: StripeFXQuote | null) => void;
+  fetchFXQuote: (fromCurrency: CurrencyCode) => Promise<void>;
+  getExchangeRate: (fromCurrency: CurrencyCode) => number | null;
 }
 
 export const useCurrencyStore = create<CurrencyStore>()(
@@ -167,59 +174,18 @@ export const useCurrencyStore = create<CurrencyStore>()(
       currency: "GBP",
       location: null,
       isLocationDetected: false,
-      exchangeRates: {},
-      lastUpdated: null,
+      fxQuote: null,
 
       setCurrency: (currency: CurrencyCode) => {
         set({ currency });
-        // Fetch new rates when currency changes
-        get().fetchExchangeRates();
       },
 
       setLocation: (location: LocationPriceAdjustment) => {
         set({
           location,
-          currency: location.currency,
+          currency: location.currency, // Use currency from location
           isLocationDetected: true,
         });
-        // Fetch rates for the new currency
-        get().fetchExchangeRates();
-      },
-
-      setExchangeRates: (rates: Record<string, number>) => {
-        set({
-          exchangeRates: rates,
-          lastUpdated: Date.now(),
-        });
-      },
-
-      fetchExchangeRates: async () => {
-        // Don't fetch if rates were updated recently (within last 5 minutes)
-        const lastUpdated = get().lastUpdated;
-        if (lastUpdated && Date.now() - lastUpdated < 5 * 60 * 1000) {
-          return;
-        }
-
-        try {
-          // Call server-side API route to fetch exchange rates
-          // This keeps the API key secure on the server
-          const response = await fetch("/api/currency/rates?base=GBP");
-
-          if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-          }
-
-          const result = await response.json();
-
-          if (result.success && result.rates) {
-            get().setExchangeRates(result.rates);
-          } else {
-            throw new Error(result.error || "Failed to fetch currency data");
-          }
-        } catch (error) {
-          console.error("Error fetching exchange rates:", error);
-          // Keep existing rates or use fallback
-        }
       },
 
       detectLocation: async () => {
@@ -237,8 +203,10 @@ export const useCurrencyStore = create<CurrencyStore>()(
 
             if (locationData) {
               get().setLocation(locationData);
-              // Fetch exchange rates for detected currency
-              get().fetchExchangeRates();
+              // Auto-fetch FX quote for detected currency
+              if (locationData.currency !== "GBP") {
+                await get().fetchFXQuote(locationData.currency);
+              }
             } else {
               // Default to GBP if country not found
               get().setLocation({
@@ -247,7 +215,6 @@ export const useCurrencyStore = create<CurrencyStore>()(
                 currency: "GBP",
                 adjustment: 0,
               });
-              get().fetchExchangeRates();
             }
           }
         } catch (error) {
@@ -259,7 +226,6 @@ export const useCurrencyStore = create<CurrencyStore>()(
             currency: "GBP",
             adjustment: 0,
           });
-          get().fetchExchangeRates();
         }
       },
 
@@ -268,23 +234,74 @@ export const useCurrencyStore = create<CurrencyStore>()(
         return location ? location.adjustment : 0;
       },
 
-      getExchangeRate: (targetCurrency?: CurrencyCode) => {
-        const currency = targetCurrency || get().currency;
-        const exchangeRates = get().exchangeRates;
+      setFXQuote: (quote: StripeFXQuote | null) => {
+        set({ fxQuote: quote });
+      },
 
-        // Use real-time rates if available
-        // API returns rates relative to GBP (base currency)
-        if (exchangeRates && Object.keys(exchangeRates).length > 0) {
-          // Rates are in format: { GBP: 1, EUR: 1.17, USD: 1.27, ... }
-          // So EUR rate of 1.17 means 1 GBP = 1.17 EUR
-          // For conversion: price in GBP * rate = price in target currency
-          return (
-            exchangeRates[currency] || FALLBACK_EXCHANGE_RATES[currency] || 1.0
-          );
+      fetchFXQuote: async (fromCurrency: CurrencyCode) => {
+        try {
+          // Check if we have a valid quote that hasn't expired
+          const currentQuote = get().fxQuote;
+          if (
+            currentQuote &&
+            currentQuote.lockStatus === "active" &&
+            currentQuote.lockExpiresAt &&
+            currentQuote.lockExpiresAt * 1000 > Date.now() &&
+            currentQuote.rates[fromCurrency.toLowerCase()]
+          ) {
+            // Quote is still valid, no need to fetch
+            return;
+          }
+
+          // Determine lock duration based on currency
+          // Some currencies (like NGN) only support "none"
+          const currenciesOnlyNone = ["ngn", "zar"];
+          const lockDuration = currenciesOnlyNone.includes(
+            fromCurrency.toLowerCase()
+          )
+            ? "none"
+            : "hour";
+
+          // Fetch new FX quote from Stripe
+          const response = await fetch("/api/fx-quote", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              toCurrency: "gbp", // Settlement currency
+              fromCurrencies: [fromCurrency.toLowerCase()],
+              lockDuration: lockDuration, // Use appropriate duration for currency
+            }),
+          });
+
+          const data = await response.json();
+          if (data.success && data.fxQuote) {
+            set({ fxQuote: data.fxQuote });
+          } else {
+            console.error("Failed to fetch FX quote:", data.error);
+          }
+        } catch (error) {
+          console.error("Error fetching FX quote:", error);
+        }
+      },
+
+      getExchangeRate: (fromCurrency: CurrencyCode): number | null => {
+        const fxQuote = get().fxQuote;
+        // Accept both "active" (locked rates) and "none" (live rates) for price display
+        // Note: "none" rates cannot be used in PaymentIntents, but are valid for display
+        if (
+          !fxQuote ||
+          (fxQuote.lockStatus !== "active" && fxQuote.lockStatus !== "none")
+        ) {
+          return null;
         }
 
-        // Fallback to static rates
-        return FALLBACK_EXCHANGE_RATES[currency] || 1.0;
+        const rate = fxQuote.rates[fromCurrency.toLowerCase()];
+        if (!rate) {
+          return null;
+        }
+
+        // Return exchange_rate (includes FX fee) - divide by this to get customer price
+        return rate.exchange_rate;
       },
     }),
     {

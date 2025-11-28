@@ -8,27 +8,24 @@ import {
 } from "@/utils/priceUtils";
 
 /**
- * Hook for price formatting and conversion
+ * Hook for price formatting and conversion using Stripe FX rates
  * @param basePrice - Base price in GBP
  * @returns Formatted price string and utility functions
  */
 export function usePrice(basePrice: number) {
-  const { currency } = useCurrencyStore();
+  const { currency, getExchangeRate } = useCurrencyStore();
+  const exchangeRate = getExchangeRate(currency);
 
   const formattedPrice = useMemo(() => {
-    return formatPriceWithConversion(basePrice, currency);
-  }, [basePrice, currency]);
+    return formatPriceWithConversion(basePrice, currency, exchangeRate);
+  }, [basePrice, currency, exchangeRate]);
 
   const finalPrice = useMemo(() => {
-    // Currency is needed to trigger recalculation when it changes
-    // The function reads from store but we need to track currency for reactivity
-    return getFinalPrice(basePrice);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [basePrice, currency]);
+    return getFinalPrice(basePrice, currency, exchangeRate);
+  }, [basePrice, currency, exchangeRate]);
 
   const currencySymbol = useMemo(() => {
-    return getCurrencySymbol();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    return getCurrencySymbol(currency);
   }, [currency]);
 
   return {
@@ -36,6 +33,7 @@ export function usePrice(basePrice: number) {
     finalPrice,
     currencySymbol,
     currency,
+    exchangeRate,
   };
 }
 
@@ -51,8 +49,7 @@ export function usePriceFormat(price: number) {
   }, [price, currency]);
 
   const currencySymbol = useMemo(() => {
-    return getCurrencySymbol();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    return getCurrencySymbol(currency);
   }, [currency]);
 
   return {

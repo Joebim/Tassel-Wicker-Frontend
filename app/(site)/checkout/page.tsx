@@ -4,83 +4,304 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { loadStripe } from '@stripe/stripe-js';
-import {
-    Elements,
-    PaymentElement,
-    useStripe,
-    useElements,
-} from '@stripe/react-stripe-js';
+import { Elements, PaymentElement, AddressElement, useStripe, useElements } from '@stripe/react-stripe-js';
 import { motion } from 'framer-motion';
 import { LuArrowLeft } from 'react-icons/lu';
 import { useCartStore, type CartItem } from '@/store/cartStore';
 import { useAuthStore } from '@/store/authStore';
 import { useToastStore } from '@/store/toastStore';
 import { usePrice } from '@/hooks/usePrice';
+import { useCurrencyStore } from '@/store/currencyStore';
 
-const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
+// Initialize Stripe
+const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || '');
 
+// Stripe shipping rate IDs
+const STRIPE_SHIPPING_RATES = [
+    'shr_1SY6XKDqrk2AVTntaI2Qcu4V', // International delivery within Europe (DHL)
+    'shr_1SY6VyDqrk2AVTnto4PrPyL3', // International delivery outside Europe (DHL)
+    'shr_1SY658Dqrk2AVTnt4LEtyBhH', // Standard shipping incl VAT (DHL)
+];
+
+// Component for displaying item price
 const CheckoutItemPrice: React.FC<{ price: number; quantity: number }> = ({ price, quantity }) => {
-    const { formattedPrice } = usePrice(price * quantity);
+    const itemTotal = price * quantity;
+    const { formattedPrice } = usePrice(itemTotal);
     return <p className="font-extralight">{formattedPrice}</p>;
 };
 
+// Payment Form Component (uses Stripe Elements)
 const PaymentForm: React.FC<{
-    clientSecret: string;
+    userEmail: string;
+    userName: string;
     onSuccess: () => void;
-    onError: (msg: string) => void;
-}> = ({ clientSecret, onSuccess, onError }) => {
+    onError: (error: string) => void;
+    totalPrice: number;
+    clientSecret: string;
+    paymentIntentId: string;
+    onShippingChange: (shippingCost: number) => void;
+    currency: string;
+    exchangeRate: number | null;
+}> = ({ userEmail, userName, onSuccess, onError, totalPrice, clientSecret, paymentIntentId, onShippingChange, currency, exchangeRate }) => {
     const stripe = useStripe();
     const elements = useElements();
     const [isProcessing, setIsProcessing] = useState(false);
-    const [error, setError] = useState('');
+    const [error, setError] = useState<string>('');
+    const [selectedShippingRate, setSelectedShippingRate] = useState<string | null>(null);
+    const [shippingCost, setShippingCost] = useState<number>(0);
+    const [shippingRates, setShippingRates] = useState<Array<{ id: string; amount: number; currency: string; displayName: string }>>([]);
+    const [addressComplete, setAddressComplete] = useState(false);
+    const { formattedPrice } = usePrice(totalPrice + shippingCost);
 
-    // PaymentElement will display the total automatically including shipping
+    // Use exchangeRate from props (passed from parent)
+
+    // Fetch shipping rates from Stripe
+    useEffect(() => {
+        const fetchShippingRates = async () => {
+            try {
+                const rates = await Promise.all(
+                    STRIPE_SHIPPING_RATES.map(async (rateId) => {
+                        const response = await fetch('/api/get-shipping-rate', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ rateId }),
+                        });
+                        const data = await response.json();
+                        return { id: rateId, amount: data.amount || 0, currency: data.currency || 'gbp', displayName: data.displayName || 'Shipping' };
+                    })
+                );
+                setShippingRates(rates);
+            } catch (err) {
+                console.error('Error fetching shipping rates:', err);
+            }
+        };
+        fetchShippingRates();
+    }, []);
+
+    // Listen to shipping address changes using AddressElement
+    useEffect(() => {
+        if (!elements) return;
+
+        // AddressElement is accessed differently - we need to use the onChange prop
+        // For now, we'll show shipping options immediately
+        setAddressComplete(true);
+    }, [elements]);
+
+    // Update PaymentIntent when shipping rate is selected
+    const handleShippingRateChange = async (rateId: string) => {
+        setSelectedShippingRate(rateId);
+
+        const rate = shippingRates.find(r => r.id === rateId);
+        if (rate && rate.amount) {
+            // Shipping amount from Stripe is in GBP (cents)
+            const shippingAmountGBP = rate.amount / 100;
+
+            // Convert shipping to customer currency if needed
+            let shippingAmount = shippingAmountGBP;
+            if (currency !== 'GBP' && exchangeRate) {
+                // Convert GBP shipping to customer currency
+                shippingAmount = shippingAmountGBP / exchangeRate;
+            }
+
+            setShippingCost(shippingAmount);
+            onShippingChange(shippingAmount);
+
+            // Calculate total amount in customer currency
+            let totalAmount = totalPrice + shippingAmount;
+            if (currency !== 'GBP' && exchangeRate) {
+                // totalPrice is already in customer currency, shippingAmount is now in customer currency
+                // So total is correct
+            } else {
+                // Both are in GBP
+                totalAmount = totalPrice + shippingAmountGBP;
+            }
+
+            // Update PaymentIntent amount
+            try {
+                await fetch('/api/update-payment-intent', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        paymentIntentId,
+                        amount: totalAmount,
+                        currency: currency.toLowerCase(),
+                    }),
+                });
+            } catch (err) {
+                console.error('Error updating payment intent:', err);
+            }
+        }
+    };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!stripe || !elements) return;
+
+        if (!stripe || !elements) {
+            return;
+        }
 
         setIsProcessing(true);
         setError('');
 
-        const { error: submitError } = await elements.submit();
-        if (submitError) {
-            setError(submitError.message!);
-            setIsProcessing(false);
-            return;
-        }
+        try {
+            const { error: submitError } = await elements.submit();
+            if (submitError) {
+                setError(submitError.message || 'Please check your payment details');
+                setIsProcessing(false);
+                return;
+            }
 
-        const { error } = await stripe.confirmPayment({
-            elements,
-            clientSecret,
-            confirmParams: {
-                return_url: `${window.location.origin}/payment-success`,
-            },
-            redirect: 'if_required',
-        });
+            // Store customer info in localStorage for email sending on success page
+            if (typeof window !== 'undefined') {
+                localStorage.setItem('checkout_customer_email', userEmail);
+                const nameParts = userName.split(' ');
+                localStorage.setItem('checkout_first_name', nameParts[0] || '');
+                localStorage.setItem('checkout_last_name', nameParts.slice(1).join(' ') || '');
+            }
 
-        if (error) {
-            setError(error.message || 'Payment failed');
-            onError(error.message || 'Payment failed');
+            // Confirm payment with existing clientSecret
+            const { error: confirmError } = await stripe.confirmPayment({
+                elements,
+                clientSecret,
+                confirmParams: {
+                    return_url: `${window.location.origin}/payment-success`,
+                    receipt_email: userEmail,
+                },
+                redirect: 'if_required',
+            });
+
+            if (confirmError) {
+                setError(confirmError.message || 'Payment failed. Please try again.');
+                setIsProcessing(false);
+            } else {
+                const result = await stripe.retrievePaymentIntent(clientSecret);
+
+                if (result.paymentIntent?.status === 'succeeded') {
+                    const paymentIntentId = result.paymentIntent.id;
+                    console.log('[CHECKOUT] Payment succeeded without redirect, payment intent:', paymentIntentId);
+
+                    try {
+                        const emailResponse = await fetch('/api/send-order-email', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                paymentIntentId: paymentIntentId,
+                                customerEmail: userEmail,
+                                customerName: userName,
+                            }),
+                        });
+                        const emailData = await emailResponse.json();
+                        if (emailData.success) {
+                            console.log('[CHECKOUT] Email sent successfully from checkout page');
+                        }
+                    } catch (emailError) {
+                        console.error('[CHECKOUT] Error sending email:', emailError);
+                    }
+
+                    window.location.href = `/payment-success?payment_intent=${paymentIntentId}&payment_intent_client_secret=${clientSecret}`;
+                } else {
+                    onSuccess();
+                }
+            }
+        } catch (err) {
+            const errorMessage = err instanceof Error ? err.message : 'An unexpected error occurred';
+            setError(errorMessage);
+            onError(errorMessage);
             setIsProcessing(false);
-        } else {
-            onSuccess();
         }
     };
 
     return (
         <form onSubmit={handleSubmit} className="space-y-6">
+            {/* Shipping Address */}
             <div className="bg-white p-6 rounded-lg border">
+                <h3 className="text-lg font-extralight text-luxury-black mb-4 uppercase">
+                    Shipping Address
+                </h3>
+                <AddressElement
+                    options={{
+                        mode: 'shipping',
+                        // No allowedCountries restriction - all countries are allowed
+                        blockPoBox: false,
+                    }}
+                />
+            </div>
+
+            {/* Shipping Options */}
+            {addressComplete && shippingRates.length > 0 && (
+                <div className="bg-white p-6 rounded-lg border">
+                    <h3 className="text-lg font-extralight text-luxury-black mb-4 uppercase">
+                        Shipping Method
+                    </h3>
+                    <div className="space-y-3">
+                        {shippingRates.map((rate) => {
+                            const ratePrice = rate.amount ? rate.amount / 100 : 0;
+                            const ShippingRatePrice: React.FC<{ price: number }> = ({ price }) => {
+                                const { formattedPrice } = usePrice(price);
+                                return <p className="font-extralight text-luxury-black">{formattedPrice}</p>;
+                            };
+                            return (
+                                <label
+                                    key={rate.id}
+                                    className={`flex items-center justify-between p-4 border-2 rounded-lg cursor-pointer transition-colors ${selectedShippingRate === rate.id
+                                        ? 'border-brand-purple bg-purple-50'
+                                        : 'border-luxury-cool-grey hover:border-brand-purple/50'
+                                        }`}
+                                >
+                                    <div className="flex items-center gap-3">
+                                        <input
+                                            type="radio"
+                                            name="shipping"
+                                            value={rate.id}
+                                            checked={selectedShippingRate === rate.id}
+                                            onChange={(e) => handleShippingRateChange(e.target.value)}
+                                            className="w-4 h-4 text-brand-purple focus:ring-brand-purple"
+                                        />
+                                        <div>
+                                            <p className="font-extralight text-luxury-black">{rate.displayName || 'Shipping Option'}</p>
+                                        </div>
+                                    </div>
+                                    <div className="text-right">
+                                        <ShippingRatePrice price={ratePrice} />
+                                    </div>
+                                </label>
+                            );
+                        })}
+                    </div>
+                </div>
+            )}
+
+            {/* Payment Information */}
+            <div className="bg-white p-6 rounded-lg border">
+                <h3 className="text-lg font-extralight text-luxury-black mb-4 uppercase">
+                    Payment Information
+                </h3>
                 <PaymentElement
                     options={{
                         layout: 'tabs',
-                        wallets: { applePay: 'auto', googlePay: 'auto' },
-                        business: { name: 'Tassel & Wicker' },
+                        wallets: {
+                            applePay: 'auto',
+                            googlePay: 'auto',
+                        },
+                        business: {
+                            name: 'Tassel & Wicker',
+                        },
+                        terms: {
+                            card: 'always',
+                        },
                         fields: {
                             billingDetails: {
                                 name: 'auto',
                                 email: 'auto',
-                                address: { country: 'auto', line1: 'auto', postalCode: 'auto' },
+                                phone: 'auto',
+                                address: {
+                                    country: 'auto',
+                                    line1: 'auto',
+                                    line2: 'auto',
+                                    city: 'auto',
+                                    state: 'auto',
+                                    postalCode: 'auto',
+                                },
                             },
                         },
                     }}
@@ -91,7 +312,7 @@ const PaymentForm: React.FC<{
                 <motion.div
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
-                    className="p-4 bg-red-50 text-red-600 rounded-lg text-sm font-extralight"
+                    className="text-red-500 text-sm font-extralight bg-red-50 p-4 rounded-lg"
                 >
                     {error}
                 </motion.div>
@@ -100,9 +321,9 @@ const PaymentForm: React.FC<{
             <button
                 type="submit"
                 disabled={!stripe || isProcessing}
-                className="w-full py-5 bg-brand-purple text-white font-extralight uppercase tracking-wider hover:bg-brand-purple-light transition disabled:opacity-50"
+                className="w-full py-4 px-6 bg-brand-purple text-luxury-white font-extralight uppercase hover:bg-brand-purple-light transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-                {isProcessing ? 'Processing...' : 'Complete Payment'}
+                {isProcessing ? 'Processing Payment...' : `Complete Order - ${formattedPrice}`}
             </button>
         </form>
     );
@@ -112,97 +333,302 @@ export default function Checkout() {
     const router = useRouter();
     const { items, getTotalPrice, clearCart } = useCartStore();
     const { user, hasHydrated } = useAuthStore();
-    const baseTotal = getTotalPrice(); // in pence (GBP)
-    const { formattedPrice: subtotalFormatted } = usePrice(baseTotal);
+    const {
+        location,
+        currency,
+        fxQuote,
+        isLocationDetected,
+        detectLocation,
+        fetchFXQuote
+    } = useCurrencyStore();
+    const baseTotalPrice = getTotalPrice();
+    const { formattedPrice: formattedTotal } = usePrice(baseTotalPrice);
     const [clientSecret, setClientSecret] = useState<string | null>(null);
+    const [paymentIntentId, setPaymentIntentId] = useState<string | null>(null);
+    const [shippingCost, setShippingCost] = useState<number>(0);
+    const { formattedPrice: shippingFormatted } = usePrice(shippingCost);
+    const { formattedPrice: totalFormatted } = usePrice(baseTotalPrice + shippingCost);
+    const [isLoadingFXQuote, setIsLoadingFXQuote] = useState(false);
+    const exchangeRate = useCurrencyStore((state) => state.getExchangeRate(currency));
 
+    // User data comes from authStore - no need for formData state
+
+    // Scroll to top when component mounts
     useEffect(() => {
-        if (!hasHydrated || items.length === 0 || !user) return;
+        if (typeof window !== 'undefined') {
+            window.scrollTo(0, 0);
+        }
+    }, []);
 
-        const createIntent = async () => {
-            const res = await fetch('/api/create-payment-intent', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    amount: baseTotal,
-                    items: items.map(i => ({ id: i.id, name: i.name, quantity: i.quantity, price: i.price })),
-                    metadata: { userId: user.uid },
-                }),
-            });
+    // Redirect if cart is empty
+    useEffect(() => {
+        if (items.length === 0) {
+            router.push('/cart');
+        }
+    }, [items.length, router]);
 
-            const data = await res.json();
-            if (data.clientSecret) setClientSecret(data.clientSecret);
+    // Require authentication before checkout
+    useEffect(() => {
+        if (!hasHydrated) return;
+        if (!user) {
+            router.push('/login?redirect=/checkout');
+        }
+    }, [hasHydrated, user, router]);
+
+    // Detect location and fetch FX quote on mount
+    useEffect(() => {
+        const initializeCurrency = async () => {
+            if (!isLocationDetected) {
+                await detectLocation();
+            }
+
+            // Fetch FX quote if currency is not GBP
+            if (location && location.currency !== 'GBP' && !fxQuote) {
+                setIsLoadingFXQuote(true);
+                try {
+                    await fetchFXQuote(location.currency);
+                } catch (error) {
+                    console.error('Error fetching FX quote:', error);
+                } finally {
+                    setIsLoadingFXQuote(false);
+                }
+            }
         };
 
-        createIntent();
-    }, [items, baseTotal, user, hasHydrated]);
+        if (hasHydrated) {
+            initializeCurrency();
+        }
+    }, [hasHydrated, isLocationDetected, location, fxQuote, detectLocation, fetchFXQuote]);
 
-    const handleSuccess = () => {
+    // Create payment intent with FX quote if available
+    useEffect(() => {
+        if (items.length > 0 && baseTotalPrice > 0 && !isLoadingFXQuote) {
+            const createPaymentIntent = async () => {
+                try {
+                    // Calculate amount in customer's currency if FX quote is available
+                    let finalAmount = baseTotalPrice;
+                    let finalCurrency = 'gbp';
+                    let fxQuoteIdToUse: string | null = null;
+
+                    // Use FX quote for price conversion (both 'active' and 'none' statuses)
+                    // Note: FX quotes with lock_duration='none' cannot be used in PaymentIntents
+                    if (fxQuote && (fxQuote.lockStatus === 'active' || fxQuote.lockStatus === 'none') && currency !== 'GBP') {
+                        const exchangeRate = fxQuote.rates[currency.toLowerCase()]?.exchange_rate;
+                        const lockDuration = fxQuote.lockDuration;
+
+                        if (exchangeRate) {
+                            // Convert GBP amount to customer currency
+                            // exchange_rate converts FROM customer currency TO GBP
+                            // So to get customer amount: GBP amount / exchange_rate
+                            finalAmount = baseTotalPrice / exchangeRate;
+                            finalCurrency = currency.toLowerCase();
+
+                            // Only use FX quote ID in PaymentIntent if it has a locked duration (not 'none')
+                            if (lockDuration && lockDuration !== 'none') {
+                                fxQuoteIdToUse = fxQuote.id;
+                            }
+                            // For lock_duration='none', don't set fxQuoteIdToUse - Stripe will handle conversion
+                        }
+                    }
+
+                    const response = await fetch('/api/create-payment-intent', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            amount: finalAmount,
+                            currency: finalCurrency,
+                            fxQuoteId: fxQuoteIdToUse, // Only set if lock_duration is not 'none'
+                            items: items.map(item => ({
+                                id: item.id,
+                                name: item.name,
+                                quantity: item.quantity,
+                                price: item.price,
+                            })),
+                            metadata: {
+                                userId: user?.uid || 'guest',
+                                customerEmail: user?.email || '',
+                                customerName: user?.displayName || '',
+                                customerCurrency: currency,
+                                baseAmountGBP: baseTotalPrice.toString(),
+                            },
+                        }),
+                    });
+
+                    const data = await response.json();
+                    if (data.clientSecret) {
+                        setClientSecret(data.clientSecret);
+                        setPaymentIntentId(data.paymentIntentId);
+                    } else if (data.error) {
+                        useToastStore.getState().addToast({
+                            type: 'error',
+                            title: 'Payment Error',
+                            message: data.error,
+                        });
+                    }
+                } catch (error) {
+                    console.error('Error creating payment intent:', error);
+                    useToastStore.getState().addToast({
+                        type: 'error',
+                        title: 'Payment Error',
+                        message: 'Failed to initialize payment. Please try again.',
+                    });
+                }
+            };
+
+            createPaymentIntent();
+        }
+    }, [items, baseTotalPrice, user, fxQuote, currency, isLoadingFXQuote]);
+
+    // Removed handleChange - customer info comes from authStore
+
+    const handlePaymentSuccess = () => {
         clearCart();
         useToastStore.getState().addToast({
-            type: 'success',
-            title: 'Order Complete!',
-            message: 'Thank you for your purchase.',
+            type: "success",
+            title: "Payment Successful",
+            message: "Your order has been placed successfully!",
         });
     };
 
+    const handlePaymentError = (error: string) => {
+        useToastStore.getState().addToast({
+            type: "error",
+            title: "Payment Failed",
+            message: error,
+        });
+    };
+
+    const handleShippingChange = (cost: number) => {
+        setShippingCost(cost);
+    };
+
+    // Show loading state
     if (!hasHydrated || items.length === 0 || !user) {
         return (
-            <div className="min-h-screen flex items-center justify-center">
-                <p className="text-luxury-cool-grey">Loading...</p>
+            <div className="min-h-screen bg-white flex items-center justify-center">
+                <div className="text-center">
+                    <p className="text-luxury-cool-grey font-extralight">
+                        {!hasHydrated ? 'Loading...' : items.length === 0 ? 'Redirecting to cart...' : 'Redirecting to login...'}
+                    </p>
+                </div>
             </div>
         );
     }
 
     return (
         <div className="min-h-screen bg-white text-luxury-black">
-            <div className="max-w-7xl mx-auto px-4 py-24">
+            {/* Back Button */}
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24">
                 <button
                     onClick={() => router.push('/cart')}
-                    className="flex items-center gap-2 text-luxury-cool-grey hover:text-black mb-8"
+                    className="inline-flex items-center gap-2 text-luxury-cool-grey hover:text-luxury-black transition-colors duration-200 cursor-pointer"
                 >
-                    <LuArrowLeft /> <span className="font-extralight uppercase">Back to Cart</span>
+                    <LuArrowLeft size={16} />
+                    <span className="font-extralight uppercase">Back to Cart</span>
                 </button>
+            </div>
 
-                <h1 className="text-5xl font-extralight uppercase mb-12">Checkout</h1>
+            {/* Checkout Header */}
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+                <h1 className="text-5xl font-extralight text-luxury-black mb-2 uppercase">
+                    Checkout
+                </h1>
+                <p className="text-luxury-cool-grey font-extralight">
+                    Complete your luxury purchase
+                </p>
+            </div>
 
-                <div className="grid lg:grid-cols-2 gap-12">
-                    {/* Left: Payment */}
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-24">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+                    {/* Checkout Form */}
                     <div>
-                        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-                            <h2 className="text-2xl font-extralight uppercase mb-8">Payment Details</h2>
+                        <motion.div
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.6 }}
+                            className="space-y-8"
+                        >
+                            {/* Payment Information - Stripe Elements */}
+                            <div>
+                                <h2 className="text-xl font-extralight text-luxury-black mb-6 uppercase">
+                                    Payment & Shipping
+                                </h2>
 
-                            {clientSecret ? (
-                                <Elements stripe={stripePromise} options={{ clientSecret, appearance: { theme: 'stripe' } }}>
-                                    <PaymentForm clientSecret={clientSecret} onSuccess={handleSuccess} onError={() => { }} />
-                                </Elements>
-                            ) : (
-                                <div className="bg-gray-50 p-8 rounded-lg text-center">
-                                    <p className="text-luxury-cool-grey">Initializing secure payment...</p>
-                                </div>
-                            )}
+                                {clientSecret && paymentIntentId ? (
+                                    <Elements
+                                        stripe={stripePromise}
+                                        options={{
+                                            clientSecret,
+                                            appearance: {
+                                                theme: 'stripe',
+                                                variables: {
+                                                    colorPrimary: '#6B46C1',
+                                                    colorBackground: '#ffffff',
+                                                    colorText: '#1A1A1A',
+                                                    colorDanger: '#EF4444',
+                                                    fontFamily: 'system-ui, sans-serif',
+                                                    spacingUnit: '4px',
+                                                    borderRadius: '8px',
+                                                },
+                                            },
+                                        }}
+                                    >
+                                        <PaymentForm
+                                            userEmail={user?.email || ''}
+                                            userName={user?.displayName || ''}
+                                            onSuccess={handlePaymentSuccess}
+                                            onError={handlePaymentError}
+                                            totalPrice={baseTotalPrice}
+                                            clientSecret={clientSecret}
+                                            paymentIntentId={paymentIntentId}
+                                            onShippingChange={handleShippingChange}
+                                            currency={currency}
+                                            exchangeRate={exchangeRate}
+                                        />
+                                    </Elements>
+                                ) : (
+                                    <div className="bg-white p-6 rounded-lg">
+                                        <p className="text-luxury-cool-grey font-extralight text-sm">
+                                            Initializing payment...
+                                        </p>
+                                    </div>
+                                )}
+                            </div>
                         </motion.div>
                     </div>
 
-                    {/* Right: Summary */}
+                    {/* Order Summary */}
                     <div>
                         <motion.div
                             initial={{ opacity: 0, x: 20 }}
                             animate={{ opacity: 1, x: 0 }}
-                            className="bg-white border p-8 sticky top-8"
+                            transition={{ duration: 0.6, delay: 0.2 }}
+                            className="bg-white p-8 sticky top-8"
                         >
-                            <h3 className="text-2xl font-extralight uppercase mb-6">Order Summary</h3>
+                            <h3 className="text-xl font-extralight text-luxury-black mb-6 uppercase">
+                                Order Summary
+                            </h3>
 
                             <div className="space-y-4 mb-6">
-                                {items.map((item) => (
+                                {items.map((item: CartItem) => (
                                     <div key={item.id} className="flex justify-between items-center">
-                                        <div className="flex gap-4">
-                                            <div className="w-16 h-16 relative shrink-0">
-                                                <Image src={item.image} alt={item.name} fill className="object-cover rounded" />
+                                        <div className="flex items-center gap-3">
+                                            <div className="relative w-12 h-12 shrink-0">
+                                                <Image
+                                                    src={item.image}
+                                                    alt={item.name}
+                                                    fill
+                                                    className="object-cover"
+                                                    sizes="48px"
+                                                />
                                             </div>
                                             <div>
-                                                <p className="font-extralight">{item.name}</p>
-                                                <p className="text-xs text-luxury-cool-grey">Qty: {item.quantity}</p>
+                                                <p className="font-extralight text-sm">{item.name}</p>
+                                                <p className="text-luxury-cool-grey font-extralight text-xs">
+                                                    Qty: {item.quantity}
+                                                </p>
                                             </div>
                                         </div>
                                         <CheckoutItemPrice price={item.price} quantity={item.quantity} />
@@ -210,22 +636,23 @@ export default function Checkout() {
                                 ))}
                             </div>
 
-                            <div className="border-t pt-6 space-y-3">
-                                <div className="flex justify-between text-luxury-cool-grey">
-                                    <span>Subtotal</span>
-                                    <span>{subtotalFormatted}</span>
+                            <div className="border-t border-luxury-cool-grey pt-4 space-y-2">
+                                <div className="flex justify-between">
+                                    <span className="text-luxury-cool-grey font-extralight">Subtotal</span>
+                                    <span className="font-extralight">{formattedTotal}</span>
                                 </div>
-                                <div className="flex justify-between text-luxury-cool-grey">
-                                    <span>Shipping</span>
-                                    <span className="italic">Selected at checkout</span>
+                                <div className="flex justify-between">
+                                    <span className="text-luxury-cool-grey font-extralight">Shipping</span>
+                                    <span className="font-extralight">
+                                        {shippingCost > 0 ? shippingFormatted : 'Select shipping address'}
+                                    </span>
                                 </div>
-                                <div className="flex justify-between text-xl font-light pt-4 border-t">
-                                    <span>Total</span>
-                                    <span className="font-medium">See in payment form →</span>
+                                <div className="flex justify-between text-lg">
+                                    <span className="text-luxury-black font-extralight">Total</span>
+                                    <span className="text-luxury-black font-extralight">
+                                        {totalFormatted}
+                                    </span>
                                 </div>
-                                <p className="text-xs text-luxury-cool-grey mt-4 italic">
-                                    Final total includes shipping & currency conversion (if applicable)
-                                </p>
                             </div>
                         </motion.div>
                     </div>

@@ -1,5 +1,4 @@
 import { CurrencyCode } from '@/store/currencyStore';
-import { useCurrencyStore } from '@/store/currencyStore';
 
 // Currency symbols and formatting
 export const CURRENCY_INFO: Record<CurrencyCode, { symbol: string; name: string; decimals: number }> = {
@@ -14,14 +13,26 @@ export const CURRENCY_INFO: Record<CurrencyCode, { symbol: string; name: string;
 };
 
 /**
- * Returns the base price in GBP (no conversion)
+ * Converts price from GBP to target currency using Stripe exchange rate
  * @param basePrice - Price in GBP
- * @param currency - Target currency code (deprecated, kept for compatibility)
- * @returns Base price in GBP
+ * @param currency - Target currency code
+ * @param exchangeRate - Exchange rate from Stripe FX Quote (GBP to currency)
+ * @returns Converted price in target currency
  */
-export function convertPrice(basePrice: number, currency: CurrencyCode = 'GBP'): number {
-  // Always return GBP price - Stripe handles conversion during checkout
-  return basePrice;
+export function convertPrice(
+  basePrice: number,
+  currency: CurrencyCode = 'GBP',
+  exchangeRate: number | null = null
+): number {
+  // If GBP or no exchange rate, return as-is
+  if (currency === 'GBP' || !exchangeRate) {
+    return basePrice;
+  }
+
+  // Convert: divide GBP price by exchange rate to get customer price
+  // exchange_rate is the rate to convert FROM customer currency TO GBP
+  // So to get customer price: GBP price / exchange_rate
+  return basePrice / exchangeRate;
 }
 
 /**
@@ -30,29 +41,33 @@ export function convertPrice(basePrice: number, currency: CurrencyCode = 'GBP'):
  * @returns Price unchanged
  */
 export function applyPriceAdjustment(price: number): number {
-  // No longer applying adjustments - prices are always in GBP
+  // No longer applying adjustments - prices use Stripe FX rates
   return price;
 }
 
 /**
- * Gets the final price (always returns base price in GBP)
+ * Gets the final price (converted if needed)
  * @param basePrice - Base price in GBP
- * @returns Base price in GBP (no conversion or adjustment)
+ * @param currency - Target currency code
+ * @param exchangeRate - Exchange rate from Stripe FX Quote
+ * @returns Converted price in target currency
  */
-export function getFinalPrice(basePrice: number): number {
-  // Always return GBP price - Stripe handles conversion during checkout
-  return basePrice;
+export function getFinalPrice(
+  basePrice: number,
+  currency: CurrencyCode = 'GBP',
+  exchangeRate: number | null = null
+): number {
+  return convertPrice(basePrice, currency, exchangeRate);
 }
 
 /**
- * Formats a price with GBP currency symbol
- * @param price - Price to format (in GBP)
- * @param currency - Currency code (deprecated, always uses GBP)
- * @returns Formatted price string in GBP
+ * Formats a price with currency symbol
+ * @param price - Price to format
+ * @param currency - Currency code
+ * @returns Formatted price string
  */
-export function formatPrice(price: number, currency?: CurrencyCode): string {
-  // Always format in GBP - Stripe handles conversion during checkout
-  const currencyInfo = CURRENCY_INFO['GBP'];
+export function formatPrice(price: number, currency: CurrencyCode = 'GBP'): string {
+  const currencyInfo = CURRENCY_INFO[currency];
   
   const formattedPrice = price.toLocaleString('en-US', {
     minimumFractionDigits: currencyInfo.decimals,
@@ -63,32 +78,37 @@ export function formatPrice(price: number, currency?: CurrencyCode): string {
 }
 
 /**
- * Formats a price with GBP currency symbol (no conversion)
+ * Formats a price with currency conversion using Stripe exchange rate
  * @param basePrice - Base price in GBP
- * @param currency - Currency code (deprecated, always uses GBP)
- * @returns Formatted price string in GBP
+ * @param currency - Target currency code
+ * @param exchangeRate - Exchange rate from Stripe FX Quote
+ * @returns Formatted price string in target currency
  */
-export function formatPriceWithConversion(basePrice: number, currency?: CurrencyCode): string {
-  // Always return GBP price - Stripe handles conversion during checkout
-  return formatPrice(basePrice, 'GBP');
+export function formatPriceWithConversion(
+  basePrice: number,
+  currency: CurrencyCode = 'GBP',
+  exchangeRate: number | null = null
+): string {
+  const convertedPrice = convertPrice(basePrice, currency, exchangeRate);
+  return formatPrice(convertedPrice, currency);
 }
 
 /**
- * Gets currency symbol (always returns GBP symbol)
- * @returns Currency symbol (£)
+ * Gets currency symbol for given currency
+ * @param currency - Currency code
+ * @returns Currency symbol
  */
-export function getCurrencySymbol(): string {
-  // Always return GBP symbol
-  return CURRENCY_INFO['GBP'].symbol;
+export function getCurrencySymbol(currency: CurrencyCode = 'GBP'): string {
+  return CURRENCY_INFO[currency].symbol;
 }
 
 /**
- * Gets currency name (always returns GBP name)
- * @returns Currency name (British Pound)
+ * Gets currency name for given currency
+ * @param currency - Currency code
+ * @returns Currency name
  */
-export function getCurrencyName(): string {
-  // Always return GBP name
-  return CURRENCY_INFO['GBP'].name;
+export function getCurrencyName(currency: CurrencyCode = 'GBP'): string {
+  return CURRENCY_INFO[currency].name;
 }
 
 

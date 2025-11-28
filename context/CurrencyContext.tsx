@@ -32,13 +32,7 @@ export function CurrencyProvider({ children }: { children: ReactNode }) {
     }
   }, [isLocationDetected, detectLocation]);
 
-  // Fetch exchange rates on mount and when currency changes
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const { fetchExchangeRates } = useCurrencyStore.getState();
-      fetchExchangeRates();
-    }
-  }, [currency]);
+  // Removed exchange rate fetching - Stripe handles currency conversion
 
   // Re-detect location when user logs in (in case they're in a different location)
   useEffect(() => {
