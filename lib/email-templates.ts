@@ -148,18 +148,10 @@ export function createContactFormEmailTemplate(formData: {
 export function createOrderConfirmationEmailTemplate(
   order: OrderDetails
 ): string {
+  // Always format prices in GBP - Stripe handles conversion during checkout
   const formatPrice = (amount: number, currency: string): string => {
-    const symbol =
-      currency === "GBP"
-        ? "£"
-        : currency === "USD"
-        ? "$"
-        : currency === "EUR"
-        ? "€"
-        : currency === "NGN"
-        ? "₦"
-        : "";
-    return `${symbol}${amount.toFixed(2)}`;
+    // Always use GBP symbol regardless of currency parameter
+    return `£${amount.toFixed(2)}`;
   };
 
   const itemsList = order.items
@@ -284,18 +276,10 @@ export function createOrderConfirmationEmailTemplate(
 export function createPaymentConfirmationEmailTemplate(
   order: OrderDetails
 ): string {
+  // Always format prices in GBP - Stripe handles conversion during checkout
   const formatPrice = (amount: number, currency: string): string => {
-    const symbol =
-      currency === "GBP"
-        ? "£"
-        : currency === "USD"
-        ? "$"
-        : currency === "EUR"
-        ? "€"
-        : currency === "NGN"
-        ? "₦"
-        : "";
-    return `${symbol}${amount.toFixed(2)}`;
+    // Always use GBP symbol regardless of currency parameter
+    return `£${amount.toFixed(2)}`;
   };
 
   const content = `

@@ -485,7 +485,7 @@ export const getAdditionalProducts = (): StandaloneProduct[] => [
     category: "Home & Living",
     variants: createVariantFromLegacy(
       "https://res.cloudinary.com/dygrsvya5/image/upload/q_auto:low/v1761224785/MAEGEN_ATINA_CANDLE_IN_RED_khefmd.jpg",
-      15
+      33
     ),
     details: {
       quantity: "100 long matches",

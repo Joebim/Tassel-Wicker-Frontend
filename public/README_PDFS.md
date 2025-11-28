@@ -1,10 +1,10 @@
 # PDF Documents
 
-Place the following PDF files in this `public` folder:
+The following PDF files are located in this `public` folder:
 
-1. **privacy-policy.pdf** - Privacy Policy document
-2. **terms-of-service.pdf** - Terms of Service document  
-3. **cookie-policy.pdf** - Cookie Policy document
+1. **Tassel & Wicker Privacy Notice.pdf** - Privacy Policy document
+2. **Tassel & Wicker Website Terms of Service.pdf** - Terms of Service document  
+3. **Tassel & Wicker Cookie Policy.pdf** - Cookie Policy document
 
 ## Document Viewer
 

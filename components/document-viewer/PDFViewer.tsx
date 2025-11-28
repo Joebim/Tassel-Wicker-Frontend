@@ -1,11 +1,15 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { Viewer, Worker } from '@react-pdf-viewer/core';
+import { defaultLayoutPlugin } from '@react-pdf-viewer/default-layout';
+import '@react-pdf-viewer/core/lib/styles/index.css';
+import '@react-pdf-viewer/default-layout/lib/styles/index.css';
 
 const documentMap: Record<string, string> = {
-  'privacy-policy': '/privacy-policy.pdf',
-  'terms-of-service': '/terms-of-service.pdf',
-  'cookie-policy': '/cookie-policy.pdf',
+  'privacy-policy': '/Tassel & Wicker Privacy Notice.pdf',
+  'terms-of-service': '/Tassel & Wicker Website Terms of Service.pdf',
+  'cookie-policy': '/Tassel & Wicker Cookie Policy.pdf',
 };
 
 interface PDFViewerProps {
@@ -13,8 +17,26 @@ interface PDFViewerProps {
 }
 
 export default function PDFViewer({ docName }: PDFViewerProps) {
-  const pdfUrl = documentMap[docName] || null;
+  const pdfPath = documentMap[docName] || null;
+  // Encode URL to handle spaces and special characters
+  const pdfUrl = pdfPath ? encodeURI(pdfPath) : null;
   const [isMobile, setIsMobile] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  // Initialize default layout plugin
+  const defaultLayoutPluginInstance = defaultLayoutPlugin({
+    sidebarTabs: (defaultTabs) => [],
+    toolbarPlugin: {
+      fullScreenPlugin: {
+        onEnterFullScreen: (zoom) => {
+          zoom(1.5);
+        },
+        onExitFullScreen: (zoom) => {
+          zoom(1);
+        },
+      },
+    },
+  });
 
   // Detect mobile device
   useEffect(() => {
@@ -107,62 +129,90 @@ export default function PDFViewer({ docName }: PDFViewerProps) {
     );
   }
 
+  if (error) {
+    return (
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-2xl font-extralight text-luxury-black mb-4">
+            Error Loading Document
+          </h1>
+          <p className="text-luxury-cool-grey font-extralight">
+            {error}
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gray-100">
-      {/* Toolbar */}
-      <div className={`bg-white border-b border-gray-200 sticky top-0 z-50 shadow-sm ${isMobile ? 'py-2' : 'py-3'}`}>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-center">
-            <p className={`text-luxury-black font-extralight ${isMobile ? 'text-xs' : 'text-sm'}`}>
-              {isMobile ? 'Document Viewer' : 'Document Viewer - Use browser controls to navigate'}
-            </p>
+      {/* PDF Viewer */}
+      <div className={`${isMobile ? 'h-screen' : 'h-screen'}`} style={{ userSelect: 'none' }}>
+        {pdfUrl ? (
+          <Worker workerUrl="https://unpkg.com/pdfjs-dist@3.11.174/build/pdf.worker.min.js">
+            <div style={{ height: '100%', width: '100%' }}>
+              <Viewer
+                fileUrl={pdfUrl}
+                plugins={[defaultLayoutPluginInstance]}
+                onDocumentLoad={(e) => {
+                  console.log('PDF loaded:', e.doc.numPages, 'pages');
+                  setError(null);
+                }}
+              />
+            </div>
+          </Worker>
+        ) : (
+          <div className="min-h-screen bg-white flex items-center justify-center">
+            <div className="text-center">
+              <h1 className="text-2xl font-extralight text-luxury-black mb-4">
+                Document Not Found
+              </h1>
+              <p className="text-luxury-cool-grey font-extralight">
+                The requested document could not be found.
+              </p>
+            </div>
           </div>
-        </div>
+        )}
       </div>
 
-      {/* PDF Viewer using iframe */}
-      <div className={`flex justify-center items-start py-4 px-4 ${isMobile ? 'h-[calc(100vh-60px)]' : 'h-[calc(100vh-80px)]'}`}>
-        <div className="w-full h-full bg-white shadow-lg" style={{ userSelect: 'none' }}>
-          <iframe
-            src={`${pdfUrl}#toolbar=0&navpanes=0&scrollbar=0${isMobile ? '&zoom=page-width' : '&zoom=auto'}`}
-            className="w-full h-full border-0"
-            title="PDF Document Viewer"
-            style={{
-              pointerEvents: 'auto',
-              touchAction: 'pan-x pan-y pinch-zoom',
-            }}
-            onContextMenu={(e) => e.preventDefault()}
-            onDragStart={(e) => e.preventDefault()}
-          />
+      {error && (
+        <div className="fixed top-4 left-1/2 transform -translate-x-1/2 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded z-50">
+          {error}
         </div>
-      </div>
+      )}
 
-      {/* Additional protection styles */}
+      {/* Custom styles for react-pdf-viewer */}
       <style jsx global>{`
-        body {
+        /* Override react-pdf-viewer styles for better mobile experience */
+        .rpv-core__viewer {
+          height: 100% !important;
+        }
+
+        /* Mobile optimizations */
+        @media (max-width: 768px) {
+          .rpv-core__viewer {
+            font-size: 12px;
+          }
+          
+          .rpv-toolbar {
+            padding: 8px !important;
+          }
+          
+          .rpv-toolbar__item {
+            padding: 4px !important;
+          }
+        }
+
+        /* Prevent text selection */
+        .rpv-core__viewer {
           -webkit-user-select: none;
           -moz-user-select: none;
           -ms-user-select: none;
           user-select: none;
-          overflow: hidden;
-        }
-        /* Prevent image dragging */
-        img {
-          -webkit-user-drag: none;
-          -khtml-user-drag: none;
-          -moz-user-drag: none;
-          -o-user-drag: none;
-          user-drag: none;
-        }
-        /* Mobile-specific PDF viewer adjustments */
-        @media (max-width: 768px) {
-          iframe[title="PDF Document Viewer"] {
-            -webkit-overflow-scrolling: touch;
-            overflow: auto;
-          }
         }
       `}</style>
     </div>
   );
 }
+
 

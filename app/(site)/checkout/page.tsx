@@ -14,7 +14,7 @@ import { usePrice } from '@/hooks/usePrice';
 import { useCurrencyStore } from '@/store/currencyStore';
 import useCountries, { type Country } from '@/hooks/useCountries';
 import { getShippingRates, getShippingRateById, type ShippingRate } from '@/utils/shippingRates';
-import { convertPrice } from '@/utils/priceUtils';
+// Removed convertPrice import - always using GBP prices, Stripe handles conversion
 
 // Initialize Stripe
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || '');
@@ -233,9 +233,10 @@ export default function Checkout() {
     const router = useRouter();
     const { items, getTotalPrice, clearCart } = useCartStore();
     const { user, hasHydrated } = useAuthStore();
-    const { currency, location } = useCurrencyStore();
+    const { location } = useCurrencyStore();
     const baseTotalPrice = getTotalPrice();
-    const { formattedPrice: formattedTotal, finalPrice: convertedTotalPrice } = usePrice(baseTotalPrice);
+    // Always use GBP prices - Stripe handles conversion during checkout
+    const { formattedPrice: formattedTotal } = usePrice(baseTotalPrice);
     const [clientSecret, setClientSecret] = useState<string | null>(null);
 
     const { countries, isLoading: isLoadingCountries } = useCountries();
@@ -360,20 +361,20 @@ export default function Checkout() {
         const rate = getShippingRateById(selectedShippingRate, country.iso2);
         if (!rate) return 0;
 
-        // Convert shipping cost from GBP to user's currency
-        return convertPrice(rate.price, currency as 'GBP' | 'USD' | 'EUR' | 'CAD' | 'AUD' | 'JPY' | 'NGN' | 'ZAR');
-    }, [selectedShippingRate, formData.country, countries, currency]);
+        // Always return shipping cost in GBP - Stripe handles conversion during checkout
+        return rate.price;
+    }, [selectedShippingRate, formData.country, countries]);
 
-    // Calculate shipping and total prices for display
+    // Calculate shipping and total prices for display (always in GBP)
     const { formattedPrice: shippingFormattedPrice } = usePrice(shippingCost);
-    const { formattedPrice: totalFormattedPrice } = usePrice(convertedTotalPrice + shippingCost);
+    const { formattedPrice: totalFormattedPrice } = usePrice(baseTotalPrice + shippingCost);
 
     // Create payment intent when component mounts or when cart/price/shipping changes
     // Note: Customer info (formData.email, formData.firstName, formData.lastName) is intentionally
     // not in dependencies to avoid recreating payment intent on every form field change.
     // Customer info is also captured in the confirmPayment call and will be available in webhook.
     useEffect(() => {
-        if (items.length > 0 && convertedTotalPrice > 0) {
+        if (items.length > 0 && baseTotalPrice > 0) {
             const createPaymentIntent = async () => {
                 try {
                     const country = getCountryByName(countries, formData.country);
@@ -383,8 +384,8 @@ export default function Checkout() {
                             'Content-Type': 'application/json',
                         },
                         body: JSON.stringify({
-                            amount: convertedTotalPrice, // Use converted price, not base price
-                            currency: currency.toLowerCase(),
+                            amount: baseTotalPrice, // Always use GBP base price - Stripe handles conversion
+                            currency: 'gbp', // Always use GBP - Stripe handles conversion
                             shippingCost: shippingCost,
                             shippingAddress: country ? {
                                 country: country.iso2,
@@ -432,7 +433,7 @@ export default function Checkout() {
             createPaymentIntent();
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [items, convertedTotalPrice, currency, user, shippingCost, selectedShippingRate, formData.country, formData.city, formData.postalCode, countries]);
+    }, [items, baseTotalPrice, user, shippingCost, selectedShippingRate, formData.country, formData.city, formData.postalCode, countries]);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         setFormData({
@@ -633,9 +634,9 @@ export default function Checkout() {
                                     </h2>
                                     <div className="space-y-3">
                                         {availableShippingRates.map((rate) => {
-                                            const ratePrice = convertPrice(rate.price, currency as 'GBP' | 'USD' | 'EUR' | 'CAD' | 'AUD' | 'JPY' | 'NGN' | 'ZAR');
+                                            // Always use GBP price - Stripe handles conversion during checkout
                                             const ShippingRatePriceDisplay: React.FC = () => {
-                                                const { formattedPrice } = usePrice(ratePrice);
+                                                const { formattedPrice } = usePrice(rate.price);
                                                 return <p className="font-extralight text-luxury-black">{formattedPrice}</p>;
                                             };
                                             return (

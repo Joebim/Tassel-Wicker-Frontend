@@ -14,116 +14,81 @@ export const CURRENCY_INFO: Record<CurrencyCode, { symbol: string; name: string;
 };
 
 /**
- * Converts a base price (GBP) to the current currency
+ * Returns the base price in GBP (no conversion)
  * @param basePrice - Price in GBP
- * @param currency - Target currency code
- * @returns Converted price
+ * @param currency - Target currency code (deprecated, kept for compatibility)
+ * @returns Base price in GBP
  */
 export function convertPrice(basePrice: number, currency: CurrencyCode = 'GBP'): number {
-  // Skip conversion if currency is GBP (default/base currency)
-  if (currency === 'GBP') {
-    return basePrice;
-  }
-  
-  const store = useCurrencyStore.getState();
-  const exchangeRate = store.getExchangeRate();
-  return basePrice * exchangeRate;
+  // Always return GBP price - Stripe handles conversion during checkout
+  return basePrice;
 }
 
 /**
- * Applies location-based price adjustment
+ * Applies location-based price adjustment (deprecated - no longer used)
  * @param price - Price to adjust
- * @returns Adjusted price
+ * @returns Price unchanged
  */
 export function applyPriceAdjustment(price: number): number {
-  const store = useCurrencyStore.getState();
-  const adjustment = store.getPriceAdjustment();
-  
-  if (adjustment === 0) return price;
-  
-  // Apply percentage adjustment
-  return price * (1 + adjustment / 100);
+  // No longer applying adjustments - prices are always in GBP
+  return price;
 }
 
 /**
- * Gets the final price after currency conversion and location adjustment
+ * Gets the final price (always returns base price in GBP)
  * @param basePrice - Base price in GBP
- * @returns Final price in current currency with adjustments
+ * @returns Base price in GBP (no conversion or adjustment)
  */
 export function getFinalPrice(basePrice: number): number {
-  const store = useCurrencyStore.getState();
-  
-  // Skip conversion if currency is GBP (default/base currency)
-  if (store.currency === 'GBP') {
-    // Only apply location-based adjustment for GBP
-    return applyPriceAdjustment(basePrice);
-  }
-  
-  // First convert to target currency
-  const convertedPrice = convertPrice(basePrice, store.currency);
-  
-  // Then apply location-based adjustment
-  return applyPriceAdjustment(convertedPrice);
+  // Always return GBP price - Stripe handles conversion during checkout
+  return basePrice;
 }
 
 /**
- * Formats a price with currency symbol
- * @param price - Price to format
- * @param currency - Currency code (optional, uses store currency if not provided)
- * @returns Formatted price string
+ * Formats a price with GBP currency symbol
+ * @param price - Price to format (in GBP)
+ * @param currency - Currency code (deprecated, always uses GBP)
+ * @returns Formatted price string in GBP
  */
 export function formatPrice(price: number, currency?: CurrencyCode): string {
-  const store = useCurrencyStore.getState();
-  const targetCurrency = currency || store.currency;
-  const currencyInfo = CURRENCY_INFO[targetCurrency];
-  
-  if (!currencyInfo) {
-    return `$${price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-  }
+  // Always format in GBP - Stripe handles conversion during checkout
+  const currencyInfo = CURRENCY_INFO['GBP'];
   
   const formattedPrice = price.toLocaleString('en-US', {
     minimumFractionDigits: currencyInfo.decimals,
     maximumFractionDigits: currencyInfo.decimals,
   });
   
-  // For currencies like JPY, NGN, ZAR, place symbol before
-  // For others, use standard placement
-  if (targetCurrency === 'JPY' || targetCurrency === 'NGN' || targetCurrency === 'ZAR') {
-    return `${currencyInfo.symbol}${formattedPrice}`;
-  }
-  
   return `${currencyInfo.symbol}${formattedPrice}`;
 }
 
 /**
- * Formats a price with currency symbol and applies all conversions/adjustments
+ * Formats a price with GBP currency symbol (no conversion)
  * @param basePrice - Base price in GBP
- * @param currency - Currency code (optional)
- * @returns Formatted price string
+ * @param currency - Currency code (deprecated, always uses GBP)
+ * @returns Formatted price string in GBP
  */
 export function formatPriceWithConversion(basePrice: number, currency?: CurrencyCode): string {
-  const finalPrice = getFinalPrice(basePrice);
-  return formatPrice(finalPrice, currency);
+  // Always return GBP price - Stripe handles conversion during checkout
+  return formatPrice(basePrice, 'GBP');
 }
 
 /**
- * Gets currency symbol for current currency
- * @returns Currency symbol
+ * Gets currency symbol (always returns GBP symbol)
+ * @returns Currency symbol (£)
  */
 export function getCurrencySymbol(): string {
-  const store = useCurrencyStore.getState();
-  const currencyInfo = CURRENCY_INFO[store.currency];
-  return currencyInfo?.symbol || '$';
+  // Always return GBP symbol
+  return CURRENCY_INFO['GBP'].symbol;
 }
 
 /**
- * Gets currency name for current currency
- * @returns Currency name
+ * Gets currency name (always returns GBP name)
+ * @returns Currency name (British Pound)
  */
 export function getCurrencyName(): string {
-  const store = useCurrencyStore.getState();
-  const currencyInfo = CURRENCY_INFO[store.currency];
-  return currencyInfo?.name || 'US Dollar';
+  // Always return GBP name
+  return CURRENCY_INFO['GBP'].name;
 }
 
 

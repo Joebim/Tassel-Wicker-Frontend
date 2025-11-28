@@ -11,22 +11,13 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Invalid amount" }, { status: 400 });
     }
 
-    if (!currency) {
-      return NextResponse.json(
-        { error: "Currency is required" },
-        { status: 400 }
-      );
-    }
-
-    // Amount is already converted to the user's currency (from currencyStore)
-    // No conversion needed - use the amount and currency as-is
-    const targetCurrency = currency.toLowerCase();
+    // Always use GBP - Stripe handles currency conversion automatically during checkout
+    const targetCurrency = "gbp";
     // Include shipping cost in the total amount
     const finalAmount = amount + (shippingCost || 0);
 
-    // Convert amount to smallest currency unit (cents for most currencies)
-    // For JPY, it's already in the smallest unit
-    const divisor = targetCurrency === "jpy" ? 1 : 100;
+    // Convert amount to smallest currency unit (pence for GBP)
+    const divisor = 100;
     const amountInSmallestUnit = Math.round(finalAmount * divisor);
 
     // Create payment intent with multiple payment methods enabled
