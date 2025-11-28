@@ -1,33 +1,22 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { loadStripe } from '@stripe/stripe-js';
 import { Elements, PaymentElement, useStripe, useElements } from '@stripe/react-stripe-js';
 import { motion } from 'framer-motion';
-import { LuArrowLeft, LuMapPin } from 'react-icons/lu';
+import { LuArrowLeft } from 'react-icons/lu';
 import { useCartStore, type CartItem } from '@/store/cartStore';
 import { useAuthStore } from '@/store/authStore';
 import { useToastStore } from '@/store/toastStore';
 import { usePrice } from '@/hooks/usePrice';
-import { useCurrencyStore } from '@/store/currencyStore';
-import useCountries, { type Country } from '@/hooks/useCountries';
-import { getShippingRates, getShippingRateById, type ShippingRate } from '@/utils/shippingRates';
-// Removed convertPrice import - always using GBP prices, Stripe handles conversion
+// Shipping is now handled by Stripe - removed manual shipping rate imports
 
 // Initialize Stripe
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || '');
 
-// Helper functions for country handling
-const getCountryByName = (countries: Country[], countryName: string): Country | undefined => {
-    return countries.find((c: Country) => c.name === countryName);
-};
-
-const getCountryIso2 = (countries: Country[], countryName: string): string => {
-    const country = getCountryByName(countries, countryName);
-    return country?.iso2 || 'US'; // Fallback to US if not found
-};
+// Removed country helper functions - Stripe handles shipping address collection
 
 // Component for displaying item price
 const CheckoutItemPrice: React.FC<{ price: number; quantity: number }> = ({ price, quantity }) => {
@@ -42,23 +31,17 @@ const PaymentForm: React.FC<{
         firstName: string;
         lastName: string;
         email: string;
-        address: string;
-        city: string;
-        postalCode: string;
-        country: string;
     };
-    countries: Country[];
     onSuccess: () => void;
     onError: (error: string) => void;
     totalPrice: number;
-    shippingCost: number;
     clientSecret: string;
-}> = ({ formData, countries, onSuccess, onError, totalPrice, shippingCost, clientSecret }) => {
+}> = ({ formData, onSuccess, onError, totalPrice, clientSecret }) => {
     const stripe = useStripe();
     const elements = useElements();
     const [isProcessing, setIsProcessing] = useState(false);
     const [error, setError] = useState<string>('');
-    const { formattedPrice } = usePrice(totalPrice + shippingCost);
+    const { formattedPrice } = usePrice(totalPrice);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -86,33 +69,14 @@ const PaymentForm: React.FC<{
             }
 
             // Confirm payment with existing clientSecret
+            // Let Stripe collect shipping + billing properly via PaymentElement
             const { error: confirmError } = await stripe.confirmPayment({
                 elements,
                 clientSecret,
                 confirmParams: {
                     return_url: `${window.location.origin}/payment-success`,
                     receipt_email: formData.email, // Set receipt email on payment intent
-                    payment_method_data: {
-                        billing_details: {
-                            name: `${formData.firstName} ${formData.lastName}`,
-                            email: formData.email,
-                            address: {
-                                line1: formData.address,
-                                city: formData.city,
-                                postal_code: formData.postalCode,
-                                country: getCountryIso2(countries, formData.country),
-                            },
-                        },
-                    },
-                    shipping: {
-                        name: `${formData.firstName} ${formData.lastName}`,
-                        address: {
-                            line1: formData.address,
-                            city: formData.city,
-                            postal_code: formData.postalCode,
-                            country: getCountryIso2(countries, formData.country),
-                        },
-                    },
+                    // Stripe will automatically collect shipping address and billing details via PaymentElement
                 },
                 redirect: 'if_required', // Only redirect if required by payment method
             });
@@ -233,100 +197,18 @@ export default function Checkout() {
     const router = useRouter();
     const { items, getTotalPrice, clearCart } = useCartStore();
     const { user, hasHydrated } = useAuthStore();
-    const { location } = useCurrencyStore();
     const baseTotalPrice = getTotalPrice();
     // Always use GBP prices - Stripe handles conversion during checkout
     const { formattedPrice: formattedTotal } = usePrice(baseTotalPrice);
     const [clientSecret, setClientSecret] = useState<string | null>(null);
 
-    const { countries, isLoading: isLoadingCountries } = useCountries();
-
-    // Get default country from currencyStore location, fallback to United States
-    const getDefaultCountryName = (): string => {
-        if (location?.country) {
-            return location.country;
-        }
-        return 'United States';
-    };
-
     const [formData, setFormData] = useState({
         firstName: '',
         lastName: '',
         email: user?.email || '',
-        address: '',
-        city: '',
-        postalCode: '',
-        country: getDefaultCountryName()
     });
 
-    // Shipping state
-    const [selectedShippingRate, setSelectedShippingRate] = useState<string | null>(null);
-    const [availableShippingRates, setAvailableShippingRates] = useState<ShippingRate[]>([]);
-
-    // Set default country when countries are loaded or location changes
-    useEffect(() => {
-        if (countries.length > 0) {
-            // Get the country from currencyStore location
-            let targetCountry: Country | undefined;
-
-            if (location?.country) {
-                // Try to find by country name first
-                targetCountry = getCountryByName(countries, location.country);
-
-                // If not found by name, try to find by countryCode (iso2)
-                if (!targetCountry && location.countryCode) {
-                    targetCountry = countries.find((c: Country) => c.iso2 === location.countryCode);
-                }
-            }
-
-            // Fallback to United States if location country not found
-            if (!targetCountry) {
-                targetCountry = countries.find((c: Country) => c.name === 'United States');
-            }
-
-            // Final fallback to first country
-            if (!targetCountry) {
-                targetCountry = countries[0];
-            }
-
-            if (targetCountry) {
-                const targetCountryName = targetCountry.name;
-                const locationCountry = location?.country;
-
-                // Use setTimeout to avoid synchronous setState in effect
-                const timer = setTimeout(() => {
-                    setFormData(prev => {
-                        // Check if current country exists in the loaded countries
-                        const prevCountryExists = getCountryByName(countries, prev.country);
-
-                        // Update if:
-                        // 1. Current country doesn't exist in the list, OR
-                        // 2. Location has a country and it's different from current selection
-                        if (!prevCountryExists || (locationCountry && prev.country !== locationCountry)) {
-                            return { ...prev, country: targetCountryName };
-                        }
-                        return prev;
-                    });
-                }, 0);
-                return () => clearTimeout(timer);
-            }
-        }
-    }, [countries, location]);
-
-    // Update shipping rates when country changes
-    useEffect(() => {
-        if (formData.country && countries.length > 0) {
-            const country = getCountryByName(countries, formData.country);
-            if (country?.iso2) {
-                const rates = getShippingRates(country.iso2);
-                setAvailableShippingRates(rates);
-                // Auto-select first shipping rate if none selected
-                if (!selectedShippingRate && rates.length > 0) {
-                    setSelectedShippingRate(rates[0].id);
-                }
-            }
-        }
-    }, [formData.country, countries, selectedShippingRate]);
+    // Removed manual shipping handling - Stripe manages shipping via PaymentElement
 
     // Scroll to top when component mounts
     useEffect(() => {
@@ -350,24 +232,7 @@ export default function Checkout() {
         }
     }, [hasHydrated, user, router]);
 
-    // Calculate shipping cost
-    const shippingCost = useMemo(() => {
-        if (!selectedShippingRate || !formData.country || countries.length === 0) {
-            return 0;
-        }
-        const country = getCountryByName(countries, formData.country);
-        if (!country?.iso2) return 0;
-
-        const rate = getShippingRateById(selectedShippingRate, country.iso2);
-        if (!rate) return 0;
-
-        // Always return shipping cost in GBP - Stripe handles conversion during checkout
-        return rate.price;
-    }, [selectedShippingRate, formData.country, countries]);
-
-    // Calculate shipping and total prices for display (always in GBP)
-    const { formattedPrice: shippingFormattedPrice } = usePrice(shippingCost);
-    const { formattedPrice: totalFormattedPrice } = usePrice(baseTotalPrice + shippingCost);
+    // Shipping is now handled by Stripe - no manual calculation needed
 
     // Create payment intent when component mounts or when cart/price/shipping changes
     // Note: Customer info (formData.email, formData.firstName, formData.lastName) is intentionally
@@ -377,21 +242,14 @@ export default function Checkout() {
         if (items.length > 0 && baseTotalPrice > 0) {
             const createPaymentIntent = async () => {
                 try {
-                    const country = getCountryByName(countries, formData.country);
                     const response = await fetch('/api/create-payment-intent', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
                         },
                         body: JSON.stringify({
-                            amount: baseTotalPrice, // Always use GBP base price - Stripe handles conversion
+                            amount: baseTotalPrice, // Always use GBP base price - Stripe handles conversion and shipping
                             currency: 'gbp', // Always use GBP - Stripe handles conversion
-                            shippingCost: shippingCost,
-                            shippingAddress: country ? {
-                                country: country.iso2,
-                                city: formData.city,
-                                postalCode: formData.postalCode,
-                            } : undefined,
                             items: items.map(item => ({
                                 id: item.id,
                                 name: item.name,
@@ -405,7 +263,6 @@ export default function Checkout() {
                                 customerName: formData.firstName && formData.lastName
                                     ? `${formData.firstName} ${formData.lastName}`
                                     : '',
-                                shippingMethod: selectedShippingRate || '',
                             },
                         }),
                     });
@@ -433,7 +290,7 @@ export default function Checkout() {
             createPaymentIntent();
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [items, baseTotalPrice, user, shippingCost, selectedShippingRate, formData.country, formData.city, formData.postalCode, countries]);
+    }, [items, baseTotalPrice, user]);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         setFormData({
@@ -505,11 +362,10 @@ export default function Checkout() {
                             transition={{ duration: 0.6 }}
                             className="space-y-8"
                         >
-                            {/* Shipping Information */}
+                            {/* Customer Information */}
                             <div>
-                                <h2 className="text-2xl font-extralight text-luxury-black mb-6 uppercase flex items-center gap-3">
-                                    <LuMapPin size={20} />
-                                    Shipping Information
+                                <h2 className="text-2xl font-extralight text-luxury-black mb-6 uppercase">
+                                    Customer Information
                                 </h2>
 
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -555,123 +411,8 @@ export default function Checkout() {
                                     />
                                 </div>
 
-                                <div className="mt-4">
-                                    <label className="block text-sm font-extralight text-luxury-black uppercase mb-2">
-                                        Address
-                                    </label>
-                                    <input
-                                        type="text"
-                                        name="address"
-                                        required
-                                        value={formData.address}
-                                        onChange={handleChange}
-                                        className="w-full px-4 py-3 border border-luxury-cool-grey bg-white text-luxury-black focus:outline-none focus:ring-2 focus:ring-brand-purple focus:border-transparent font-extralight"
-                                    />
-                                </div>
-
-                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
-                                    <div>
-                                        <label className="block text-sm font-extralight text-luxury-black uppercase mb-2">
-                                            City
-                                        </label>
-                                        <input
-                                            type="text"
-                                            name="city"
-                                            required
-                                            value={formData.city}
-                                            onChange={handleChange}
-                                            className="w-full px-4 py-3 border border-luxury-cool-grey bg-white text-luxury-black focus:outline-none focus:ring-2 focus:ring-brand-purple focus:border-transparent font-extralight"
-                                        />
-                                    </div>
-                                    <div>
-                                        <label className="block text-sm font-extralight text-luxury-black uppercase mb-2">
-                                            Postal Code
-                                        </label>
-                                        <input
-                                            type="text"
-                                            name="postalCode"
-                                            required
-                                            value={formData.postalCode}
-                                            onChange={handleChange}
-                                            className="w-full px-4 py-3 border border-luxury-cool-grey bg-white text-luxury-black focus:outline-none focus:ring-2 focus:ring-brand-purple focus:border-transparent font-extralight"
-                                        />
-                                    </div>
-                                    <div>
-                                        <label className="block text-sm font-extralight text-luxury-black uppercase mb-2">
-                                            Country
-                                        </label>
-                                        <select
-                                            name="country"
-                                            value={formData.country}
-                                            onChange={handleChange}
-                                            disabled={isLoadingCountries}
-                                            className="w-full px-4 py-3 border border-luxury-cool-grey bg-white text-luxury-black focus:outline-none focus:ring-2 focus:ring-brand-purple focus:border-transparent font-extralight disabled:opacity-50 disabled:cursor-not-allowed"
-                                        >
-                                            {isLoadingCountries ? (
-                                                <option value="">Loading countries...</option>
-                                            ) : countries.length === 0 ? (
-                                                <option value="">No countries available</option>
-                                            ) : (
-                                                [...countries]
-                                                    .sort((a: Country, b: Country) => a.name.localeCompare(b.name))
-                                                    .map((country: Country) => (
-                                                        <option key={country.iso2 || `country-${country.id}`} value={country.name}>
-                                                            {country.name}
-                                                        </option>
-                                                    ))
-                                            )}
-                                        </select>
-                                    </div>
-                                </div>
                             </div>
-
-                            {/* Shipping Options */}
-                            {availableShippingRates.length > 0 && (
-                                <div>
-                                    <h2 className="text-2xl font-extralight text-luxury-black mb-6 uppercase flex items-center gap-3">
-                                        <LuMapPin size={20} />
-                                        Shipping Method
-                                    </h2>
-                                    <div className="space-y-3">
-                                        {availableShippingRates.map((rate) => {
-                                            // Always use GBP price - Stripe handles conversion during checkout
-                                            const ShippingRatePriceDisplay: React.FC = () => {
-                                                const { formattedPrice } = usePrice(rate.price);
-                                                return <p className="font-extralight text-luxury-black">{formattedPrice}</p>;
-                                            };
-                                            return (
-                                                <label
-                                                    key={rate.id}
-                                                    className={`flex items-center justify-between p-4 border-2 rounded-lg cursor-pointer transition-colors ${selectedShippingRate === rate.id
-                                                        ? 'border-brand-purple bg-purple-50'
-                                                        : 'border-luxury-cool-grey hover:border-brand-purple/50'
-                                                        }`}
-                                                >
-                                                    <div className="flex items-center gap-3">
-                                                        <input
-                                                            type="radio"
-                                                            name="shipping"
-                                                            value={rate.id}
-                                                            checked={selectedShippingRate === rate.id}
-                                                            onChange={(e) => setSelectedShippingRate(e.target.value)}
-                                                            className="w-4 h-4 text-brand-purple focus:ring-brand-purple"
-                                                        />
-                                                        <div>
-                                                            <p className="font-extralight text-luxury-black">{rate.name}</p>
-                                                            <p className="text-sm text-luxury-cool-grey font-extralight">
-                                                                {rate.description}
-                                                            </p>
-                                                        </div>
-                                                    </div>
-                                                    <div className="text-right">
-                                                        <ShippingRatePriceDisplay />
-                                                    </div>
-                                                </label>
-                                            );
-                                        })}
-                                    </div>
-                                </div>
-                            )}
+                            {/* Note: Shipping address and shipping method selection are handled by Stripe PaymentElement */}
 
                             {/* Payment Information - Stripe Elements */}
                             <div>
@@ -700,11 +441,9 @@ export default function Checkout() {
                                     >
                                         <PaymentForm
                                             formData={formData}
-                                            countries={countries}
                                             onSuccess={handlePaymentSuccess}
                                             onError={handlePaymentError}
                                             totalPrice={baseTotalPrice}
-                                            shippingCost={shippingCost}
                                             clientSecret={clientSecret}
                                         />
                                     </Elements>
@@ -763,16 +502,19 @@ export default function Checkout() {
                                 </div>
                                 <div className="flex justify-between">
                                     <span className="text-luxury-cool-grey font-extralight">Shipping</span>
-                                    <span className="font-extralight">
-                                        {shippingCost > 0 ? shippingFormattedPrice : 'Free'}
+                                    <span className="font-extralight text-sm italic">
+                                        Calculated at checkout
                                     </span>
                                 </div>
                                 <div className="flex justify-between text-lg">
                                     <span className="text-luxury-black font-extralight">Total</span>
                                     <span className="text-luxury-black font-extralight">
-                                        {totalFormattedPrice}
+                                        {formattedTotal} + shipping
                                     </span>
                                 </div>
+                                <p className="text-xs text-luxury-cool-grey font-extralight mt-2 italic">
+                                    Shipping options and final total will be shown in the payment form below
+                                </p>
                             </div>
                         </motion.div>
                     </div>

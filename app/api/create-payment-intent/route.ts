@@ -4,7 +4,7 @@ import { stripe } from "@/lib/stripe";
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { amount, currency = "gbp", items, metadata, shippingCost = 0, shippingAddress } = body;
+    const { amount, currency = "gbp", items, metadata } = body;
 
     // Validate required fields
     if (!amount || amount <= 0) {
@@ -13,8 +13,8 @@ export async function POST(request: NextRequest) {
 
     // Always use GBP - Stripe handles currency conversion automatically during checkout
     const targetCurrency = "gbp";
-    // Include shipping cost in the total amount
-    const finalAmount = amount + (shippingCost || 0);
+    // Don't include shipping cost - Stripe will add it automatically based on selected shipping rate
+    const finalAmount = amount;
 
     // Convert amount to smallest currency unit (pence for GBP)
     const divisor = 100;
@@ -23,6 +23,7 @@ export async function POST(request: NextRequest) {
     // Create payment intent with multiple payment methods enabled
     // Using automatic_payment_methods enables all available payment methods automatically
     // This includes: cards, Link, Apple Pay, Google Pay, and region-specific methods
+    // Note: Shipping options are configured in PaymentElement on the frontend, not here
     const paymentIntent = await stripe.paymentIntents.create({
       amount: amountInSmallestUnit,
       currency: targetCurrency,
@@ -35,13 +36,7 @@ export async function POST(request: NextRequest) {
         ...metadata,
         items: JSON.stringify(items || []),
         originalAmount: amount.toString(),
-        shippingCost: (shippingCost || 0).toString(),
         currency: targetCurrency,
-        ...(shippingAddress && {
-          shippingCountry: shippingAddress.country,
-          shippingCity: shippingAddress.city,
-          shippingPostalCode: shippingAddress.postalCode,
-        }),
       },
     });
 
