@@ -16,7 +16,7 @@ const routeResources: Record<string, { images?: string[]; videos?: string[] }> =
     images: ['https://res.cloudinary.com/dygrsvya5/image/upload/f_auto/v1761149638/_2MK9323_vyzwqm.jpg'],
   },
   '/about': {
-    images: ['https://res.cloudinary.com/dygrsvya5/image/upload/f_auto/v1761542804/IMAGE_NINE_cdzxti.jpg'],
+    images: ['https://res.cloudinary.com/dygrsvya5/image/upload/f_auto/v1761542804/IMAGE_SEVEN_w8mzsc.jpg'],
   },
   '/terms-of-service': {
     images: ['https://res.cloudinary.com/dygrsvya5/image/upload/f_auto/v1764234390/_2MK9067_xy8vh2.jpg', 'https://res.cloudinary.com/dygrsvya5/image/upload/f_auto/v1764234469/_2MK9038_zdzsag.jpg'],
@@ -34,7 +34,7 @@ const routeResources: Record<string, { images?: string[]; videos?: string[] }> =
     images: ['https://res.cloudinary.com/dygrsvya5/image/upload/f_auto/v1763659377/SHIPPING_INFORMATION_ipsodq.jpg'],
   },
   '/corporate-bespoke': {
-    images: ['https://res.cloudinary.com/dygrsvya5/image/upload/f_auto/v1761542830/IMAGE_FIVE_c3hzmh.jpg'],
+    images: ['https://res.cloudinary.com/dygrsvya5/image/upload/f_auto/v1761542830/IMAGE_FIVE_c3hzmh.jpg', 'https://res.cloudinary.com/dygrsvya5/image/upload/f_auto/v1764234469/_2MK9038_zdzsag.jpg'],
   },
 };
 

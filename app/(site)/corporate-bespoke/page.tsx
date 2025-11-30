@@ -8,8 +8,10 @@ import CircularText from '@/components/common/CircularText';
 import { LuChevronDown } from 'react-icons/lu';
 import { contactService } from '@/services/contactService';
 import { useToastStore } from '@/store/toastStore';
+import { useWindowWidth } from '@/hooks/useWindowsWidth';
 
 export default function CorporateBespoke() {
+    const { isDesktop } = useWindowWidth();
     const [formData, setFormData] = useState({
         name: '',
         email: '',
@@ -17,6 +19,11 @@ export default function CorporateBespoke() {
     });
     const [isSubmitting, setIsSubmitting] = useState(false);
     const { addToast } = useToastStore();
+
+    // Set image source based on screen size
+    const heroImageSrc = isDesktop
+        ? 'https://res.cloudinary.com/dygrsvya5/image/upload/f_auto/v1761542830/IMAGE_FIVE_c3hzmh.jpg'
+        : 'https://res.cloudinary.com/dygrsvya5/image/upload/f_auto/v1764234469/_2MK9038_zdzsag.jpg';
 
     useEffect(() => {
         if (typeof window !== 'undefined') {
@@ -87,7 +94,7 @@ export default function CorporateBespoke() {
             <section className="relative h-screen w-full overflow-hidden bg-black">
                 <div className="absolute inset-0 z-0">
                     <Image
-                        src="https://res.cloudinary.com/dygrsvya5/image/upload/f_auto/v1761542830/IMAGE_FIVE_c3hzmh.jpg"
+                        src={heroImageSrc}
                         alt="Corporate and bespoke service"
                         fill
                         className="object-cover"

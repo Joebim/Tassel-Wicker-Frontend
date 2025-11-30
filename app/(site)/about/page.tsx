@@ -104,7 +104,7 @@ export default function About() {
       <div className="relative h-screen w-full overflow-hidden bg-black">
         <div className="absolute inset-0 z-0">
           <Image
-            src="https://res.cloudinary.com/dygrsvya5/image/upload/f_auto/v1761542804/IMAGE_NINE_cdzxti.jpg"
+            src="https://res.cloudinary.com/dygrsvya5/image/upload/f_auto/v1761542804/IMAGE_SEVEN_w8mzsc.jpg"
             alt="About Header"
             fill
             className="object-cover"
@@ -190,7 +190,7 @@ export default function About() {
             {/* Mobile: Single flex container, Desktop: Two separate grid rows with spacing */}
             <div className="flex flex-col lg:contents gap-8 sm:gap-16">
               {/* Row 1 - Desktop Grid, Mobile: flex children */}
-              <div className="flex flex-col lg:grid lg:grid-cols-2 gap-8 sm:gap-10 lg:items-center lg:mb-24">
+              <div className="flex flex-col lg:grid lg:grid-cols-2 gap-8 sm:gap-16 lg:items-center lg:mb-24">
                 {/* Heading - Order 1 on mobile */}
                 <motion.div variants={itemVariants} className="order-1">
                   <motion.div className="" variants={itemVariants}>
