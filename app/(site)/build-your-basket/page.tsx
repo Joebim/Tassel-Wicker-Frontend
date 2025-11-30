@@ -298,15 +298,26 @@ export default function BuildYourBasket() {
         // Create a custom basket item for the cart
         // Add £60 for the wicker basket price
         const basketPrice = 60;
+        const itemsTotal = currentBasket.totalPrice; // Price of selected items only
+        const finalPrice = itemsTotal + basketPrice; // Total including basket
+
+        // Verify the calculation
+        console.log('[Build Your Basket] Price breakdown:', {
+            itemsTotal,
+            basketPrice,
+            finalPrice,
+            itemCount: currentBasket.selectedItems.length
+        });
+
         const customBasketItem = {
             id: currentBasket.id,
             name: `Custom ${currentBasket.basketType === 'natural' ? 'Natural' : 'Black'} Basket`,
-            price: currentBasket.totalPrice + basketPrice,
+            price: finalPrice, // This includes the £60 basket price
             image: currentBasket.basketType === 'natural'
                 ? 'https://res.cloudinary.com/dygrsvya5/image/upload/f_auto/v1761523697/WICKER_BASKET_jy5cs6.jpg'
                 : 'https://res.cloudinary.com/dygrsvya5/image/upload/f_auto/v1761523728/BLACK_WICKER_BASKET_xhdnno.jpg',
             category: 'Custom Basket',
-            description: `Custom basket with ${currentBasket.selectedItems.length} selected items`,
+            description: `Custom basket with ${currentBasket.selectedItems.length} selected items (includes wicker basket)`,
             customItems: currentBasket.selectedItems
         };
 

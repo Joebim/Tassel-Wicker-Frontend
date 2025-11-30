@@ -60,12 +60,12 @@ export default function Shipping() {
                         priority
                         sizes="100vw"
                         onError={(e) => {
-                          const target = e.target as HTMLImageElement;
-                          if (target.src && !target.src.includes('retry')) {
-                            setTimeout(() => {
-                              target.src = `${target.src}${target.src.includes('?') ? '&' : '?'}retry=${Date.now()}`;
-                            }, 1000);
-                          }
+                            const target = e.target as HTMLImageElement;
+                            if (target.src && !target.src.includes('retry')) {
+                                setTimeout(() => {
+                                    target.src = `${target.src}${target.src.includes('?') ? '&' : '?'}retry=${Date.now()}`;
+                                }, 1000);
+                            }
                         }}
                     />
                     <div className="absolute inset-0 bg-black opacity-40" />

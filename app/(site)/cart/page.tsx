@@ -145,6 +145,15 @@ export default function Cart() {
                                         {((item.category === 'Custom Basket' && item.customItems && item.customItems.length > 0) ||
                                             (item.category === 'Baskets' && item.basketItems && item.basketItems.length > 0)) && (
                                                 <div className="mt-4">
+                                                    {/* Show "+ Basket" indicator for custom baskets */}
+                                                    {item.category === 'Custom Basket' && (
+                                                        <div className="mb-3 flex items-center gap-2">
+                                                            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-brand-purple/10 border border-brand-purple/20 rounded text-xs font-extralight text-brand-purple uppercase">
+                                                                <LuPlus size={12} />
+                                                                <span>Basket Included</span>
+                                                            </span>
+                                                        </div>
+                                                    )}
                                                     <div className="flex gap-2">
                                                         {(() => {
                                                             const itemsToShow = item.category === 'Custom Basket'
