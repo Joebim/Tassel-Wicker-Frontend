@@ -68,14 +68,20 @@ export default function Contact() {
             {/* Background Image */}
             <div className="absolute inset-0 z-0">
                 <Image
-                    src="/images/headers/contact-header.jpg"
+                    src="https://res.cloudinary.com/dygrsvya5/image/upload/f_auto/v1761149638/_2MK9323_vyzwqm.jpg"
                     alt="Contact Background"
                     fill
                     className="object-cover"
                     priority
-                    unoptimized
                     sizes="100vw"
-                    fetchPriority="high"
+                    onError={(e) => {
+                      const target = e.target as HTMLImageElement;
+                      if (target.src && !target.src.includes('retry')) {
+                        setTimeout(() => {
+                          target.src = `${target.src}${target.src.includes('?') ? '&' : '?'}retry=${Date.now()}`;
+                        }, 1000);
+                      }
+                    }}
                 />
                 {/* Overlay */}
                 <div className="absolute inset-0 bg-black/50"></div>

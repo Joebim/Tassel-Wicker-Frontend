@@ -19,8 +19,8 @@ export default function TermsOfService() {
 
     // Set image source based on screen size
     const heroImageSrc = isDesktop
-        ? '/images/headers/terms-header-desktop.jpg'
-        : '/images/headers/terms-header-mobile.jpg';
+        ? 'https://res.cloudinary.com/dygrsvya5/image/upload/f_auto/v1764234390/_2MK9067_xy8vh2.jpg'
+        : 'https://res.cloudinary.com/dygrsvya5/image/upload/f_auto/v1764234469/_2MK9038_zdzsag.jpg';
 
     const sections = [
         {
@@ -96,9 +96,15 @@ export default function TermsOfService() {
                         fill
                         className="object-cover"
                         priority
-                        unoptimized
                         sizes="100vw"
-                        fetchPriority="high"
+                        onError={(e) => {
+                          const target = e.target as HTMLImageElement;
+                          if (target.src && !target.src.includes('retry')) {
+                            setTimeout(() => {
+                              target.src = `${target.src}${target.src.includes('?') ? '&' : '?'}retry=${Date.now()}`;
+                            }, 1000);
+                          }
+                        }}
                     />
                     <div className="absolute inset-0 bg-black opacity-40" />
                 </div>

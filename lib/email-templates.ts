@@ -47,13 +47,11 @@ function getBaseEmailTemplate(content: string, title?: string): string {
                 <table role="presentation" style="max-width: 600px; width: 100%; border-collapse: collapse; background-color: #ffffff; border: 1px solid #e6e6e6;">
                     <!-- Header -->
                     <tr>
-                        <td style="padding: 40px 40px 30px; text-align: center; background-color: #000000;">
-                            <h1 style="margin: 0; color: #ffffff; font-size: 28px; font-weight: 200; letter-spacing: 2px; text-transform: uppercase;">
-                                Tassel & Wicker
-                            </h1>
+                        <td style="padding: 40px 40px 30px; text-align: center; background-color: #4c062c;">
+                            <img src="https://res.cloudinary.com/dygrsvya5/image/upload/v1764500935/TASSEL_WICKER_LOGO_PRIMARY_qdzl6u.png" alt="Tassel & Wicker" style="max-width: 200px; height: auto; margin: 0 auto 20px; display: block;" />
                             ${
                               title
-                                ? `<p style="margin: 10px 0 0; color: #fff6bd; font-size: 14px; font-weight: 200; letter-spacing: 1px; text-transform: uppercase;">${title}</p>`
+                                ? `<p style="margin: 10px 0 0; color: #ffffff; font-size: 14px; font-weight: 200; letter-spacing: 1px; text-transform: uppercase;">${title}</p>`
                                 : ""
                             }
                         </td>
@@ -68,12 +66,10 @@ function getBaseEmailTemplate(content: string, title?: string): string {
                     
                     <!-- Footer -->
                     <tr>
-                        <td style="padding: 30px 40px; background-color: #1a1a1a; text-align: center;">
-                            <p style="margin: 0; color: #8b8b8b; font-size: 12px; font-weight: 200; text-transform: uppercase; letter-spacing: 1px;">
-                                Tassel & Wicker
-                            </p>
-                            <p style="margin: 5px 0 0; color: #6b6b6b; font-size: 11px; font-weight: 200;">
-                                Luxury Wicker Baskets & Lifestyle Essentials
+                        <td style="padding: 30px 40px; background-color: #4c062c; text-align: center;">
+                            <img src="https://res.cloudinary.com/dygrsvya5/image/upload/v1764500935/TASSEL_WICKER_LOGO_PRIMARY_qdzl6u.png" alt="Tassel & Wicker" style="max-width: 150px; height: auto; margin: 0 auto 10px; display: block; filter: brightness(0) invert(1);" />
+                            <p style="margin: 5px 0 0; color: #ffffff; font-size: 11px; font-weight: 200;">
+                                Wicker Gift Baskets & Lifestyle Essentials
                             </p>
                         </td>
                     </tr>
@@ -154,6 +150,12 @@ export function createOrderConfirmationEmailTemplate(
     return `£${amount.toFixed(2)}`;
   };
 
+  // Capitalize first letter of customer name
+  const capitalizedName = order.customerName.charAt(0).toUpperCase() + order.customerName.slice(1);
+  
+  // Generate a simpler order number (numeric only)
+  const simpleOrderNumber = order.orderId.replace(/[^0-9]/g, '').slice(-8) || order.orderId;
+
   const itemsList = order.items
     .map(
       (item) => `
@@ -205,11 +207,11 @@ export function createOrderConfirmationEmailTemplate(
             Order Number
         </p>
         <p style="margin: 0; color: #4c062c; font-size: 24px; font-weight: 200; letter-spacing: 2px;">
-            ${order.orderId}
+            ${simpleOrderNumber}
         </p>
         ${
           order.orderDate
-            ? `<p style="margin: 10px 0 0; color: #6b6b6b; font-size: 12px; font-weight: 200;">Order Date: ${order.orderDate}</p>`
+            ? `<p style="margin: 10px 0 0; color: #6b6b6b; font-size: 12px; font-weight: 200;">ORDER DATE: ${order.orderDate}</p>`
             : ""
         }
     </div>
@@ -253,15 +255,15 @@ export function createOrderConfirmationEmailTemplate(
     
     <div style="margin-top: 40px; padding: 20px; background-color: #f9f9f9;">
         <p style="margin: 0 0 15px; color: #1a1a1a; font-size: 16px; font-weight: 200; line-height: 1.6;">
-            <strong>What's Next?</strong>
+            <strong>Next Steps</strong>
         </p>
         <p style="margin: 0; color: #6b6b6b; font-size: 14px; font-weight: 200; line-height: 1.6;">
-            We'll send you another email once your order has been shipped with tracking information. If you have any questions, please don't hesitate to contact us.
+            We will send you another email once your order has been shipped with tracking information. You can contact us at info@tasselandwicker.com if you have any questions.
         </p>
     </div>
     
     <div style="margin-top: 40px; padding-top: 30px; border-top: 1px solid #e6e6e6;">
-        <p style="margin: 0; color: #6b6b6b; font-size: 12px; font-weight: 200; text-align: center;">
+        <p style="margin: 0; color: #6b6b6b; font-size: 12px; font-weight: 200; text-align: center; text-transform: uppercase;">
             Thank you for choosing Tassel & Wicker.
         </p>
     </div>
@@ -282,13 +284,16 @@ export function createPaymentConfirmationEmailTemplate(
     return `£${amount.toFixed(2)}`;
   };
 
+  // Capitalize first letter of customer name
+  const capitalizedName = order.customerName.charAt(0).toUpperCase() + order.customerName.slice(1);
+
   const content = `
     <p style="margin: 0 0 30px; color: #1a1a1a; font-size: 16px; font-weight: 200; line-height: 1.6;">
-        Dear ${order.customerName},
+        Dear ${capitalizedName},
     </p>
     
     <p style="margin: 0 0 30px; color: #1a1a1a; font-size: 16px; font-weight: 200; line-height: 1.6;">
-        We're pleased to confirm that your payment of <strong>${formatPrice(
+        We are pleased to confirm that your payment of <strong>${formatPrice(
           order.totalAmount,
           order.currency
         )}</strong> has been successfully processed.
@@ -301,20 +306,12 @@ export function createPaymentConfirmationEmailTemplate(
     </div>
     
     <p style="margin: 0 0 30px; color: #1a1a1a; font-size: 16px; font-weight: 200; line-height: 1.6;">
-        Your order is now being prepared for shipment. You'll receive a shipping confirmation email with tracking details once your items are on their way.
+        Your order is now being prepared for shipment. You will receive a shipping confirmation email with tracking details once your items are on their way.
     </p>
     
     <div style="margin-top: 40px; padding-top: 30px; border-top: 1px solid #e6e6e6;">
         <p style="margin: 0; color: #6b6b6b; font-size: 12px; font-weight: 200; text-align: center;">
-            If you have any questions about your order, please contact us at <a href="mailto:${
-              process.env.RESEND_FROM ||
-              process.env.SMTP_USER ||
-              "info@tasselandwicker.com"
-            }" style="color: #4c062c; text-decoration: none;">${
-    process.env.RESEND_FROM ||
-    process.env.SMTP_USER ||
-    "info@tasselandwicker.com"
-  }</a>
+            You can contact us at <a href="mailto:info@tasselandwicker.com" style="color: #4c062c; text-decoration: none;">info@tasselandwicker.com</a> if you have any questions.
         </p>
     </div>
   `;

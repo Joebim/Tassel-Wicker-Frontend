@@ -10,8 +10,9 @@ import { LuArrowLeft } from 'react-icons/lu';
 import { useCartStore, type CartItem } from '@/store/cartStore';
 import { useAuthStore } from '@/store/authStore';
 import { useToastStore } from '@/store/toastStore';
-import { usePrice } from '@/hooks/usePrice';
+import { usePrice, usePriceFormat } from '@/hooks/usePrice';
 import { useCurrencyStore } from '@/store/currencyStore';
+import CheckoutOptions from '@/components/checkout/CheckoutOptions';
 
 // Initialize Stripe
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || '');
@@ -34,24 +35,28 @@ const CheckoutItemPrice: React.FC<{ price: number; quantity: number }> = ({ pric
 const PaymentForm: React.FC<{
     userEmail: string;
     userName: string;
+    isGuest?: boolean;
     onSuccess: () => void;
     onError: (error: string) => void;
     totalPrice: number;
     clientSecret: string;
     paymentIntentId: string;
-    onShippingChange: (shippingCost: number) => void;
+    onShippingChange: (shippingCost: number, shippingCostGBP: number) => void;
     currency: string;
     exchangeRate: number | null;
-}> = ({ userEmail, userName, onSuccess, onError, totalPrice, clientSecret, paymentIntentId, onShippingChange, currency, exchangeRate }) => {
+}> = ({ userEmail, userName, isGuest = false, onSuccess, onError, totalPrice, clientSecret, paymentIntentId, onShippingChange, currency, exchangeRate }) => {
+    // isGuest is available for future guest checkout logic
+    void isGuest;
     const stripe = useStripe();
     const elements = useElements();
     const [isProcessing, setIsProcessing] = useState(false);
     const [error, setError] = useState<string>('');
     const [selectedShippingRate, setSelectedShippingRate] = useState<string | null>(null);
-    const [shippingCost, setShippingCost] = useState<number>(0);
+    const [shippingCostGBP, setShippingCostGBP] = useState<number>(0);
     const [shippingRates, setShippingRates] = useState<Array<{ id: string; amount: number; currency: string; displayName: string }>>([]);
     const [addressComplete, setAddressComplete] = useState(false);
-    const { formattedPrice } = usePrice(totalPrice + shippingCost);
+    // totalPrice is in GBP, shippingCostGBP is in GBP, so use usePrice to convert the sum
+    const { formattedPrice } = usePrice(totalPrice + shippingCostGBP);
 
     // Use exchangeRate from props (passed from parent)
 
@@ -103,8 +108,9 @@ const PaymentForm: React.FC<{
                 shippingAmount = shippingAmountGBP / exchangeRate;
             }
 
-            setShippingCost(shippingAmount);
-            onShippingChange(shippingAmount);
+            setShippingCostGBP(shippingAmountGBP);
+            // Pass both converted amount and GBP amount to parent
+            onShippingChange(shippingAmount, shippingAmountGBP);
 
             // Calculate total amount in customer currency
             let totalAmount = totalPrice + shippingAmount;
@@ -346,9 +352,13 @@ export default function Checkout() {
     const [clientSecret, setClientSecret] = useState<string | null>(null);
     const [paymentIntentId, setPaymentIntentId] = useState<string | null>(null);
     const [shippingCost, setShippingCost] = useState<number>(0);
-    const { formattedPrice: shippingFormatted } = usePrice(shippingCost);
-    const { formattedPrice: totalFormatted } = usePrice(baseTotalPrice + shippingCost);
+    const [shippingCostGBP, setShippingCostGBP] = useState<number>(0);
+    // shippingCost is already in customer currency, so use usePriceFormat to avoid double conversion
+    const { formattedPrice: shippingFormatted } = usePriceFormat(shippingCost);
+    // For total, we need to add GBP amounts and let usePrice convert
+    const { formattedPrice: totalFormatted } = usePrice(baseTotalPrice + shippingCostGBP);
     const [isLoadingFXQuote, setIsLoadingFXQuote] = useState(false);
+    const [checkoutOption, setCheckoutOption] = useState<'signin' | 'guest' | null>(null);
     const exchangeRate = useCurrencyStore((state) => state.getExchangeRate(currency));
 
     // User data comes from authStore - no need for formData state
@@ -367,13 +377,13 @@ export default function Checkout() {
         }
     }, [items.length, router]);
 
-    // Require authentication before checkout
-    useEffect(() => {
-        if (!hasHydrated) return;
-        if (!user) {
+    // Handle checkout option selection
+    const handleCheckoutOptionSelect = (option: 'signin' | 'guest') => {
+        setCheckoutOption(option);
+        if (option === 'signin' && !user) {
             router.push('/login?redirect=/checkout');
         }
-    }, [hasHydrated, user, router]);
+    };
 
     // Detect location and fetch FX quote on mount
     useEffect(() => {
@@ -500,17 +510,53 @@ export default function Checkout() {
         });
     };
 
-    const handleShippingChange = (cost: number) => {
+    const handleShippingChange = (cost: number, costGBP: number) => {
         setShippingCost(cost);
+        setShippingCostGBP(costGBP);
     };
 
     // Show loading state
-    if (!hasHydrated || items.length === 0 || !user) {
+    if (!hasHydrated || items.length === 0) {
         return (
             <div className="min-h-screen bg-white flex items-center justify-center">
                 <div className="text-center">
                     <p className="text-luxury-cool-grey font-extralight">
-                        {!hasHydrated ? 'Loading...' : items.length === 0 ? 'Redirecting to cart...' : 'Redirecting to login...'}
+                        {!hasHydrated ? 'Loading...' : 'Redirecting to cart...'}
+                    </p>
+                </div>
+            </div>
+        );
+    }
+
+    // Show checkout options if not selected yet
+    if (!checkoutOption) {
+        return (
+            <div className="min-h-screen bg-white text-luxury-black">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24">
+                    <button
+                        onClick={() => router.push('/cart')}
+                        className="inline-flex items-center gap-2 text-luxury-cool-grey hover:text-luxury-black transition-colors duration-200 cursor-pointer mb-8"
+                    >
+                        <LuArrowLeft size={16} />
+                        <span className="font-extralight uppercase">Back to Cart</span>
+                    </button>
+                </div>
+                <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 pb-24">
+                    <div className="bg-white p-8 border border-luxury-warm-grey/20 rounded-lg">
+                        <CheckoutOptions onSelect={handleCheckoutOptionSelect} />
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
+    // If sign in selected but not logged in, show loading (will redirect)
+    if (checkoutOption === 'signin' && !user) {
+        return (
+            <div className="min-h-screen bg-white flex items-center justify-center">
+                <div className="text-center">
+                    <p className="text-luxury-cool-grey font-extralight">
+                        Redirecting to login...
                     </p>
                 </div>
             </div>
@@ -536,7 +582,7 @@ export default function Checkout() {
                     Checkout
                 </h1>
                 <p className="text-luxury-cool-grey font-extralight">
-                    Complete your luxury purchase
+                    Complete your purchase
                 </p>
             </div>
 
@@ -578,6 +624,7 @@ export default function Checkout() {
                                         <PaymentForm
                                             userEmail={user?.email || ''}
                                             userName={user?.displayName || ''}
+                                            isGuest={checkoutOption === 'guest'}
                                             onSuccess={handlePaymentSuccess}
                                             onError={handlePaymentError}
                                             totalPrice={baseTotalPrice}
@@ -644,7 +691,7 @@ export default function Checkout() {
                                 <div className="flex justify-between">
                                     <span className="text-luxury-cool-grey font-extralight">Shipping</span>
                                     <span className="font-extralight">
-                                        {shippingCost > 0 ? shippingFormatted : 'Select shipping address'}
+                                        {shippingCostGBP > 0 ? shippingFormatted : 'Select shipping address'}
                                     </span>
                                 </div>
                                 <div className="flex justify-between text-lg">

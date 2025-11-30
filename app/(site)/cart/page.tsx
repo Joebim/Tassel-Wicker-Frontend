@@ -239,10 +239,6 @@ export default function Cart() {
                                     <span className="text-luxury-cool-grey font-extralight">Subtotal</span>
                                     <span className="font-extralight">{formattedTotal}</span>
                                 </div>
-                                <div className="flex justify-between">
-                                    <span className="text-luxury-cool-grey font-extralight">Shipping</span>
-                                    <span className="font-extralight text-sm italic">To be determined at checkout</span>
-                                </div>
                                 <div className="border-t border-luxury-cool-grey pt-4">
                                     <div className="flex justify-between">
                                         <span className="text-luxury-black font-extralight text-lg">Total</span>
@@ -259,6 +255,9 @@ export default function Cart() {
                             >
                                 Proceed to Checkout
                             </Link>
+                            <p className="text-xs text-luxury-cool-grey font-extralight mt-2 text-center">
+                                You can sign in or checkout as a guest
+                            </p>
                         </motion.div>
                     </div>
                 </div>

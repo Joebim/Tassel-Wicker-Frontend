@@ -190,40 +190,37 @@ function PaymentSuccessContent() {
                         className="bg-white p-8"
                     >
                         <h2 className="text-2xl font-extralight text-luxury-black mb-6 uppercase">
-                            What&apos;s Next?
+                            Next Steps
                         </h2>
 
                         <div className="space-y-4 text-left">
                             <div className="flex items-start gap-4">
                                 <div className="w-8 h-8 bg-brand-purple/10 rounded-full flex items-center justify-center shrink-0 mt-1">
-                                    <span className="text-brand-purple font-extralight text-sm">1</span>
                                 </div>
                                 <div>
-                                    <h3 className="font-extralight text-luxury-black mb-1">Order Confirmation</h3>
+                                    <h3 className="font-extralight text-luxury-black mb-1 uppercase">Order Confirmation</h3>
                                     <p className="text-luxury-cool-grey font-extralight text-sm">
-                                        You&apos;ll receive an email confirmation with your order details within the next few minutes.
+                                        You will receive an email confirmation with your order details shortly.
                                     </p>
                                 </div>
                             </div>
 
                             <div className="flex items-start gap-4">
                                 <div className="w-8 h-8 bg-brand-purple/10 rounded-full flex items-center justify-center shrink-0 mt-1">
-                                    <span className="text-brand-purple font-extralight text-sm">2</span>
                                 </div>
                                 <div>
-                                    <h3 className="font-extralight text-luxury-black mb-1">Processing</h3>
+                                    <h3 className="font-extralight text-luxury-black mb-1 uppercase">Processing</h3>
                                     <p className="text-luxury-cool-grey font-extralight text-sm">
-                                        Our team will carefully prepare your luxury basket with attention to every detail.
+                                        Please allow 1 - 2 business days for processing before your parcel begins its journey to you. During busy seasons or for custom items, processing may take a little longer.
                                     </p>
                                 </div>
                             </div>
 
                             <div className="flex items-start gap-4">
                                 <div className="w-8 h-8 bg-brand-purple/10 rounded-full flex items-center justify-center shrink-0 mt-1">
-                                    <span className="text-brand-purple font-extralight text-sm">3</span>
                                 </div>
                                 <div>
-                                    <h3 className="font-extralight text-luxury-black mb-1">Shipping</h3>
+                                    <h3 className="font-extralight text-luxury-black mb-1 uppercase">Shipping</h3>
                                     <p className="text-luxury-cool-grey font-extralight text-sm">
                                         Your order will be shipped within 2-3 business days with tracking information provided.
                                     </p>
@@ -249,7 +246,7 @@ function PaymentSuccessContent() {
 
                         <Link
                             href="/"
-                            className="inline-flex items-center gap-3 bg-luxury-black text-luxury-white px-8 py-3 font-extralight uppercase hover:bg-luxury-charcoal transition-colors duration-200"
+                            className="inline-flex items-center gap-3 bg-[#4c062c] text-luxury-white px-8 py-3 font-extralight uppercase hover:bg-[#4c062c]/90 transition-colors duration-200"
                         >
                             <span>Return Home</span>
                             <LuArrowRight size={16} />
@@ -264,13 +261,14 @@ function PaymentSuccessContent() {
                         className="pt-8 border-t border-luxury-white/20"
                     >
                         <p className="text-luxury-cool-grey font-extralight text-sm">
-                            Questions about your order? Contact us at{' '}
+                            Contact us at{' '}
                             <a
-                                href="mailto:support@tasselwicker.com"
+                                href="mailto:info@tasselandwicker.com"
                                 className="text-brand-purple hover:text-brand-purple-light transition-colors"
                             >
-                                support@tasselwicker.com
+                                info@tasselandwicker.com
                             </a>
+                            {' '}if you have any questions about your order.
                         </p>
                     </motion.div>
                 </motion.div>

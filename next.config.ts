@@ -10,6 +10,9 @@ const nextConfig: NextConfig = {
         pathname: '/**',
       },
     ],
+    // Cache optimized images for 1 year (31536000 seconds)
+    // This ensures Next.js Image component caches optimized versions
+    minimumCacheTTL: 31536000,
   },
   
   // Turbopack configuration (empty for now - SVGR uses webpack)

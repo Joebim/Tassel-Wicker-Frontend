@@ -18,7 +18,7 @@ export default function Shipping() {
         {
             title: 'PROCESSING TIME',
             content:
-                'Please allow 3-5 business days for processing before your parcel begins its journey. During busy seasons or for custom items, processing may take a little longer as we ensure everything is just right.',
+                'Please allow 1 - 2 business days for processing before your parcel begins its journey. During busy seasons or for custom items, processing may take a little longer.',
         },
         {
             title: 'SHIPPING OPTIONS',
@@ -53,14 +53,20 @@ export default function Shipping() {
             <section className="relative h-screen w-full overflow-hidden bg-black">
                 <div className="absolute inset-0 z-0">
                     <Image
-                        src="/images/headers/shipping-header.jpg"
+                        src="https://res.cloudinary.com/dygrsvya5/image/upload/f_auto/v1763659377/SHIPPING_INFORMATION_ipsodq.jpg"
                         alt="Shipping information"
                         fill
                         className="object-cover"
                         priority
-                        unoptimized
                         sizes="100vw"
-                        fetchPriority="high"
+                        onError={(e) => {
+                          const target = e.target as HTMLImageElement;
+                          if (target.src && !target.src.includes('retry')) {
+                            setTimeout(() => {
+                              target.src = `${target.src}${target.src.includes('?') ? '&' : '?'}retry=${Date.now()}`;
+                            }, 1000);
+                          }
+                        }}
                     />
                     <div className="absolute inset-0 bg-black opacity-40" />
                 </div>

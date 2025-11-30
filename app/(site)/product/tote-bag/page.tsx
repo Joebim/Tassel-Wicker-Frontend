@@ -22,7 +22,7 @@ export default function ToteBagDetail() {
         id: '4',
         name: 'Branded Tote Bag',
         price: 63,
-        image: 'https://res.cloudinary.com/dygrsvya5/image/upload/q_auto:low/v1761525451/BRANDED_TOTE_BAG_jno028.jpg',
+        image: 'https://res.cloudinary.com/dygrsvya5/image/upload/f_auto/v1761525451/BRANDED_TOTE_BAG_jno028.jpg',
         category: 'Accessories',
         description: 'Made from recycled cotton and polyester, this unisex, lightweight and durable bag is built for everyday use. Its simple, timeless design makes it a practical and sustainable choice.',
         details: {
@@ -106,6 +106,10 @@ export default function ToteBagDetail() {
                                 className="text-luxury-cool-grey leading-relaxed font-extralight"
                                 dangerouslySetInnerHTML={{ __html: product.description }}
                             />
+                            {/* Pre-order note for branded tote bag */}
+                            <p className="text-luxury-cool-grey leading-relaxed font-extralight italic mt-4">
+                                PRE-ORDER NOTE: This piece is available for pre-order. Orders placed on or after our launch date, December 15th, will begin shipping from January 22nd, 2026. Thank you for your patience.
+                            </p>
                         </div>
 
                         <button

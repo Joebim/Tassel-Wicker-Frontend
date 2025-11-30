@@ -584,6 +584,12 @@ export default function ProductDetail() {
                             <p className="text-luxury-cool-grey leading-relaxed font-extralight">
                                 {renderRichText(product.description)}
                             </p>
+                            {/* Pre-order note for celebration baskets */}
+                            {product.category === 'Baskets' && product.name !== 'Branded Tote Bag' && (
+                                <p className="text-luxury-cool-grey leading-relaxed font-extralight italic mt-4">
+                                    PRE-ORDER NOTE: This celebration basket is available for pre-order. Orders placed on or after our launch date, December 15th, will begin shipping from January 15th, 2026. Thank you for your patience.
+                                </p>
+                            )}
                         </div>
                         <button
                             onClick={handleAddToCart}

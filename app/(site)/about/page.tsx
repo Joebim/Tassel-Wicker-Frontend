@@ -104,14 +104,21 @@ export default function About() {
       <div className="relative h-screen w-full overflow-hidden bg-black">
         <div className="absolute inset-0 z-0">
           <Image
-            src="/images/headers/about-header.jpg"
+            src="https://res.cloudinary.com/dygrsvya5/image/upload/f_auto/v1761542804/IMAGE_NINE_cdzxti.jpg"
             alt="About Header"
             fill
             className="object-cover"
             priority
-            unoptimized
             sizes="100vw"
-            fetchPriority="high"
+            onError={(e) => {
+              // Retry loading on error
+              const target = e.target as HTMLImageElement;
+              if (target.src && !target.src.includes('retry')) {
+                setTimeout(() => {
+                  target.src = `${target.src}${target.src.includes('?') ? '&' : '?'}retry=${Date.now()}`;
+                }, 1000);
+              }
+            }}
           />
           <div className="absolute inset-0 bg-black opacity-40" />
         </div>
@@ -183,7 +190,7 @@ export default function About() {
             {/* Mobile: Single flex container, Desktop: Two separate grid rows with spacing */}
             <div className="flex flex-col lg:contents gap-8 sm:gap-16">
               {/* Row 1 - Desktop Grid, Mobile: flex children */}
-              <div className="flex flex-col lg:grid lg:grid-cols-2 gap-8 sm:gap-16 lg:items-center lg:mb-24">
+              <div className="flex flex-col lg:grid lg:grid-cols-2 gap-8 sm:gap-10 lg:items-center lg:mb-24">
                 {/* Heading - Order 1 on mobile */}
                 <motion.div variants={itemVariants} className="order-1">
                   <motion.div className="" variants={itemVariants}>
@@ -212,7 +219,7 @@ export default function About() {
                   className="relative w-full h-[600px] order-2 lg:row-span-2"
                 >
                   <Image
-                    src="https://res.cloudinary.com/dygrsvya5/image/upload/q_auto:low/v1763659367/UPDATED_ABOUT_IMAGE_ogsr4o.jpg"
+                    src="https://res.cloudinary.com/dygrsvya5/image/upload/f_auto/v1763659367/UPDATED_ABOUT_IMAGE_ogsr4o.jpg"
                     alt="My Why"
                     fill
                     className="object-cover"
@@ -222,7 +229,7 @@ export default function About() {
                 {/* Text Content - Order 3 on mobile */}
                 <motion.div variants={itemVariants} className="order-3">
                   <motion.p
-                    className="text-lg text-gray-600 mb-6 leading-relaxed font-extralight"
+                    className="text-lg text-gray-600 mb-6 leading-relaxed font-extralight mt-4"
                     variants={itemVariants}
                   >
                     Tassel & Wicker was created from a love for the little things that make life feel elevated and intentional. Think soft woven throw blankets, polished crystals, marble coasters, tin cookies, incense cones, tassel key chains, linen notepads, duck feather cushions…little tokens of comfort that slow us down, center us and help transform an ordinary space into a sanctuary of calm and creativity.
@@ -247,7 +254,7 @@ export default function About() {
                   className="lg:order-1 order-4 relative w-full h-[600px]"
                 >
                   <Image
-                    src="https://res.cloudinary.com/dygrsvya5/image/upload/q_10/v1764234195/STACKED_BASKETS_h4nxfk.jpg"
+                    src="https://res.cloudinary.com/dygrsvya5/image/upload/f_auto/v1764234195/STACKED_BASKETS_h4nxfk.jpg"
                     alt="Signature Celebration Basket"
                     fill
                     className="object-cover"

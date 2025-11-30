@@ -83,14 +83,20 @@ export default function CookiePolicy() {
             <section className="relative h-screen w-full overflow-hidden bg-black">
                 <div className="absolute inset-0 z-0">
                     <Image
-                        src="/images/headers/cookie-policy-header.jpg"
+                        src="https://res.cloudinary.com/dygrsvya5/image/upload/f_auto/v1763661133/COOKIE_POLICY_syh1yx.jpg"
                         alt="Cookie Policy"
                         fill
                         className="object-cover"
                         priority
-                        unoptimized
                         sizes="100vw"
-                        fetchPriority="high"
+                        onError={(e) => {
+                          const target = e.target as HTMLImageElement;
+                          if (target.src && !target.src.includes('retry')) {
+                            setTimeout(() => {
+                              target.src = `${target.src}${target.src.includes('?') ? '&' : '?'}retry=${Date.now()}`;
+                            }, 1000);
+                          }
+                        }}
                     />
                     <div className="absolute inset-0 bg-black opacity-40" />
                 </div>

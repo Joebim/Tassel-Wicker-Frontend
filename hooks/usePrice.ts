@@ -28,7 +28,7 @@ export function usePrice(basePrice: number) {
 
   const formattedPrice = useMemo(() => {
     if (shouldConvert) {
-      return formatPriceWithConversion(basePrice, currency, exchangeRate);
+    return formatPriceWithConversion(basePrice, currency, exchangeRate);
     }
     // Always show GBP on non-checkout pages
     return formatPrice(basePrice, "GBP");
@@ -36,7 +36,7 @@ export function usePrice(basePrice: number) {
 
   const finalPrice = useMemo(() => {
     if (shouldConvert) {
-      return getFinalPrice(basePrice, currency, exchangeRate);
+    return getFinalPrice(basePrice, currency, exchangeRate);
     }
     // Return base price in GBP if not on checkout
     return basePrice;

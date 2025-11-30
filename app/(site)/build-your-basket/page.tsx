@@ -296,13 +296,15 @@ export default function BuildYourBasket() {
         }
 
         // Create a custom basket item for the cart
+        // Add £60 for the wicker basket price
+        const basketPrice = 60;
         const customBasketItem = {
             id: currentBasket.id,
             name: `Custom ${currentBasket.basketType === 'natural' ? 'Natural' : 'Black'} Basket`,
-            price: currentBasket.totalPrice,
+            price: currentBasket.totalPrice + basketPrice,
             image: currentBasket.basketType === 'natural'
-                ? 'https://res.cloudinary.com/dygrsvya5/image/upload/q_auto:low/v1761523697/WICKER_BASKET_jy5cs6.jpg'
-                : 'https://res.cloudinary.com/dygrsvya5/image/upload/q_auto:low/v1761523728/BLACK_WICKER_BASKET_xhdnno.jpg',
+                ? 'https://res.cloudinary.com/dygrsvya5/image/upload/f_auto/v1761523697/WICKER_BASKET_jy5cs6.jpg'
+                : 'https://res.cloudinary.com/dygrsvya5/image/upload/f_auto/v1761523728/BLACK_WICKER_BASKET_xhdnno.jpg',
             category: 'Custom Basket',
             description: `Custom basket with ${currentBasket.selectedItems.length} selected items`,
             customItems: currentBasket.selectedItems
@@ -372,7 +374,15 @@ export default function BuildYourBasket() {
             <div className="sticky top-0 z-50 bg-white/95 backdrop-blur-sm border-b border-luxury-warm-grey/10">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
                     <button
-                        onClick={() => router.back()}
+                        onClick={() => {
+                            if (currentBasket) {
+                                // If basket is selected, clear it to go back to basket selection
+                                clearBasket();
+                            } else {
+                                // Otherwise go back to previous page
+                                router.back();
+                            }
+                        }}
                         className="inline-flex items-center gap-2 rounded-full border border-luxury-warm-grey/40 bg-white/85 px-3 sm:px-4 py-2 text-luxury-charcoal backdrop-blur-md transition-colors duration-200 hover:border-brand-purple hover:text-brand-purple"
                     >
                         <LuArrowLeft size={18} />
@@ -391,8 +401,11 @@ export default function BuildYourBasket() {
                         <p className="text-luxury-cool-grey font-extralight mb-6 max-w-2xl mx-auto">
                             Begin by choosing the wicker basket that sets the tone for your gift. Each basket is handcrafted by skilled weavers and finished with our signature liner.
                         </p>
-                        <p className="text-xs uppercase tracking-[0.35em] text-brand-purple mb-10">
+                        <p className="text-xs uppercase tracking-[0.35em] text-brand-purple mb-6">
                             N:B Our wicker baskets are available exclusively as part of a personalised set and are not available for individual purchase.
+                        </p>
+                        <p className="text-luxury-cool-grey font-extralight italic mb-10 max-w-2xl mx-auto">
+                            PRE-ORDER NOTE: Custom celebration baskets are available for pre-order. Orders placed on or after our launch date, December 15th, will begin shipping from January 15th, 2026. Thank you for your patience.
                         </p>
 
                         <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
@@ -405,7 +418,7 @@ export default function BuildYourBasket() {
                             >
                                 <div className="aspect-square overflow-hidden relative">
                                     <Image
-                                        src="https://res.cloudinary.com/dygrsvya5/image/upload/q_auto:low/v1761523697/WICKER_BASKET_jy5cs6.jpg"
+                                        src="https://res.cloudinary.com/dygrsvya5/image/upload/f_auto/v1761523697/WICKER_BASKET_jy5cs6.jpg"
                                         alt="Natural Wicker Basket"
                                         fill
                                         className="object-cover hover:scale-105 transition-transform duration-300"
@@ -431,7 +444,7 @@ export default function BuildYourBasket() {
                             >
                                 <div className="aspect-square overflow-hidden relative">
                                     <Image
-                                        src="https://res.cloudinary.com/dygrsvya5/image/upload/q_auto:low/v1761523728/BLACK_WICKER_BASKET_xhdnno.jpg"
+                                        src="https://res.cloudinary.com/dygrsvya5/image/upload/f_auto/v1761523728/BLACK_WICKER_BASKET_xhdnno.jpg"
                                         alt="Black Wicker Basket"
                                         fill
                                         className="object-cover hover:scale-105 transition-transform duration-300"
@@ -631,7 +644,7 @@ export default function BuildYourBasket() {
                                 <p className="text-xs uppercase tracking-[0.3em] text-brand-purple mb-4">
                                     {selectionCount}/{MAX_SELECTION} items selected · Minimum of {MIN_SELECTION} required
                                 </p>
-                                <BasketTotalPriceDisplay totalPrice={currentBasket.totalPrice} />
+                                <BasketTotalPriceDisplay totalPrice={currentBasket.totalPrice + 60} />
                             </div>
 
                             {/* Selected Items Card */}

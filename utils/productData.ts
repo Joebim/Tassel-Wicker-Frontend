@@ -28,7 +28,7 @@ const basketProducts: ProductWithItems[] = [
           "A beautifully crafted 280 lined hardback journal designed for reflection and clarity. It is the perfect companion for mindful writing and meditative moments. The orange fabric spine adds a subtle warmth against the deep blue covers, while the embossed gold quote <em>“I write so I can hear myself think”</em> inspires every page. The Free Writing Journal is an elevated essential for those dedicated to deepening their journaling practice.",
         category: "Stationery",
         variants: createVariantFromLegacy(
-          "https://res.cloudinary.com/dygrsvya5/image/upload/q_auto:low/v1761523713/THE_FREE_WRITING_JOURNAL_f84teh.jpg",
+          "https://res.cloudinary.com/dygrsvya5/image/upload/f_auto/v1761523713/THE_FREE_WRITING_JOURNAL_f84teh.jpg",
           20
         ),
         details: {
@@ -46,7 +46,7 @@ const basketProducts: ProductWithItems[] = [
           "A refreshing blend of ripe strawberries and tangy rhubarb, perfectly balanced for a bright, crisp taste. A hint of vanilla adds smoothness and depth, creating a delicately layered flavour that’s both vibrant and satisfying.",
         category: "Beverages",
         variants: createVariantFromLegacy(
-          "https://res.cloudinary.com/dygrsvya5/image/upload/q_auto:low/v1761523710/BRECKLAND_ORCHARD_POSH_POP_a3f5pf.jpg",
+          "https://res.cloudinary.com/dygrsvya5/image/upload/f_auto/v1761523710/BRECKLAND_ORCHARD_POSH_POP_a3f5pf.jpg",
           6
         ),
         details: {
@@ -61,7 +61,7 @@ const basketProducts: ProductWithItems[] = [
           "Bold and contemporary, this colourful striped glass candle features a refreshing scent and can be reused as distinctive glassware once the candle is finished.",
         category: "Home & Living",
         variants: createVariantFromLegacy(
-          "https://res.cloudinary.com/dygrsvya5/image/upload/q_auto:low/v1761523710/MAEGEN_TOMATO_MINT_LEAF_CANDLE_srrcqt.jpg",
+          "https://res.cloudinary.com/dygrsvya5/image/upload/f_auto/v1761523710/MAEGEN_TOMATO_MINT_LEAF_CANDLE_srrcqt.jpg",
           33
         ),
         details: {
@@ -76,7 +76,7 @@ const basketProducts: ProductWithItems[] = [
           "Add a touch of colour to your interiors with these stylish bubble matches housed in a tactile glass bottle—perfect alongside your favourite candle.",
         category: "Home & Living",
         variants: createVariantFromLegacy(
-          "https://res.cloudinary.com/dygrsvya5/image/upload/q_auto:low/v1761523711/MAEGEN_GREEN_BUBBLE_MATCHES_lhjvjx.jpg",
+          "https://res.cloudinary.com/dygrsvya5/image/upload/f_auto/v1761523711/MAEGEN_GREEN_BUBBLE_MATCHES_lhjvjx.jpg",
           15
         ),
         details: {
@@ -91,7 +91,7 @@ const basketProducts: ProductWithItems[] = [
           "Indulge in the rich, buttery flavour of Frank’s shortbread, enhanced with swirls of salted caramel fudge. Each cookie delivers a perfect balance of sweetness and subtle saltiness, making them an irresistible treat for everyday enjoyment or gifting.",
         category: "Food & Treats",
         variants: createVariantFromLegacy(
-          "https://res.cloudinary.com/dygrsvya5/image/upload/q_auto:low/v1761523709/SALTED_CARAMEL_FUDGE_SHORTBREAD_COOKIES_f9fy2o.jpg",
+          "https://res.cloudinary.com/dygrsvya5/image/upload/f_auto/v1761523709/SALTED_CARAMEL_FUDGE_SHORTBREAD_COOKIES_f9fy2o.jpg",
           6
         ),
         details: {
@@ -117,7 +117,7 @@ const basketProducts: ProductWithItems[] = [
           "A medium-sized black wicker basket with a branded removable cotton liner and vegan leather straps. Handmade by skilled weavers, each piece is eco-friendly and designed to last. The removable liner is made from 140g/sqm cotton and tailored to fit our wicker baskets with extended straps. It secures neatly around the hinges with discreet hook-and-loop fasteners. Perfect for storage, picnics, or home styling, our wicker baskets can be beautifully repurposed for everyday living.",
         category: "Baskets",
         variants: createVariantFromLegacy(
-          "https://res.cloudinary.com/dygrsvya5/image/upload/q_auto:low/v1761523728/BLACK_WICKER_BASKET_xhdnno.jpg",
+          "https://res.cloudinary.com/dygrsvya5/image/upload/f_auto/v1761523728/BLACK_WICKER_BASKET_xhdnno.jpg",
           85
         ),
         details: {
@@ -142,7 +142,7 @@ const basketProducts: ProductWithItems[] = [
           "This non-alcoholic cocktail is a vibrant blend of grenadine, ginger ale, raspberry soda, fresh lemon, blood orange, and bitters. 0.0% ABV | 750ml.",
         category: "Beverages",
         variants: createVariantFromLegacy(
-          "https://res.cloudinary.com/dygrsvya5/image/upload/q_auto:low/v1761523684/SHIRLEY_TEMPLE_WINE_emfamv.jpg",
+          "https://res.cloudinary.com/dygrsvya5/image/upload/f_auto/v1761523684/SHIRLEY_TEMPLE_WINE_emfamv.jpg",
           13
         ),
         details: {
@@ -165,7 +165,7 @@ const basketProducts: ProductWithItems[] = [
           "A medley of lush red fruits, opulent florals, soft musk, and creamy vanilla. This elegant gift set includes a full-size and travel-size perfume plus a vitamin E–enriched body lotion that layers your signature scent throughout the day.",
         category: "Beauty & Fragrance",
         variants: createVariantFromLegacy(
-          "https://res.cloudinary.com/dygrsvya5/image/upload/q_auto:low/v1761523682/EAU_NUDE_PERFRUME_ast4rj.jpg",
+          "https://res.cloudinary.com/dygrsvya5/image/upload/f_auto/v1761523682/EAU_NUDE_PERFRUME_ast4rj.jpg",
           28
         ),
         details: {
@@ -188,7 +188,7 @@ const basketProducts: ProductWithItems[] = [
           "This charming petite casserole is perfect for single servings or small-plate side dishes. Ideal for dips, condiments, and nibbles, it combines playful design with everyday practicality and includes a matching lid for heating sauces or keeping snacks fresh.",
         category: "Kitchen & Dining",
         variants: createVariantFromLegacy(
-          "https://res.cloudinary.com/dygrsvya5/image/upload/q_auto:low/v1761523688/LE_CREUSET_MINI_COCOTTE_IN_GARNET_rnmcgy.jpg",
+          "https://res.cloudinary.com/dygrsvya5/image/upload/f_auto/v1761523688/LE_CREUSET_MINI_COCOTTE_IN_GARNET_rnmcgy.jpg",
           27
         ),
         details: {
@@ -206,7 +206,7 @@ const basketProducts: ProductWithItems[] = [
           "Hand-baked in Hereford with the finest natural ingredients. Buttery, delicate shortbread infused with the bright, tangy sweetness of real raspberries. Pairs well with tea or coffee.",
         category: "Food & Treats",
         variants: createVariantFromLegacy(
-          "https://res.cloudinary.com/dygrsvya5/image/upload/q_auto:low/v1761523684/FRANK_S_LUXURY_COOKIES_-_RASPBERRY_SHORTBREAD_ffewbl.jpg",
+          "https://res.cloudinary.com/dygrsvya5/image/upload/f_auto/v1761523684/FRANK_S_LUXURY_COOKIES_-_RASPBERRY_SHORTBREAD_ffewbl.jpg",
           6
         ),
         details: {
@@ -226,7 +226,7 @@ const basketProducts: ProductWithItems[] = [
           "Buttery shortbread infused with orange and studded with cranberries, gently topped with cinnamon sugar for a comforting, festive treat from Cartwright & Butler.",
         category: "Food & Treats",
         variants: createVariantFromLegacy(
-          "https://res.cloudinary.com/dygrsvya5/image/upload/q_auto:low/v1761523685/CARTWRIGHT_BUTLER_COOKIES_-_ORANGE_AND_CRANBERRY_hkkcvc.jpg",
+          "https://res.cloudinary.com/dygrsvya5/image/upload/f_auto/v1761523685/CARTWRIGHT_BUTLER_COOKIES_-_ORANGE_AND_CRANBERRY_hkkcvc.jpg",
           7
         ),
         details: {
@@ -257,7 +257,7 @@ const basketProducts: ProductWithItems[] = [
           "A medium-sized wicker basket with a branded removable cotton liner and vegan leather straps. Handmade by skilled weavers, each piece is eco-friendly and designed to last. The removable liner is made from 140g/sqm cotton and tailored to fit our wicker baskets with extended straps. It secures neatly around the hinges with discreet hook-and-loop fasteners. Perfect for storage, picnics, or home styling, our wicker baskets can be beautifully repurposed for everyday living.",
         category: "Baskets",
         variants: createVariantFromLegacy(
-          "https://res.cloudinary.com/dygrsvya5/image/upload/q_auto:low/v1761523697/WICKER_BASKET_jy5cs6.jpg",
+          "https://res.cloudinary.com/dygrsvya5/image/upload/f_auto/v1761523697/WICKER_BASKET_jy5cs6.jpg",
           85
         ),
         details: {
@@ -303,7 +303,7 @@ export const getAdditionalProducts = (): StandaloneProduct[] => [
       {
         name: "Default",
         image:
-          "https://res.cloudinary.com/dygrsvya5/image/upload/v1763714626/NEXT_RAMEKINS_phaxjy.jpg",
+          "https://res.cloudinary.com/dygrsvya5/image/upload/f_auto/v1763714626/NEXT_RAMEKINS_phaxjy.jpg",
         price: 28,
       },
     ],
@@ -318,12 +318,12 @@ export const getAdditionalProducts = (): StandaloneProduct[] => [
           "A beautiful yellow ceramic ramekin with lid, perfect for serving individual portions.",
         category: "Kitchen & Dining",
         image:
-          "https://res.cloudinary.com/dygrsvya5/image/upload/q_auto:low/v1761224787/YELLOW_RAMEKIN_ml5qy1.jpg",
+          "https://res.cloudinary.com/dygrsvya5/image/upload/f_auto/v1761224787/YELLOW_RAMEKIN_ml5qy1.jpg",
         variants: [
           {
             name: "Default",
             image:
-              "https://res.cloudinary.com/dygrsvya5/image/upload/q_auto:low/v1761224787/YELLOW_RAMEKIN_ml5qy1.jpg",
+              "https://res.cloudinary.com/dygrsvya5/image/upload/f_auto/v1761224787/YELLOW_RAMEKIN_ml5qy1.jpg",
             price: 14,
           },
         ],
@@ -338,12 +338,12 @@ export const getAdditionalProducts = (): StandaloneProduct[] => [
           "A beautiful pink ceramic ramekin with lid, perfect for serving individual portions.",
         category: "Kitchen & Dining",
         image:
-          "https://res.cloudinary.com/dygrsvya5/image/upload/q_auto:low/v1761224783/PINK_RAMEKIN_knwhct.jpg",
+          "https://res.cloudinary.com/dygrsvya5/image/upload/f_auto/v1761224783/PINK_RAMEKIN_knwhct.jpg",
         variants: [
           {
             name: "Default",
             image:
-              "https://res.cloudinary.com/dygrsvya5/image/upload/q_auto:low/v1761224783/PINK_RAMEKIN_knwhct.jpg",
+              "https://res.cloudinary.com/dygrsvya5/image/upload/f_auto/v1761224783/PINK_RAMEKIN_knwhct.jpg",
             price: 14,
           },
         ],
@@ -363,7 +363,7 @@ export const getAdditionalProducts = (): StandaloneProduct[] => [
       {
         name: "Chambray",
         image:
-          "https://res.cloudinary.com/dygrsvya5/image/upload/q_auto:low/v1761224793/LE_CREUSET_MINI_CASSEROLE_IN_CHAMBRAY_zu5tj8.jpg",
+          "https://res.cloudinary.com/dygrsvya5/image/upload/f_auto/v1761224793/LE_CREUSET_MINI_CASSEROLE_IN_CHAMBRAY_zu5tj8.jpg",
         price: 27,
       },
     ],
@@ -382,7 +382,7 @@ export const getAdditionalProducts = (): StandaloneProduct[] => [
       "Smooth milk chocolate powder sealed in a reusable clip-top tin. Ideal for making hot chocolate or adding to desserts.",
     category: "Food & Treats",
     variants: createVariantFromLegacy(
-      "https://res.cloudinary.com/dygrsvya5/image/upload/q_auto:low/v1761224819/WHITTARD_HOT_CHOCOLATE_qzuwcz.jpg",
+      "https://res.cloudinary.com/dygrsvya5/image/upload/f_auto/v1761224819/WHITTARD_HOT_CHOCOLATE_qzuwcz.jpg",
       15.95
     ),
     details: {
@@ -404,7 +404,7 @@ export const getAdditionalProducts = (): StandaloneProduct[] => [
       "A buttery, crisp shortbread infused with natural orange flavour and partially dipped in smooth milk chocolate. The zesty citrus notes complement the rich, creamy chocolate.",
     category: "Food & Treats",
     variants: createVariantFromLegacy(
-      "https://res.cloudinary.com/dygrsvya5/image/upload/q_auto:low/v1761224821/ORANGE_MILK_CHOCOLATE_wff1dr.jpg",
+      "https://res.cloudinary.com/dygrsvya5/image/upload/f_auto/v1761224821/ORANGE_MILK_CHOCOLATE_wff1dr.jpg",
       6
     ),
     details: {
@@ -428,7 +428,7 @@ export const getAdditionalProducts = (): StandaloneProduct[] => [
       "A buttery shortbread made with quality ingredients for a rich, smooth texture and classic taste. Great alongside tea or coffee, or enjoyed on its own.",
     category: "Food & Treats",
     variants: createVariantFromLegacy(
-      "https://res.cloudinary.com/dygrsvya5/image/upload/q_auto:low/v1762482220/ALL_BUTTER_SHORTBREAD_mmv2km.jpg",
+      "https://res.cloudinary.com/dygrsvya5/image/upload/f_auto/v1762482220/ALL_BUTTER_SHORTBREAD_mmv2km.jpg",
       6
     ),
     details: {
@@ -446,7 +446,7 @@ export const getAdditionalProducts = (): StandaloneProduct[] => [
       "Buttery shortbread with generous pieces of milk chocolate throughout. Made with the finest quality ingredients for a rich, consistent texture and flavour in every bite.",
     category: "Food & Treats",
     variants: createVariantFromLegacy(
-      "https://res.cloudinary.com/dygrsvya5/image/upload/q_auto:low/v1762482443/CHOCOLATE_CHUNK_COOKIES_teb8ib.jpg",
+      "https://res.cloudinary.com/dygrsvya5/image/upload/f_auto/v1762482443/CHOCOLATE_CHUNK_COOKIES_teb8ib.jpg",
       6
     ),
     details: {
@@ -468,7 +468,7 @@ export const getAdditionalProducts = (): StandaloneProduct[] => [
       "Made of 100% fresh apples, this pure apple juice is naturally sweet and refreshing. It is ideal for drinking on its own or using in recipes.",
     category: "Beverages",
     variants: createVariantFromLegacy(
-      "https://res.cloudinary.com/dygrsvya5/image/upload/q_auto:low/v1761224783/APPLE_JUICE_rp7lzt.jpg",
+      "https://res.cloudinary.com/dygrsvya5/image/upload/f_auto/v1761224783/APPLE_JUICE_rp7lzt.jpg",
       5.5
     ),
     details: {
@@ -484,7 +484,7 @@ export const getAdditionalProducts = (): StandaloneProduct[] => [
       "Bold and contemporary, these colourful striped glass candles feature a range of refreshing new scents. Designed for those who appreciate statement design and vibrant fragrance, each vessel can be reused as distinctive glassware once the candle is finished.",
     category: "Home & Living",
     variants: createVariantFromLegacy(
-      "https://res.cloudinary.com/dygrsvya5/image/upload/q_auto:low/v1761224785/MAEGEN_ATINA_CANDLE_IN_RED_khefmd.jpg",
+      "https://res.cloudinary.com/dygrsvya5/image/upload/f_auto/v1761224785/MAEGEN_ATINA_CANDLE_IN_RED_khefmd.jpg",
       33
     ),
     details: {
@@ -499,7 +499,7 @@ export const getAdditionalProducts = (): StandaloneProduct[] => [
       "Crisp cookies made with butter and brown sugar, baked with pieces of sweet butterscotch for a light crunch and balanced flavour.",
     category: "Food & Treats",
     variants: createVariantFromLegacy(
-      "https://res.cloudinary.com/dygrsvya5/image/upload/q_auto:low/v1761224804/BUTTERSCOTCH_CRUNCH_COOKIES_jxseta.jpg",
+      "https://res.cloudinary.com/dygrsvya5/image/upload/f_auto/v1761224804/BUTTERSCOTCH_CRUNCH_COOKIES_jxseta.jpg",
       8.75
     ),
     details: {
@@ -528,7 +528,7 @@ export const getAdditionalProducts = (): StandaloneProduct[] => [
       "Baked with chunks of white chocolate and pieces of strawberry, these cookies bring together a mix of gentle sweetness and texture.",
     category: "Food & Treats",
     variants: createVariantFromLegacy(
-      "https://res.cloudinary.com/dygrsvya5/image/upload/q_auto:low/v1761224806/STRAWBERRY_COOKIES_yfuvsn.jpg",
+      "https://res.cloudinary.com/dygrsvya5/image/upload/f_auto/v1761224806/STRAWBERRY_COOKIES_yfuvsn.jpg",
       8.75
     ),
     details: {
@@ -564,7 +564,7 @@ export const getAdditionalProducts = (): StandaloneProduct[] => [
       "A buttery, crisp shortbread infused with natural vanilla flavour and partially dipped in smooth white chocolate. The delicate vanilla notes complement the rich, creamy white chocolate.",
     category: "Food & Treats",
     variants: createVariantFromLegacy(
-      "https://res.cloudinary.com/dygrsvya5/image/upload/q_auto:low/v1761224813/VANILLA_WHITE_CHOCOLATE_xxobpy.jpg",
+      "https://res.cloudinary.com/dygrsvya5/image/upload/f_auto/v1761224813/VANILLA_WHITE_CHOCOLATE_xxobpy.jpg",
       6
     ),
     details: {
@@ -585,7 +585,7 @@ export const shopProducts: ShopProduct[] = [
     name: "The Dee Basket",
     price: 130,
     image:
-      "https://res.cloudinary.com/dygrsvya5/image/upload/q_auto:low/v1761523717/COVER_IMAGE_FOR_NYLA_BASKET_ebewca.jpg",
+      "https://res.cloudinary.com/dygrsvya5/image/upload/f_auto/v1761523717/COVER_IMAGE_FOR_NYLA_BASKET_ebewca.jpg",
     category: "Baskets",
     description:
       "My personal favourite, this basket mirrors my love for meditative and slow living. It is designed to inspire mindfulness, presence, and moments of reflection throughout the day.",
@@ -611,7 +611,7 @@ export const shopProducts: ShopProduct[] = [
     name: "The Duro Basket",
     price: 130,
     image:
-      "https://res.cloudinary.com/dygrsvya5/image/upload/q_auto:low/v1761523685/COVER_IMAGE_FOR_DURO_BASKET_lc3d6w.jpg",
+      "https://res.cloudinary.com/dygrsvya5/image/upload/f_auto/v1761523685/COVER_IMAGE_FOR_DURO_BASKET_lc3d6w.jpg",
     category: "Baskets",
     description:
       "Derived from the Yoruba name <em>Durojaiye</em>, meaning “to wait and enjoy life,” this basket is a meditation on time and resilience. Named after my mother, the Duro Basket stands as a tribute to her strength, grace, love and enduring spirit.",
@@ -637,7 +637,7 @@ export const shopProducts: ShopProduct[] = [
     name: "Build Your Basket",
     price: 0,
     image:
-      "https://res.cloudinary.com/dygrsvya5/image/upload/q_auto:low/v1761542808/IMAGE_ONE_iwncig.jpg",
+      "https://res.cloudinary.com/dygrsvya5/image/upload/f_auto/v1761542808/IMAGE_ONE_iwncig.jpg",
     category: "Custom",
     description:
       "Create a celebration basket that's uniquely yours. Choose from our range of handpicked products and build a personalised basket for any occasion.",
@@ -664,7 +664,7 @@ export const shopProducts: ShopProduct[] = [
     name: "Branded Tote Bag",
     price: 63,
     image:
-      "https://res.cloudinary.com/dygrsvya5/image/upload/q_auto:low/v1761525451/BRANDED_TOTE_BAG_jno028.jpg",
+      "https://res.cloudinary.com/dygrsvya5/image/upload/f_auto/v1761525451/BRANDED_TOTE_BAG_jno028.jpg",
     category: "Accessories",
     description:
       "Made from recycled cotton and polyester, this unisex, lightweight and durable bag is built for everyday use. Its simple, timeless design makes it a practical and sustainable choice.",
