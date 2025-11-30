@@ -101,7 +101,7 @@ export default function Cart() {
                     </div>
                     <button
                         onClick={clearCart}
-                        className="text-luxury-cool-grey hover:text-red-500 transition-colors duration-200 font-extralight uppercase text-sm"
+                        className="text-luxury-cool-grey hover:text-red-500 transition-colors duration-200 font-extralight uppercase text-sm cursor-pointer"
                     >
                         Clear Cart
                     </button>
@@ -203,7 +203,7 @@ export default function Cart() {
                                         </span>
                                         <button
                                             onClick={() => removeItem(item.id)}
-                                            className="text-luxury-cool-grey hover:text-red-500 transition-colors duration-200"
+                                            className="text-red-500 hover:text-red-600 transition-colors duration-200 cursor-pointer"
                                         >
                                             <LuTrash2 size={16} />
                                         </button>
@@ -212,7 +212,7 @@ export default function Cart() {
                                     <div className="flex items-center gap-3">
                                         <button
                                             onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                                            className="w-8 h-8 border border-luxury-cool-grey flex items-center justify-center hover:border-brand-purple transition-colors duration-200"
+                                            className="w-8 h-8 border border-luxury-cool-grey flex items-center justify-center hover:border-brand-purple transition-colors duration-200 cursor-pointer"
                                         >
                                             <LuMinus size={12} />
                                         </button>
@@ -221,7 +221,7 @@ export default function Cart() {
                                         </span>
                                         <button
                                             onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                                            className="w-8 h-8 border border-luxury-cool-grey flex items-center justify-center hover:border-brand-purple transition-colors duration-200"
+                                            className="w-8 h-8 border border-luxury-cool-grey flex items-center justify-center hover:border-brand-purple transition-colors duration-200 cursor-pointer"
                                         >
                                             <LuPlus size={12} />
                                         </button>

@@ -26,7 +26,7 @@ export default function CheckoutOptions({ onSelect }: CheckoutOptionsProps) {
             <div className="space-y-4">
                 <button
                     onClick={() => setSelectedOption('signin')}
-                    className={`w-full p-6 border-2 rounded-lg transition-all duration-200 text-left ${
+                    className={`w-full p-6 border-2 rounded-lg transition-all duration-200 text-left cursor-pointer ${
                         selectedOption === 'signin'
                             ? 'border-brand-purple bg-purple-50'
                             : 'border-luxury-cool-grey hover:border-brand-purple/50'
@@ -58,7 +58,7 @@ export default function CheckoutOptions({ onSelect }: CheckoutOptionsProps) {
 
                 <button
                     onClick={() => setSelectedOption('guest')}
-                    className={`w-full p-6 border-2 rounded-lg transition-all duration-200 text-left ${
+                    className={`w-full p-6 border-2 rounded-lg transition-all duration-200 text-left cursor-pointer ${
                         selectedOption === 'guest'
                             ? 'border-brand-purple bg-purple-50'
                             : 'border-luxury-cool-grey hover:border-brand-purple/50'
@@ -94,7 +94,7 @@ export default function CheckoutOptions({ onSelect }: CheckoutOptionsProps) {
                 disabled={!selectedOption}
                 className={`w-full py-4 px-6 font-extralight uppercase transition-colors duration-200 ${
                     selectedOption
-                        ? 'bg-brand-purple text-luxury-white hover:bg-brand-purple-light'
+                        ? 'bg-brand-purple text-luxury-white hover:bg-brand-purple-light cursor-pointer'
                         : 'bg-luxury-warm-grey/20 text-luxury-cool-grey cursor-not-allowed'
                 }`}
             >

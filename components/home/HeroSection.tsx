@@ -42,7 +42,7 @@ const HeroSection: React.FC = () => {
                         <LuArrowRight size={20} />
                     </Link>
 
-                    <button className="bg-transparent border-2 border-white text-white hover:bg-white hover:text-gray-900 px-8 py-4 rounded-md transition-all duration-300 flex items-center space-x-2 font-medium">
+                    <button className="bg-transparent border-2 border-white text-white hover:bg-white hover:text-gray-900 px-8 py-4 rounded-md transition-all duration-300 flex items-center space-x-2 font-medium cursor-pointer">
                         <LuPlay size={20} />
                         <span>Our Story</span>
                     </button>

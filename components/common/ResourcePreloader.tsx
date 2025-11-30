@@ -19,7 +19,7 @@ const routeResources: Record<string, { images?: string[]; videos?: string[] }> =
     images: ['https://res.cloudinary.com/dygrsvya5/image/upload/f_auto/v1761542804/IMAGE_SEVEN_w8mzsc.jpg'],
   },
   '/terms-of-service': {
-    images: ['https://res.cloudinary.com/dygrsvya5/image/upload/f_auto/v1764234390/_2MK9067_xy8vh2.jpg', 'https://res.cloudinary.com/dygrsvya5/image/upload/f_auto/v1764234469/_2MK9038_zdzsag.jpg'],
+    images: ['https://res.cloudinary.com/dygrsvya5/image/upload/f_auto/v1764234390/_2MK9067_xy8vh2.jpg', 'https://res.cloudinary.com/dygrsvya5/image/upload/f_auto/v1764506821/TERMS_OF_SERVICE_MOBILE_uhkiez.jpg'],
   },
   '/cookie-policy': {
     images: ['https://res.cloudinary.com/dygrsvya5/image/upload/f_auto/v1763661133/COOKIE_POLICY_syh1yx.jpg'],

@@ -111,7 +111,7 @@ const FullScreenVideo: React.FC = () => {
                 {/* Mute/Unmute Button */}
                 <button
                     onClick={toggleMute}
-                    className="bg-black/50 hover:bg-black/70 backdrop-blur-sm rounded-full p-3 transition-all duration-300 group"
+                    className="bg-black/50 hover:bg-black/70 backdrop-blur-sm rounded-full p-3 transition-all duration-300 group cursor-pointer"
                     aria-label={isMuted ? 'Unmute video' : 'Mute video'}
                 >
                     {isMuted ? (

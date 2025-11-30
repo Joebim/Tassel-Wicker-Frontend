@@ -169,7 +169,7 @@ export default function Shop() {
             <div className="relative">
               <button
                 onClick={() => setIsFilterOpen((o) => !o)}
-                className="flex items-center gap-2 px-6 py-3 bg-white border border-luxury-warm-grey/20 rounded-xl hover:bg-luxury-warm-grey/5 transition-all duration-200"
+                className="flex items-center gap-2 px-6 py-3 bg-white border border-luxury-warm-grey/20 rounded-xl hover:bg-luxury-warm-grey/5 transition-all duration-200 cursor-pointer"
               >
                 <LuFilter size={18} className="text-luxury-charcoal" />
                 <span className="text-luxury-charcoal font-extralight uppercase">Filters</span>
@@ -192,7 +192,7 @@ export default function Shop() {
           <div className="flex items-center gap-2">
             <button
               onClick={() => setViewMode('grid')}
-              className={`p-2 rounded-lg transition-colors duration-200 ${viewMode === 'grid'
+              className={`p-2 rounded-lg transition-colors duration-200 cursor-pointer ${viewMode === 'grid'
                 ? 'bg-brand-purple text-luxury-white'
                 : 'bg-luxury-warm-grey/10 text-luxury-charcoal hover:bg-luxury-warm-grey/20'
                 }`}
@@ -201,7 +201,7 @@ export default function Shop() {
             </button>
             <button
               onClick={() => setViewMode('list')}
-              className={`p-2 rounded-lg transition-colors duration-200 ${viewMode === 'list'
+              className={`p-2 rounded-lg transition-colors duration-200 cursor-pointer ${viewMode === 'list'
                 ? 'bg-brand-purple text-luxury-white'
                 : 'bg-luxury-warm-grey/10 text-luxury-charcoal hover:bg-luxury-warm-grey/20'
                 }`}

@@ -702,7 +702,7 @@ export default function BuildYourBasket() {
                                                 </div>
                                                 <button
                                                     onClick={() => removeItem(item.id)}
-                                                    className="p-1 text-luxury-cool-grey hover:text-red-500 transition-colors duration-200"
+                                                    className="p-1 text-red-500 hover:text-red-600 transition-colors duration-200 cursor-pointer"
                                                 >
                                                     <LuX size={16} />
                                                 </button>
@@ -717,7 +717,7 @@ export default function BuildYourBasket() {
                                 onClick={handleAddToCart}
                                 disabled={selectionCount < MIN_SELECTION}
                                 className={`w-full py-4 px-6 rounded-lg font-extralight uppercase tracking-wide transition-all duration-200 ${selectionCount >= MIN_SELECTION
-                                    ? 'bg-brand-purple text-luxury-white hover:bg-brand-purple/90'
+                                    ? 'bg-brand-purple text-luxury-white hover:bg-brand-purple/90 cursor-pointer'
                                     : 'bg-luxury-warm-grey/20 text-luxury-cool-grey cursor-not-allowed'
                                     }`}
                             >

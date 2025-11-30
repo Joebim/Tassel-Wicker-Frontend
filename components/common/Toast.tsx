@@ -31,7 +31,7 @@ const ToastComponent: React.FC = () => {
     };
 
     return (
-        <div className="fixed top-4 right-4 z-50 space-y-2">
+        <div className="fixed top-4 right-4 z-[10000] space-y-2">
             <AnimatePresence>
                 {toasts.map((toast: Toast) => {
                     const styles = getToastStyles(toast.type);
@@ -73,7 +73,7 @@ const ToastComponent: React.FC = () => {
                             {/* Close Button */}
                             <button
                                 onClick={() => removeToast(toast.id)}
-                                className="shrink-0 p-1 hover:bg-white/10 rounded transition-colors duration-200"
+                                className="shrink-0 p-1 hover:bg-white/10 rounded transition-colors duration-200 cursor-pointer"
                             >
                                 <LuX size={16} className="text-white opacity-60 hover:opacity-100" />
                             </button>
