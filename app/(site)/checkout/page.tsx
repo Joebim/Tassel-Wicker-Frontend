@@ -337,7 +337,7 @@ const PaymentForm: React.FC<{
 
 export default function Checkout() {
     const router = useRouter();
-    const { items, getTotalPrice, clearCart } = useCartStore();
+    const { items, getTotalPrice } = useCartStore();
     const { user, hasHydrated } = useAuthStore();
     const {
         location,
@@ -494,7 +494,7 @@ export default function Checkout() {
     // Removed handleChange - customer info comes from authStore
 
     const handlePaymentSuccess = () => {
-        clearCart();
+        // Cart will be cleared after order is created (in payment-success page)
         useToastStore.getState().addToast({
             type: "success",
             title: "Payment Successful",

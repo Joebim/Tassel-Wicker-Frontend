@@ -80,6 +80,17 @@ function PaymentSuccessContent() {
             if (data.success) {
                 setEmailSent(true);
                 console.log('[CLIENT] Order confirmation email sent successfully');
+                
+                // Clear cart only after order is confirmed to be created (email sent successfully)
+                if (!hasClearedCart) {
+                    clearCart();
+                    setHasClearedCart(true);
+                    useToastStore.getState().addToast({
+                        type: 'success',
+                        title: 'Payment Successful',
+                        message: 'Your order has been placed successfully!',
+                    });
+                }
             } else {
                 console.error('[CLIENT] Failed to send order confirmation email:', data.error);
             }
@@ -89,29 +100,12 @@ function PaymentSuccessContent() {
         }
     }, [paymentIntent, emailSent]);
 
-    // Clear cart and show success message when payment is confirmed
+    // Scroll to top when component mounts
     useEffect(() => {
         if (typeof window !== 'undefined') {
             window.scrollTo(0, 0);
-
-            // Clear cart on successful payment (only once)
-            // Check if we have payment intent parameters (Stripe redirects with these)
-            // or if we're on the success page (fallback for non-redirect payments)
-            if (!hasClearedCart && (paymentIntent || paymentIntentClientSecret || window.location.pathname === '/payment-success')) {
-                clearCart();
-                // Use setTimeout to avoid synchronous setState in effect
-                const timer = setTimeout(() => {
-                    setHasClearedCart(true);
-                    useToastStore.getState().addToast({
-                        type: 'success',
-                        title: 'Payment Successful',
-                        message: 'Your order has been placed successfully!',
-                    });
-                }, 0);
-                return () => clearTimeout(timer);
-            }
         }
-    }, [paymentIntent, paymentIntentClientSecret, clearCart, hasClearedCart]);
+    }, []);
 
     // Send order confirmation email when payment intent is available
     useEffect(() => {
@@ -143,7 +137,7 @@ function PaymentSuccessContent() {
                 emailSent,
             });
         }
-    }, [paymentIntent, emailSent, sendOrderEmail]);
+    }, [paymentIntent, emailSent, sendOrderEmail, hasClearedCart, clearCart]);
 
     return (
         <div className="min-h-screen bg-white text-luxury-black flex items-center justify-center">
