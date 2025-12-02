@@ -231,7 +231,7 @@ export default function About() {
                   {/* Heading */}
                   <motion.div variants={itemVariants}>
                     <motion.div
-                      className="h-1 w-16 bg-brand-purple"
+                      className="h-1 mb-3 w-16 bg-brand-purple"
                       initial={{ width: 0 }}
                       animate={(ourStoryInView || ourStoryVisible) ? { width: 64 } : { width: 0 }}
                       transition={{ duration: 0.6, delay: 0.2 }}
