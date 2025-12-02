@@ -189,7 +189,7 @@ export default function About() {
           <div className="max-w-7xl mx-auto px-8 sm:px-12 lg:px-16">
             {/* Mobile: Single flex container, Desktop: Flex layout with two columns */}
             <div className="flex flex-col gap-8 sm:gap-16">
-              {/* Row 1 - Desktop Flex, Mobile: flex children */}
+              {/* Row 1 - Desktop Flex, Mobile: flex children - Updated to reduce spacing */}
               <div className="flex flex-col lg:flex-row lg:gap-12 gap-8 sm:gap-16 lg:items-start lg:mb-24">
                 {/* Left Column - Heading and Text */}
                 <div className="flex flex-col lg:w-1/2 gap-6 order-1">
