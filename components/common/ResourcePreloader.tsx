@@ -41,44 +41,44 @@ const routeResources: Record<string, { images?: string[]; videos?: string[] }> =
 // Preload resources for a given path
 function preloadRouteResources(path: string) {
   const resources = routeResources[path] || {};
-
+    
   // Preload images immediately with highest priority
   if (resources.images && resources.images.length > 0) {
     // Add preload link tags FIRST (happens synchronously)
-    resources.images.forEach((src) => {
-      const existing = document.querySelector(`link[rel="preload"][href="${src}"]`);
-      if (!existing) {
-        const link = document.createElement('link');
-        link.rel = 'preload';
-        link.as = 'image';
-        link.href = src;
-        link.setAttribute('fetchpriority', 'high');
+      resources.images.forEach((src) => {
+        const existing = document.querySelector(`link[rel="preload"][href="${src}"]`);
+        if (!existing) {
+          const link = document.createElement('link');
+          link.rel = 'preload';
+          link.as = 'image';
+          link.href = src;
+          link.setAttribute('fetchpriority', 'high');
         link.setAttribute('crossorigin', 'anonymous');
-        // Insert at the beginning of head for highest priority
-        document.head.insertBefore(link, document.head.firstChild);
-      }
-    });
+          // Insert at the beginning of head for highest priority
+          document.head.insertBefore(link, document.head.firstChild);
+        }
+      });
 
     // Then preload using Image API (uses browser cache)
     preloadImages(resources.images).catch(() => {
       // Silently handle errors - browser will retry
     });
-  }
+    }
 
   // Preload videos
-  if (resources.videos) {
-    resources.videos.forEach((src) => {
-      const existing = document.querySelector(`link[rel="preload"][href="${src}"]`);
-      if (!existing) {
-        const link = document.createElement('link');
-        link.rel = 'preload';
-        link.as = 'video';
-        link.href = src;
-        link.setAttribute('fetchpriority', 'high');
-        document.head.insertBefore(link, document.head.firstChild);
-      }
-    });
-  }
+    if (resources.videos) {
+      resources.videos.forEach((src) => {
+        const existing = document.querySelector(`link[rel="preload"][href="${src}"]`);
+        if (!existing) {
+          const link = document.createElement('link');
+          link.rel = 'preload';
+          link.as = 'video';
+          link.href = src;
+          link.setAttribute('fetchpriority', 'high');
+          document.head.insertBefore(link, document.head.firstChild);
+        }
+      });
+    }
 }
 
 export default function ResourcePreloader() {

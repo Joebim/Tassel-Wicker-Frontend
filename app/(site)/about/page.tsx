@@ -28,6 +28,9 @@ const greatVibes = Great_Vibes({
 });
 
 export default function About() {
+  // Client-side mount state to prevent hydration mismatches
+  const [isMounted, setIsMounted] = useState(false);
+
   // ---------------------------------------------------------------
   // Animation variants (unchanged)
   // ---------------------------------------------------------------
@@ -57,6 +60,15 @@ export default function About() {
   const builtForRef = useRef<HTMLElement>(null);
   const builtForInView = useInView(builtForRef, { once: true, amount: 0.1, margin: '-100px' });
   const [builtForVisible, setBuiltForVisible] = useState(false);
+
+  // Set mounted state on client side only
+  useEffect(() => {
+    // Defer state update to avoid synchronous setState in effect
+    const timer = setTimeout(() => {
+      setIsMounted(true);
+    }, 0);
+    return () => clearTimeout(timer);
+  }, []);
 
   // Check if elements are in view on mount and after scroll
   useEffect(() => {
@@ -98,6 +110,27 @@ export default function About() {
   // ---------------------------------------------------------------
   // JSX (unchanged except the imported components)
   // ---------------------------------------------------------------
+  // Prevent hydration mismatch by ensuring consistent rendering
+  if (!isMounted) {
+    return (
+      <div className="bg-white">
+        <div className="relative h-screen w-full overflow-hidden bg-black">
+          <div className="absolute inset-0 z-0">
+            <Image
+              src="https://res.cloudinary.com/dygrsvya5/image/upload/f_auto/v1761542804/IMAGE_SEVEN_w8mzsc.jpg"
+              alt="About Header"
+              fill
+              className="object-cover"
+              priority
+              sizes="100vw"
+            />
+            <div className="absolute inset-0 bg-black opacity-40" />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="bg-white">
       {/* HERO */}
@@ -111,7 +144,8 @@ export default function About() {
             priority
             sizes="100vw"
             onError={(e) => {
-              // Retry loading on error
+              // Retry loading on error (client-side only)
+              if (typeof window === 'undefined') return;
               const target = e.target as HTMLImageElement;
               if (target.src && !target.src.includes('retry')) {
                 setTimeout(() => {
@@ -192,24 +226,25 @@ export default function About() {
               {/* Row 1 - Desktop Flex, Mobile: flex children - Updated to reduce spacing */}
               <div className="flex flex-col lg:flex-row lg:gap-12 gap-8 sm:gap-16 lg:items-start lg:mb-24">
                 {/* Left Column - Heading and Text */}
-                <div className="flex flex-col lg:w-1/2 gap-6 order-1">
-                  {/* Heading */}
-                  <motion.div variants={itemVariants}>
-                    <motion.div
-                      className="h-1 w-16 bg-brand-purple mb-6"
-                      initial={{ width: 0 }}
-                      animate={(ourStoryInView || ourStoryVisible) ? { width: 64 } : { width: 0 }}
-                      transition={{ duration: 0.6, delay: 0.2 }}
-                    />
-                    <motion.h2
-                      className="text-5xl font-extralight text-gray-900 leading-tight"
-                      variants={headingVariants}
-                    >
-                      <ScrollTextAnimation delay={0.3} duration={0.8}>
-                        MY WHY
-                      </ScrollTextAnimation>
-                    </motion.h2>
-                  </motion.div>
+                {/* Heading */}
+                <motion.div variants={itemVariants}>
+                  <motion.div
+                    className="h-1 w-16 bg-brand-purple"
+                    initial={{ width: 0 }}
+                    animate={(ourStoryInView || ourStoryVisible) ? { width: 64 } : { width: 0 }}
+                    transition={{ duration: 0.6, delay: 0.2 }}
+                  />
+                  <motion.h2
+                    className="text-5xl font-extralight text-gray-900 leading-tight"
+                    variants={headingVariants}
+                  >
+                    <ScrollTextAnimation delay={0.3} duration={0.8}>
+                      MY WHY
+                    </ScrollTextAnimation>
+                  </motion.h2>
+                </motion.div>
+                <div className="flex flex-col-reverse sm:flex-col lg:w-1/2">
+           
 
                   {/* Text Content */}
                   <motion.div variants={itemVariants} className="mt-0">
@@ -221,28 +256,37 @@ export default function About() {
                     </motion.p>
 
                     <motion.p
-                      className="text-lg text-gray-600 leading-relaxed font-extralight"
+                      className="text-lg sm:block hidden text-gray-600 leading-relaxed font-extralight"
                       variants={itemVariants}
                     >
                       My vision is for Tassel & Wicker to stand as a symbol of thoughtfulness; a reminder to celebrate everyday moments and surround ourselves with quality pieces that bring joy and meaning. Through every product and experience, I hope to inspire a way of living that feels elevated, joyful and deeply considered.
                     </motion.p>
                   </motion.div>
                 </div>
+                <div className="flex flex-col gap-6">
+                  <motion.div
+                    variants={itemVariants}
+                    whileHover={{ scale: 1.02 }}
+                    transition={{ duration: 0.3 }}
+                    className="relative w-full lg:w-1/2 h-[600px] order-2"
+                  >
+                    <Image
+                      src="https://res.cloudinary.com/dygrsvya5/image/upload/f_auto/v1763659367/UPDATED_ABOUT_IMAGE_ogsr4o.jpg"
+                      alt="My Why"
+                      fill
+                      className="object-cover"
+                    />
+                  </motion.div>
+                  <motion.p
+                    className="text-lg sm:hidden block text-gray-600 leading-relaxed font-extralight"
+                    variants={itemVariants}
+                  >
+                    My vision is for Tassel & Wicker to stand as a symbol of thoughtfulness; a reminder to celebrate everyday moments and surround ourselves with quality pieces that bring joy and meaning. Through every product and experience, I hope to inspire a way of living that feels elevated, joyful and deeply considered.
+                  </motion.p>
 
+                </div>
                 {/* Right Column - Image */}
-                <motion.div
-                  variants={itemVariants}
-                  whileHover={{ scale: 1.02 }}
-                  transition={{ duration: 0.3 }}
-                  className="relative w-full lg:w-1/2 h-[600px] order-2"
-                >
-                  <Image
-                    src="https://res.cloudinary.com/dygrsvya5/image/upload/f_auto/v1763659367/UPDATED_ABOUT_IMAGE_ogsr4o.jpg"
-                    alt="My Why"
-                    fill
-                    className="object-cover"
-                  />
-                </motion.div>
+
               </div>
 
               {/* Row 2 - Desktop Grid, Mobile: flex children */}
