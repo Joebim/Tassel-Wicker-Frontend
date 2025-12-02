@@ -187,13 +187,14 @@ export default function About() {
           variants={containerVariants}
         >
           <div className="max-w-7xl mx-auto px-8 sm:px-12 lg:px-16">
-            {/* Mobile: Single flex container, Desktop: Two separate grid rows with spacing */}
+            {/* Mobile: Single flex container, Desktop: Flex layout with two columns */}
             <div className="flex flex-col lg:contents gap-8 sm:gap-16">
-              {/* Row 1 - Desktop Grid, Mobile: flex children */}
-              <div className="flex flex-col lg:grid lg:grid-cols-2 gap-8 sm:gap-16 lg:items-center lg:mb-24">
-                {/* Heading - Order 1 on mobile */}
-                <motion.div variants={itemVariants} className="order-1">
-                  <motion.div className="" variants={itemVariants}>
+              {/* Row 1 - Desktop Flex, Mobile: flex children */}
+              <div className="flex flex-col lg:flex-row lg:gap-12 gap-8 sm:gap-16 lg:items-start lg:mb-24">
+                {/* Left Column - Heading and Text */}
+                <div className="flex flex-col lg:w-1/2 gap-6 order-1 lg:order-1">
+                  {/* Heading */}
+                  <motion.div variants={itemVariants}>
                     <motion.div
                       className="h-1 w-16 bg-brand-purple mb-6"
                       initial={{ width: 0 }}
@@ -209,14 +210,31 @@ export default function About() {
                       </ScrollTextAnimation>
                     </motion.h2>
                   </motion.div>
-                </motion.div>
 
-                {/* First Image - Order 2 on mobile */}
+                  {/* Text Content */}
+                  <motion.div variants={itemVariants} className="mt-0">
+                    <motion.p
+                      className="text-lg text-gray-600 mb-6 leading-relaxed font-extralight"
+                      variants={itemVariants}
+                    >
+                      Tassel & Wicker was created from a love for the little things that make life feel elevated and intentional. Think soft woven throw blankets, polished crystals, marble coasters, tin cookies, incense cones, tassel key chains, linen notepads, duck feather cushions…little tokens of comfort that slow us down, center us and help transform an ordinary space into a sanctuary of calm and creativity.
+                    </motion.p>
+
+                    <motion.p
+                      className="text-lg text-gray-600 leading-relaxed font-extralight"
+                      variants={itemVariants}
+                    >
+                      My vision is for Tassel & Wicker to stand as a symbol of thoughtfulness; a reminder to celebrate everyday moments and surround ourselves with quality pieces that bring joy and meaning. Through every product and experience, I hope to inspire a way of living that feels elevated, joyful and deeply considered.
+                    </motion.p>
+                  </motion.div>
+                </div>
+
+                {/* Right Column - Image */}
                 <motion.div
                   variants={itemVariants}
                   whileHover={{ scale: 1.02 }}
                   transition={{ duration: 0.3 }}
-                  className="relative w-full h-[600px] order-2 lg:row-span-2"
+                  className="relative w-full lg:w-1/2 h-[600px] order-2 lg:order-2"
                 >
                   <Image
                     src="https://res.cloudinary.com/dygrsvya5/image/upload/f_auto/v1763659367/UPDATED_ABOUT_IMAGE_ogsr4o.jpg"
@@ -224,23 +242,6 @@ export default function About() {
                     fill
                     className="object-cover"
                   />
-                </motion.div>
-
-                {/* Text Content - Order 3 on mobile */}
-                <motion.div variants={itemVariants} className="order-3">
-                  <motion.p
-                    className="text-lg text-gray-600 mb-6 leading-relaxed font-extralight mt-4 lg:mt-0"
-                    variants={itemVariants}
-                  >
-                    Tassel & Wicker was created from a love for the little things that make life feel elevated and intentional. Think soft woven throw blankets, polished crystals, marble coasters, tin cookies, incense cones, tassel key chains, linen notepads, duck feather cushions…little tokens of comfort that slow us down, center us and help transform an ordinary space into a sanctuary of calm and creativity.
-                  </motion.p>
-
-                  <motion.p
-                    className="text-lg text-gray-600 leading-relaxed font-extralight"
-                    variants={itemVariants}
-                  >
-                    My vision is for Tassel & Wicker to stand as a symbol of thoughtfulness; a reminder to celebrate everyday moments and surround ourselves with quality pieces that bring joy and meaning. Through every product and experience, I hope to inspire a way of living that feels elevated, joyful and deeply considered.
-                  </motion.p>
                 </motion.div>
               </div>
 
