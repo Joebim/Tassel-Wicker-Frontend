@@ -226,42 +226,45 @@ export default function About() {
               {/* Row 1 - Desktop Flex, Mobile: flex children - Updated to reduce spacing */}
               <div className="flex flex-col lg:flex-row lg:gap-12 gap-8 sm:gap-16 lg:items-start lg:mb-24">
                 {/* Left Column - Heading and Text */}
-                {/* Heading */}
-                <motion.div variants={itemVariants}>
-                  <motion.div
-                    className="h-1 w-16 bg-brand-purple"
-                    initial={{ width: 0 }}
-                    animate={(ourStoryInView || ourStoryVisible) ? { width: 64 } : { width: 0 }}
-                    transition={{ duration: 0.6, delay: 0.2 }}
-                  />
-                  <motion.h2
-                    className="text-5xl font-extralight text-gray-900 leading-tight"
-                    variants={headingVariants}
-                  >
-                    <ScrollTextAnimation delay={0.3} duration={0.8}>
-                      MY WHY
-                    </ScrollTextAnimation>
-                  </motion.h2>
-                </motion.div>
-                <div className="flex flex-col-reverse sm:flex-col lg:w-1/2">
-           
 
-                  {/* Text Content */}
-                  <motion.div variants={itemVariants} className="mt-0">
-                    <motion.p
-                      className="text-lg text-gray-600 mb-6 leading-relaxed font-extralight"
-                      variants={itemVariants}
+                <div className="flex flex-col">
+                  {/* Heading */}
+                  <motion.div variants={itemVariants}>
+                    <motion.div
+                      className="h-1 w-16 bg-brand-purple"
+                      initial={{ width: 0 }}
+                      animate={(ourStoryInView || ourStoryVisible) ? { width: 64 } : { width: 0 }}
+                      transition={{ duration: 0.6, delay: 0.2 }}
+                    />
+                    <motion.h2
+                      className="text-5xl font-extralight text-gray-900 leading-tight"
+                      variants={headingVariants}
                     >
-                      Tassel & Wicker was created from a love for the little things that make life feel elevated and intentional. Think soft woven throw blankets, polished crystals, marble coasters, tin cookies, incense cones, tassel key chains, linen notepads, duck feather cushions…little tokens of comfort that slow us down, center us and help transform an ordinary space into a sanctuary of calm and creativity.
-                    </motion.p>
-
-                    <motion.p
-                      className="text-lg sm:block hidden text-gray-600 leading-relaxed font-extralight"
-                      variants={itemVariants}
-                    >
-                      My vision is for Tassel & Wicker to stand as a symbol of thoughtfulness; a reminder to celebrate everyday moments and surround ourselves with quality pieces that bring joy and meaning. Through every product and experience, I hope to inspire a way of living that feels elevated, joyful and deeply considered.
-                    </motion.p>
+                      <ScrollTextAnimation delay={0.3} duration={0.8}>
+                        MY WHY
+                      </ScrollTextAnimation>
+                    </motion.h2>
                   </motion.div>
+                  <div className="flex flex-col-reverse sm:flex-col lg:w-1/2">
+
+
+                    {/* Text Content */}
+                    <motion.div variants={itemVariants} className="mt-0">
+                      <motion.p
+                        className="text-lg text-gray-600 mb-6 leading-relaxed font-extralight"
+                        variants={itemVariants}
+                      >
+                        Tassel & Wicker was created from a love for the little things that make life feel elevated and intentional. Think soft woven throw blankets, polished crystals, marble coasters, tin cookies, incense cones, tassel key chains, linen notepads, duck feather cushions…little tokens of comfort that slow us down, center us and help transform an ordinary space into a sanctuary of calm and creativity.
+                      </motion.p>
+
+                      <motion.p
+                        className="text-lg sm:block hidden text-gray-600 leading-relaxed font-extralight"
+                        variants={itemVariants}
+                      >
+                        My vision is for Tassel & Wicker to stand as a symbol of thoughtfulness; a reminder to celebrate everyday moments and surround ourselves with quality pieces that bring joy and meaning. Through every product and experience, I hope to inspire a way of living that feels elevated, joyful and deeply considered.
+                      </motion.p>
+                    </motion.div>
+                  </div>
                 </div>
                 <div className="flex flex-col gap-6">
                   <motion.div
