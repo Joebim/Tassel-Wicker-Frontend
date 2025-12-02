@@ -6,6 +6,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { LuMail, LuLock, LuEye, LuEyeOff } from 'react-icons/lu';
 import { authService } from '@/services/authService';
+import { useToastStore } from '@/store/toastStore';
 
 function LoginContent() {
     const [email, setEmail] = useState('');
@@ -18,8 +19,18 @@ function LoginContent() {
     useEffect(() => {
         if (typeof window !== 'undefined') {
             window.scrollTo(0, 0);
+            
+            // Show toast if redirected from checkout
+            const redirect = searchParams.get('redirect');
+            if (redirect === '/checkout') {
+                useToastStore.getState().addToast({
+                    type: 'info',
+                    title: 'Sign In Required',
+                    message: 'Please sign in to your account to continue with checkout.',
+                });
+            }
         }
-    }, []);
+    }, [searchParams]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();

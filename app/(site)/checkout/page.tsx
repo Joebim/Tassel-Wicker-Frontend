@@ -381,6 +381,11 @@ export default function Checkout() {
     const handleCheckoutOptionSelect = (option: 'signin' | 'guest') => {
         setCheckoutOption(option);
         if (option === 'signin' && !user) {
+            useToastStore.getState().addToast({
+                type: 'info',
+                title: 'Sign In Required',
+                message: 'Please sign in to your account to continue with checkout.',
+            });
             router.push('/login?redirect=/checkout');
         }
     };

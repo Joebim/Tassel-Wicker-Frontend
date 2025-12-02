@@ -60,7 +60,7 @@ export default function Cart() {
                             Your Cart is Empty
                         </h2>
                         <p className="text-luxury-cool-grey font-extralight mb-8 max-w-md">
-                            Discover our handcrafted luxury baskets and add some elegance to your collection.
+                            Browse our products and buy something you love.
                         </p>
                         <Link
                             href="/shop"
@@ -92,16 +92,16 @@ export default function Cart() {
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
                 <div className="flex justify-between items-center mb-12">
                     <div>
-                        <h1 className="text-[48px] font-extralight text-luxury-black mb-2 uppercase">
+                        <h1 className="text-[32px] sm:text-[48px] font-extralight text-luxury-black mb-2 uppercase">
                             Shopping Cart
                         </h1>
-                        <p className="text-luxury-cool-grey font-extralight">
+                        <p className="text-sm sm:text-base text-luxury-cool-grey font-extralight">
                             {getTotalItems()} {getTotalItems() === 1 ? 'item' : 'items'} in your cart
                         </p>
                     </div>
                     <button
                         onClick={clearCart}
-                        className="text-luxury-cool-grey hover:text-red-500 transition-colors duration-200 font-extralight uppercase text-sm cursor-pointer"
+                        className="text-xs sm:text-sm text-luxury-cool-grey hover:text-red-500 transition-colors duration-200 font-extralight uppercase cursor-pointer"
                     >
                         Clear Cart
                     </button>
@@ -119,7 +119,7 @@ export default function Cart() {
                                 className="grid grid-cols-1 md:grid-cols-4 gap-6 p-6 border border-luxury-white/20"
                             >
                                 {/* Product Image */}
-                                <div className="md:col-span-1 relative w-full h-full">
+                                <div className="md:col-span-1 relative w-full h-[200px] md:h-full">
                                     <Image
                                         src={item.image}
                                         alt={item.name}

@@ -229,7 +229,7 @@ export default function About() {
                 {/* Text Content - Order 3 on mobile */}
                 <motion.div variants={itemVariants} className="order-3">
                   <motion.p
-                    className="text-lg text-gray-600 mb-6 leading-relaxed font-extralight mt-4"
+                    className="text-lg text-gray-600 mb-6 leading-relaxed font-extralight mt-4 lg:mt-0"
                     variants={itemVariants}
                   >
                     Tassel & Wicker was created from a love for the little things that make life feel elevated and intentional. Think soft woven throw blankets, polished crystals, marble coasters, tin cookies, incense cones, tassel key chains, linen notepads, duck feather cushions…little tokens of comfort that slow us down, center us and help transform an ordinary space into a sanctuary of calm and creativity.
