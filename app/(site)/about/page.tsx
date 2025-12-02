@@ -227,7 +227,7 @@ export default function About() {
               <div className="flex flex-col lg:flex-row lg:gap-12 gap-8 sm:gap-16 lg:items-start lg:mb-24">
                 {/* Left Column - Heading and Text */}
 
-                <div className="flex flex-col">
+                <div className="flex flex-col flex-1">
                   {/* Heading */}
                   <motion.div variants={itemVariants}>
                     <motion.div
@@ -245,7 +245,7 @@ export default function About() {
                       </ScrollTextAnimation>
                     </motion.h2>
                   </motion.div>
-                  <div className="flex flex-col-reverse sm:flex-col lg:w-1/2">
+                  <div className="flex flex-col-reverse sm:flex-col">
 
 
                     {/* Text Content */}
@@ -266,12 +266,12 @@ export default function About() {
                     </motion.div>
                   </div>
                 </div>
-                <div className="flex flex-col gap-6">
+                <div className="flex flex-col-reverse flex-1 gap-6">
                   <motion.div
                     variants={itemVariants}
                     whileHover={{ scale: 1.02 }}
                     transition={{ duration: 0.3 }}
-                    className="relative w-full lg:w-1/2 h-[600px] order-2"
+                    className="relative w-full h-[600px] order-2"
                   >
                     <Image
                       src="https://res.cloudinary.com/dygrsvya5/image/upload/f_auto/v1763659367/UPDATED_ABOUT_IMAGE_ogsr4o.jpg"
