@@ -188,11 +188,11 @@ export default function About() {
         >
           <div className="max-w-7xl mx-auto px-8 sm:px-12 lg:px-16">
             {/* Mobile: Single flex container, Desktop: Flex layout with two columns */}
-            <div className="flex flex-col lg:contents gap-8 sm:gap-16">
+            <div className="flex flex-col gap-8 sm:gap-16">
               {/* Row 1 - Desktop Flex, Mobile: flex children */}
               <div className="flex flex-col lg:flex-row lg:gap-12 gap-8 sm:gap-16 lg:items-start lg:mb-24">
                 {/* Left Column - Heading and Text */}
-                <div className="flex flex-col lg:w-1/2 gap-6 order-1 lg:order-1">
+                <div className="flex flex-col lg:w-1/2 gap-6 order-1">
                   {/* Heading */}
                   <motion.div variants={itemVariants}>
                     <motion.div
@@ -234,7 +234,7 @@ export default function About() {
                   variants={itemVariants}
                   whileHover={{ scale: 1.02 }}
                   transition={{ duration: 0.3 }}
-                  className="relative w-full lg:w-1/2 h-[600px] order-2 lg:order-2"
+                  className="relative w-full lg:w-1/2 h-[600px] order-2"
                 >
                   <Image
                     src="https://res.cloudinary.com/dygrsvya5/image/upload/f_auto/v1763659367/UPDATED_ABOUT_IMAGE_ogsr4o.jpg"

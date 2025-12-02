@@ -119,7 +119,7 @@ export default function Cart() {
                                 className="grid grid-cols-1 md:grid-cols-4 gap-6 p-6 border border-luxury-white/20"
                             >
                                 {/* Product Image */}
-                                <div className="md:col-span-1 relative w-full h-[200px] md:h-full">
+                                <div className="md:col-span-1 relative w-full h-[430px] md:h-full md:min-h-[180px]">
                                     <Image
                                         src={item.image}
                                         alt={item.name}
