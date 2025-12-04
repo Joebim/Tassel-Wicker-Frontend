@@ -296,7 +296,6 @@ export default function About() {
                     </motion.p>
                   </motion.div>
               
-
                 </div>
                 {/* Right Column - Image */}
 
