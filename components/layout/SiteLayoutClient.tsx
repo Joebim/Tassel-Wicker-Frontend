@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation';
 import Header from '@/components/common/Header';
 import Footer from '@/components/common/Footer';
 import ToastComponent from '@/components/common/Toast';
+import CountdownOverlay from '@/components/common/CountdownOverlay';
 
 export default function SiteLayoutClient({
     children,
@@ -27,6 +28,7 @@ export default function SiteLayoutClient({
 
     return (
         <div className="min-h-screen flex flex-col bg-white">
+            <CountdownOverlay />
             <div className="relative">
                 <Header showHeader={showHeader} />
                 <main className="flex-1">
