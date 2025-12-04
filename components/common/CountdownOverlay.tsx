@@ -157,7 +157,7 @@ export default function CountdownOverlay() {
                                         {/* Days */}
                                         <div className="flex flex-col items-center">
                                             <div className="relative w-full aspect-square max-w-[70px] sm:max-w-[90px] lg:max-w-[110px] mx-auto mb-2">
-                                                <div className="absolute inset-0 border border-brand-purple/40 rounded-sm"></div>
+                                                <div className="absolute inset-0 rounded-sm"></div>
                                                 <div className="absolute inset-0 flex items-center justify-center">
                                                     <span className="text-xl sm:text-2xl lg:text-3xl font-light text-luxury-white">
                                                         {timeLeft.days.toString().padStart(2, '0')}
@@ -172,7 +172,7 @@ export default function CountdownOverlay() {
                                         {/* Hours */}
                                         <div className="flex flex-col items-center">
                                             <div className="relative w-full aspect-square max-w-[70px] sm:max-w-[90px] lg:max-w-[110px] mx-auto mb-2">
-                                                <div className="absolute inset-0 border border-brand-purple/40 rounded-sm"></div>
+                                                <div className="absolute inset-0 rounded-sm"></div>
                                                 <div className="absolute inset-0 flex items-center justify-center">
                                                     <span className="text-xl sm:text-2xl lg:text-3xl font-light text-luxury-white">
                                                         {timeLeft.hours.toString().padStart(2, '0')}
@@ -187,7 +187,7 @@ export default function CountdownOverlay() {
                                         {/* Minutes */}
                                         <div className="flex flex-col items-center">
                                             <div className="relative w-full aspect-square max-w-[70px] sm:max-w-[90px] lg:max-w-[110px] mx-auto mb-2">
-                                                <div className="absolute inset-0 border border-brand-purple/40 rounded-sm"></div>
+                                                <div className="absolute inset-0 rounded-sm"></div>
                                                 <div className="absolute inset-0 flex items-center justify-center">
                                                     <span className="text-xl sm:text-2xl lg:text-3xl font-light text-luxury-white">
                                                         {timeLeft.minutes.toString().padStart(2, '0')}
@@ -202,7 +202,7 @@ export default function CountdownOverlay() {
                                         {/* Seconds */}
                                         <div className="flex flex-col items-center">
                                             <div className="relative w-full aspect-square max-w-[70px] sm:max-w-[90px] lg:max-w-[110px] mx-auto mb-2">
-                                                <div className="absolute inset-0 border border-brand-purple/40 rounded-sm"></div>
+                                                <div className="absolute inset-0 rounded-sm"></div>
                                                 <div className="absolute inset-0 flex items-center justify-center">
                                                     <span className="text-xl sm:text-2xl lg:text-3xl font-light text-luxury-white">
                                                         {timeLeft.seconds.toString().padStart(2, '0')}
