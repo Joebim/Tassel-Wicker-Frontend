@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import Image from 'next/image';
 import Logo from '@/assets/images/brand/tassel-wicker-logo.svg';
 
 export default function CountdownOverlay() {
@@ -29,10 +30,10 @@ export default function CountdownOverlay() {
         const calculateTimeLeft = () => {
             const now = new Date();
             const currentYear = now.getFullYear();
-            // Set target date to December 6th at 11:59:59 PM
-            const targetDate = new Date(currentYear, 11, 6, 23, 59, 59); // Month is 0-indexed, so 11 = December
+            // Set target date to December 5th at 11:59:59 PM
+            const targetDate = new Date(currentYear, 11, 5, 23, 59, 59); // Month is 0-indexed, so 11 = December
 
-            // If December 6th has already passed this year, target next year
+            // If December 5th has already passed this year, target next year
             if (now > targetDate) {
                 targetDate.setFullYear(currentYear + 1);
             }
@@ -105,9 +106,24 @@ export default function CountdownOverlay() {
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
                     transition={{ duration: 0.5 }}
-                    className="fixed inset-0 z-[9999] bg-luxury-black flex items-center justify-center"
+                    className="fixed inset-0 z-9999 bg-luxury-black flex items-center justify-center"
                 >
-                    <div className="relative w-full max-w-2xl mx-auto px-6 sm:px-8">
+                    {/* Background Image */}
+                    <div className="absolute inset-0 z-0">
+                        <Image
+                            src="https://res.cloudinary.com/dygrsvya5/image/upload/v1763661125/PROPOSED_HEADER_IMAGE_FOR_PRODUCT_PAGE_woxqv9.jpg"
+                            alt="Countdown Background"
+                            fill
+                            className="object-cover"
+                            priority
+                            sizes="100vw"
+                            fetchPriority="high"
+                        />
+                        {/* Transparent Black Overlay */}
+                        <div className="absolute inset-0 bg-black/70"></div>
+                    </div>
+
+                    <div className="relative z-10 w-full max-w-2xl mx-auto px-6 sm:px-8">
                         <motion.div
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
@@ -205,7 +221,7 @@ export default function CountdownOverlay() {
                             >
                                 <div className="h-px w-16 bg-brand-purple/50 mx-auto mb-4"></div>
                                 <p className="text-xs sm:text-sm text-luxury-cool-grey/80 font-extralight uppercase tracking-widest">
-                                    December 6th
+                                    December 5th
                                 </p>
                             </motion.div>
                         </motion.div>
