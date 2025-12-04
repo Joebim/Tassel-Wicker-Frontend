@@ -149,66 +149,71 @@ export default function CountdownOverlay() {
                                 initial={{ opacity: 0, scale: 0.95 }}
                                 animate={{ opacity: 1, scale: 1 }}
                                 transition={{ duration: 0.6, delay: 0.3 }}
-                                className="grid grid-cols-4 gap-4 sm:gap-5 lg:gap-6 max-w-xl mx-auto"
+                                className="max-w-xl mx-auto"
                             >
-                                {/* Days */}
-                                <div className="flex flex-col items-center">
-                                    <div className="relative w-full aspect-square max-w-[70px] sm:max-w-[90px] lg:max-w-[110px] mx-auto mb-2">
-                                        <div className="absolute inset-0 border border-brand-purple/40 rounded-sm"></div>
-                                        <div className="absolute inset-0 flex items-center justify-center">
-                                            <span className="text-xl sm:text-2xl lg:text-3xl font-extralight text-luxury-white">
-                                                {timeLeft.days.toString().padStart(2, '0')}
+                                {/* Frosted Glass Container */}
+                                <div className="backdrop-blur-md bg-white/10 rounded-2xl sm:rounded-3xl border border-white/20 p-6 sm:p-8 lg:p-10 shadow-2xl">
+                                    <div className="grid grid-cols-4 gap-4 sm:gap-5 lg:gap-6">
+                                        {/* Days */}
+                                        <div className="flex flex-col items-center">
+                                            <div className="relative w-full aspect-square max-w-[70px] sm:max-w-[90px] lg:max-w-[110px] mx-auto mb-2">
+                                                <div className="absolute inset-0 border border-brand-purple/40 rounded-sm"></div>
+                                                <div className="absolute inset-0 flex items-center justify-center">
+                                                    <span className="text-xl sm:text-2xl lg:text-3xl font-light text-luxury-white">
+                                                        {timeLeft.days.toString().padStart(2, '0')}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            <span className="text-[9px] sm:text-[10px] text-white/90 font-extralight uppercase tracking-wider">
+                                                Days
                                             </span>
                                         </div>
-                                    </div>
-                                    <span className="text-[9px] sm:text-[10px] text-luxury-cool-grey font-extralight uppercase tracking-wider">
-                                        Days
-                                    </span>
-                                </div>
 
-                                {/* Hours */}
-                                <div className="flex flex-col items-center">
-                                    <div className="relative w-full aspect-square max-w-[70px] sm:max-w-[90px] lg:max-w-[110px] mx-auto mb-2">
-                                        <div className="absolute inset-0 border border-brand-purple/40 rounded-sm"></div>
-                                        <div className="absolute inset-0 flex items-center justify-center">
-                                            <span className="text-xl sm:text-2xl lg:text-3xl font-extralight text-luxury-white">
-                                                {timeLeft.hours.toString().padStart(2, '0')}
+                                        {/* Hours */}
+                                        <div className="flex flex-col items-center">
+                                            <div className="relative w-full aspect-square max-w-[70px] sm:max-w-[90px] lg:max-w-[110px] mx-auto mb-2">
+                                                <div className="absolute inset-0 border border-brand-purple/40 rounded-sm"></div>
+                                                <div className="absolute inset-0 flex items-center justify-center">
+                                                    <span className="text-xl sm:text-2xl lg:text-3xl font-light text-luxury-white">
+                                                        {timeLeft.hours.toString().padStart(2, '0')}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            <span className="text-[9px] sm:text-[10px] text-white/90 font-extralight uppercase tracking-wider">
+                                                Hours
                                             </span>
                                         </div>
-                                    </div>
-                                    <span className="text-[9px] sm:text-[10px] text-luxury-cool-grey font-extralight uppercase tracking-wider">
-                                        Hours
-                                    </span>
-                                </div>
 
-                                {/* Minutes */}
-                                <div className="flex flex-col items-center">
-                                    <div className="relative w-full aspect-square max-w-[70px] sm:max-w-[90px] lg:max-w-[110px] mx-auto mb-2">
-                                        <div className="absolute inset-0 border border-brand-purple/40 rounded-sm"></div>
-                                        <div className="absolute inset-0 flex items-center justify-center">
-                                            <span className="text-xl sm:text-2xl lg:text-3xl font-extralight text-luxury-white">
-                                                {timeLeft.minutes.toString().padStart(2, '0')}
+                                        {/* Minutes */}
+                                        <div className="flex flex-col items-center">
+                                            <div className="relative w-full aspect-square max-w-[70px] sm:max-w-[90px] lg:max-w-[110px] mx-auto mb-2">
+                                                <div className="absolute inset-0 border border-brand-purple/40 rounded-sm"></div>
+                                                <div className="absolute inset-0 flex items-center justify-center">
+                                                    <span className="text-xl sm:text-2xl lg:text-3xl font-light text-luxury-white">
+                                                        {timeLeft.minutes.toString().padStart(2, '0')}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            <span className="text-[9px] sm:text-[10px] text-white/90 font-extralight uppercase tracking-wider">
+                                                Minutes
                                             </span>
                                         </div>
-                                    </div>
-                                    <span className="text-[9px] sm:text-[10px] text-luxury-cool-grey font-extralight uppercase tracking-wider">
-                                        Minutes
-                                    </span>
-                                </div>
 
-                                {/* Seconds */}
-                                <div className="flex flex-col items-center">
-                                    <div className="relative w-full aspect-square max-w-[70px] sm:max-w-[90px] lg:max-w-[110px] mx-auto mb-2">
-                                        <div className="absolute inset-0 border border-brand-purple/40 rounded-sm"></div>
-                                        <div className="absolute inset-0 flex items-center justify-center">
-                                            <span className="text-xl sm:text-2xl lg:text-3xl font-extralight text-luxury-white">
-                                                {timeLeft.seconds.toString().padStart(2, '0')}
+                                        {/* Seconds */}
+                                        <div className="flex flex-col items-center">
+                                            <div className="relative w-full aspect-square max-w-[70px] sm:max-w-[90px] lg:max-w-[110px] mx-auto mb-2">
+                                                <div className="absolute inset-0 border border-brand-purple/40 rounded-sm"></div>
+                                                <div className="absolute inset-0 flex items-center justify-center">
+                                                    <span className="text-xl sm:text-2xl lg:text-3xl font-light text-luxury-white">
+                                                        {timeLeft.seconds.toString().padStart(2, '0')}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            <span className="text-[9px] sm:text-[10px] text-white/90 font-extralight uppercase tracking-wider">
+                                                Seconds
                                             </span>
                                         </div>
                                     </div>
-                                    <span className="text-[9px] sm:text-[10px] text-luxury-cool-grey font-extralight uppercase tracking-wider">
-                                        Seconds
-                                    </span>
                                 </div>
                             </motion.div>
 
@@ -220,7 +225,7 @@ export default function CountdownOverlay() {
                                 className="pt-4"
                             >
                                 <div className="h-px w-16 bg-brand-purple/50 mx-auto mb-4"></div>
-                                <p className="text-xs sm:text-sm text-luxury-cool-grey/80 font-extralight uppercase tracking-widest">
+                                <p className="text-xs sm:text-sm text-white font-extralight uppercase tracking-widest">
                                     December 5th
                                 </p>
                             </motion.div>
