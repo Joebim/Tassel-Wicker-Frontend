@@ -30,10 +30,10 @@ export default function CountdownOverlay() {
         const calculateTimeLeft = () => {
             const now = new Date();
             const currentYear = now.getFullYear();
-            // Set target date to December 5th at 11:59:59 PM
-            const targetDate = new Date(currentYear, 11, 5, 23, 59, 59); // Month is 0-indexed, so 11 = December
+            // Set target date to December 15th at 11:59:59 PM
+            const targetDate = new Date(currentYear, 11, 15, 23, 59, 59); // Month is 0-indexed, so 11 = December
 
-            // If December 5th has already passed this year, target next year
+            // If December 15th has already passed this year, target next year
             if (now > targetDate) {
                 targetDate.setFullYear(currentYear + 1);
             }
@@ -226,7 +226,7 @@ export default function CountdownOverlay() {
                             >
                                 <div className="h-px w-16 bg-brand-purple/50 mx-auto mb-4"></div>
                                 <p className="text-xs sm:text-sm text-white font-extralight uppercase tracking-widest">
-                                    December 5th
+                                    December 15th
                                 </p>
                             </motion.div>
                         </motion.div>
