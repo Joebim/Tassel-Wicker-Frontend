@@ -199,6 +199,7 @@ export default function CountdownOverlay() {
                                             </span>
                                         </div>
 
+
                                         {/* Seconds */}
                                         <div className="flex flex-col items-center">
                                             <div className="relative w-full aspect-square max-w-[70px] sm:max-w-[90px] lg:max-w-[110px] mx-auto mb-2">
