@@ -1,9 +1,11 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Image from 'next/image';
 import Logo from '@/assets/images/brand/tassel-wicker-logo.svg';
+
+const STORAGE_KEY = 'tassel-wicker-show-timer';
 
 export default function CountdownOverlay() {
     const [timeLeft, setTimeLeft] = useState({
@@ -14,6 +16,8 @@ export default function CountdownOverlay() {
     });
     const [isVisible, setIsVisible] = useState(false);
     const [isMounted, setIsMounted] = useState(false);
+    const [shouldHideTimer, setShouldHideTimer] = useState(false);
+    const hideTimerRef = useRef(false);
 
     useEffect(() => {
         // Defer state update to avoid synchronous setState in effect
@@ -26,6 +30,33 @@ export default function CountdownOverlay() {
     useEffect(() => {
         // Only run on client side after mounting
         if (typeof window === 'undefined' || !isMounted) return;
+
+        // Check query parameter for showTimer
+        const urlParams = new URLSearchParams(window.location.search);
+        const showTimerParam = urlParams.get('showTimer');
+
+        // Check localStorage for saved preference
+        const savedPreference = localStorage.getItem(STORAGE_KEY);
+
+        // Determine if timer should be hidden
+        // If showTimer=false in query param, hide it and save to localStorage
+        // If showTimer is saved as false in localStorage, hide it
+        // Otherwise, show the timer (if countdown hasn't ended)
+        let hideTimer = false;
+
+        if (showTimerParam === 'false') {
+            hideTimer = true;
+            // Save to localStorage so admin users don't see it on future visits
+            localStorage.setItem(STORAGE_KEY, 'false');
+        } else if (savedPreference === 'false') {
+            hideTimer = true;
+        }
+
+        // Defer state update to avoid synchronous setState in effect
+        hideTimerRef.current = hideTimer;
+        setTimeout(() => {
+            setShouldHideTimer(hideTimer);
+        }, 0);
 
         const calculateTimeLeft = () => {
             const now = new Date();
@@ -62,7 +93,8 @@ export default function CountdownOverlay() {
                 minutes: initialTime.minutes,
                 seconds: initialTime.seconds,
             });
-            setIsVisible(initialTime.shouldShow);
+            // Only show if countdown hasn't ended AND timer shouldn't be hidden
+            setIsVisible(initialTime.shouldShow && !hideTimer);
         }, 0);
 
         // Update every second
@@ -75,8 +107,8 @@ export default function CountdownOverlay() {
                 seconds: newTime.seconds,
             });
 
-            // Hide when countdown reaches exactly zero
-            if (!newTime.shouldShow) {
+            // Hide when countdown reaches exactly zero OR if timer should be hidden
+            if (!newTime.shouldShow || hideTimerRef.current) {
                 setIsVisible(false);
                 clearInterval(interval);
             }
@@ -86,7 +118,7 @@ export default function CountdownOverlay() {
             clearTimeout(timer);
             clearInterval(interval);
         };
-    }, [isMounted]);
+    }, [isMounted, shouldHideTimer]);
 
     // Don't render anything during SSR - return null until mounted
     if (!isMounted) {
@@ -111,7 +143,7 @@ export default function CountdownOverlay() {
                     {/* Background Image */}
                     <div className="absolute inset-0 z-0">
                         <Image
-                            src="https://res.cloudinary.com/dygrsvya5/image/upload/v1763661125/PROPOSED_HEADER_IMAGE_FOR_PRODUCT_PAGE_woxqv9.jpg"
+                            src="/images/headers/countdown-header.jpg"
                             alt="Countdown Background"
                             fill
                             className="object-cover"

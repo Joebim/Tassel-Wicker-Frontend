@@ -117,7 +117,7 @@ export default function About() {
         <div className="relative h-screen w-full overflow-hidden bg-black">
           <div className="absolute inset-0 z-0">
             <Image
-              src="https://res.cloudinary.com/dygrsvya5/image/upload/f_auto/v1761542804/IMAGE_SEVEN_w8mzsc.jpg"
+              src="/images/headers/about-header-alt.jpg"
               alt="About Header"
               fill
               className="object-cover"
@@ -137,7 +137,7 @@ export default function About() {
       <div className="relative h-screen w-full overflow-hidden bg-black">
         <div className="absolute inset-0 z-0">
           <Image
-            src="https://res.cloudinary.com/dygrsvya5/image/upload/f_auto/v1761542804/IMAGE_SEVEN_w8mzsc.jpg"
+            src="/images/headers/about-header-alt.jpg"
             alt="About Header"
             fill
             className="object-cover"
@@ -274,7 +274,7 @@ export default function About() {
                     className="relative w-full h-[600px] order-2"
                   >
                     <Image
-                      src="https://res.cloudinary.com/dygrsvya5/image/upload/f_auto/v1763659367/UPDATED_ABOUT_IMAGE_ogsr4o.jpg"
+                      src="/images/about/my-why.jpg"
                       alt="My Why"
                       fill
                       className="object-cover"
@@ -311,7 +311,7 @@ export default function About() {
                   className="lg:order-1 order-4 relative w-full h-[600px]"
                 >
                   <Image
-                    src="https://res.cloudinary.com/dygrsvya5/image/upload/f_auto/v1764234195/STACKED_BASKETS_h4nxfk.jpg"
+                    src="/images/about/stacked-baskets.jpg"
                     alt="Signature Celebration Basket"
                     fill
                     className="object-cover"

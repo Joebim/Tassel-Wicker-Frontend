@@ -10,31 +10,31 @@ const routeResources: Record<string, { images?: string[]; videos?: string[] }> =
     videos: ['/videos/loop-video.mp4'],
   },
   '/shop': {
-    images: ['https://res.cloudinary.com/dygrsvya5/image/upload/f_auto/v1761524366/PROPOSED_HEADER_IMAGE_FOR_PRODUCT_PAGE_mdcg8y.jpg'],
+    images: ['/images/headers/shop-header.jpg'],
   },
   '/contact': {
-    images: ['https://res.cloudinary.com/dygrsvya5/image/upload/f_auto/v1761149638/_2MK9323_vyzwqm.jpg'],
+    images: ['/images/headers/contact-header.jpg'],
   },
   '/about': {
-    images: ['https://res.cloudinary.com/dygrsvya5/image/upload/f_auto/v1761542804/IMAGE_SEVEN_w8mzsc.jpg'],
+    images: ['/images/headers/about-header-alt.jpg'],
   },
   '/terms-of-service': {
-    images: ['https://res.cloudinary.com/dygrsvya5/image/upload/f_auto/v1764234390/_2MK9067_xy8vh2.jpg', 'https://res.cloudinary.com/dygrsvya5/image/upload/f_auto/v1764506821/TERMS_OF_SERVICE_MOBILE_uhkiez.jpg'],
+    images: ['/images/headers/terms-header-desktop.jpg', '/images/headers/terms-header-mobile.jpg'],
   },
   '/cookie-policy': {
-    images: ['https://res.cloudinary.com/dygrsvya5/image/upload/f_auto/v1763661133/COOKIE_POLICY_syh1yx.jpg'],
+    images: ['/images/headers/cookie-policy-header.jpg'],
   },
   '/privacy-policy': {
-    images: ['https://res.cloudinary.com/dygrsvya5/image/upload/f_auto/v1763661131/PRIVACY_POLICY_ntaqhz.jpg'],
+    images: ['/images/headers/privacy-policy-header.jpg'],
   },
   '/returns': {
-    images: ['https://res.cloudinary.com/dygrsvya5/image/upload/f_auto/v1763661126/RETURNS_AND_EXCHANGE_1_oubewa.jpg'],
+    images: ['/images/headers/returns-header.jpg'],
   },
   '/shipping': {
-    images: ['https://res.cloudinary.com/dygrsvya5/image/upload/f_auto/v1763659377/SHIPPING_INFORMATION_ipsodq.jpg'],
+    images: ['/images/headers/shipping-header.jpg'],
   },
   '/corporate-bespoke': {
-    images: ['https://res.cloudinary.com/dygrsvya5/image/upload/f_auto/v1761542830/IMAGE_FIVE_c3hzmh.jpg', 'https://res.cloudinary.com/dygrsvya5/image/upload/f_auto/v1764234469/_2MK9038_zdzsag.jpg'],
+    images: ['/images/headers/corporate-bespoke-header.jpg', '/images/headers/corporate-bespoke-header-mobile.jpg'],
   },
 };
 

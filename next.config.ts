@@ -3,6 +3,8 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   // Image optimization configuration
   images: {
+    // Images are now hosted locally in /public/images
+    // Keeping Cloudinary remotePattern for videos that may still use it
     remotePatterns: [
       {
         protocol: 'https',

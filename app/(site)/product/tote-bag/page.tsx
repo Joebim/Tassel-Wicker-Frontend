@@ -22,7 +22,7 @@ export default function ToteBagDetail() {
         id: '4',
         name: 'Branded Tote Bag',
         price: 63,
-        image: 'https://res.cloudinary.com/dygrsvya5/image/upload/f_auto/v1761525451/BRANDED_TOTE_BAG_jno028.jpg',
+        image: '/images/products/branded-tote-bag.jpg',
         category: 'Accessories',
         description: 'Made from recycled cotton and polyester, this unisex, lightweight and durable bag is built for everyday use. Its simple, timeless design makes it a practical and sustainable choice.',
         details: {

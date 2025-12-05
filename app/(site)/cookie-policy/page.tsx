@@ -83,7 +83,7 @@ export default function CookiePolicy() {
             <section className="relative h-screen w-full overflow-hidden bg-black">
                 <div className="absolute inset-0 z-0">
                     <Image
-                        src="https://res.cloudinary.com/dygrsvya5/image/upload/f_auto/v1763661133/COOKIE_POLICY_syh1yx.jpg"
+                        src="/images/headers/cookie-policy-header.jpg"
                         alt="Cookie Policy"
                         fill
                         className="object-cover"

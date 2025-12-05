@@ -22,8 +22,8 @@ export default function CorporateBespoke() {
 
     // Set image source based on screen size
     const heroImageSrc = isDesktop
-        ? 'https://res.cloudinary.com/dygrsvya5/image/upload/f_auto/v1761542830/IMAGE_FIVE_c3hzmh.jpg'
-        : 'https://res.cloudinary.com/dygrsvya5/image/upload/f_auto/v1764234469/_2MK9038_zdzsag.jpg';
+        ? '/images/headers/corporate-bespoke-header.jpg'
+        : '/images/headers/corporate-bespoke-header-mobile.jpg';
 
     useEffect(() => {
         if (typeof window !== 'undefined') {

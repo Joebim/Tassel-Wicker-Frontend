@@ -314,8 +314,8 @@ export default function BuildYourBasket() {
             name: `Custom ${currentBasket.basketType === 'natural' ? 'Natural' : 'Black'} Basket`,
             price: finalPrice, // This includes the £60 basket price
             image: currentBasket.basketType === 'natural'
-                ? 'https://res.cloudinary.com/dygrsvya5/image/upload/f_auto/v1761523697/WICKER_BASKET_jy5cs6.jpg'
-                : 'https://res.cloudinary.com/dygrsvya5/image/upload/f_auto/v1761523728/BLACK_WICKER_BASKET_xhdnno.jpg',
+                ? '/images/products/wicker-basket.jpg'
+                : '/images/products/black-wicker-basket.jpg',
             category: 'Custom Basket',
             description: `Custom basket with ${currentBasket.selectedItems.length} selected items (includes wicker basket)`,
             customItems: currentBasket.selectedItems
@@ -429,7 +429,7 @@ export default function BuildYourBasket() {
                             >
                                 <div className="aspect-square overflow-hidden relative">
                                     <Image
-                                        src="https://res.cloudinary.com/dygrsvya5/image/upload/f_auto/v1761523697/WICKER_BASKET_jy5cs6.jpg"
+                                        src="/images/products/wicker-basket.jpg"
                                         alt="Natural Wicker Basket"
                                         fill
                                         className="object-cover hover:scale-105 transition-transform duration-300"
@@ -455,7 +455,7 @@ export default function BuildYourBasket() {
                             >
                                 <div className="aspect-square overflow-hidden relative">
                                     <Image
-                                        src="https://res.cloudinary.com/dygrsvya5/image/upload/f_auto/v1761523728/BLACK_WICKER_BASKET_xhdnno.jpg"
+                                        src="/images/products/black-wicker-basket.jpg"
                                         alt="Black Wicker Basket"
                                         fill
                                         className="object-cover hover:scale-105 transition-transform duration-300"

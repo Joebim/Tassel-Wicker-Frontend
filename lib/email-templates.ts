@@ -48,7 +48,7 @@ function getBaseEmailTemplate(content: string, title?: string): string {
                     <!-- Header -->
                     <tr>
                         <td style="padding: 40px 40px 30px; text-align: center; background-color: #4c062c;">
-                            <img src="https://res.cloudinary.com/dygrsvya5/image/upload/v1764500935/TASSEL_WICKER_LOGO_PRIMARY_qdzl6u.png" alt="Tassel & Wicker" style="max-width: 200px; height: auto; margin: 0 auto 20px; display: block;" />
+                            <img src="https://www.tasselandwicker.com/images/brand/logo-primary.png" alt="Tassel & Wicker" style="max-width: 200px; height: auto; margin: 0 auto 20px; display: block;" />
                             ${
                               title
                                 ? `<p style="margin: 10px 0 0; color: #ffffff; font-size: 14px; font-weight: 200; letter-spacing: 1px; text-transform: uppercase;">${title}</p>`
@@ -67,7 +67,7 @@ function getBaseEmailTemplate(content: string, title?: string): string {
                     <!-- Footer -->
                     <tr>
                         <td style="padding: 30px 40px; background-color: #4c062c; text-align: center;">
-                            <img src="https://res.cloudinary.com/dygrsvya5/image/upload/v1764500935/TASSEL_WICKER_LOGO_PRIMARY_qdzl6u.png" alt="Tassel & Wicker" style="max-width: 150px; height: auto; margin: 0 auto 10px; display: block; filter: brightness(0) invert(1);" />
+                            <img src="https://www.tasselandwicker.com/images/brand/logo-primary.png" alt="Tassel & Wicker" style="max-width: 150px; height: auto; margin: 0 auto 10px; display: block; filter: brightness(0) invert(1);" />
                             <p style="margin: 5px 0 0; color: #ffffff; font-size: 11px; font-weight: 200;">
                                 Wicker Gift Baskets & Lifestyle Essentials
                             </p>

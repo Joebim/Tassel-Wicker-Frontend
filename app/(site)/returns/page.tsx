@@ -19,7 +19,7 @@ export default function ReturnsExchanges() {
             <section className="relative h-screen w-full overflow-hidden bg-black">
                 <div className="absolute inset-0 z-0">
                     <Image
-                        src="https://res.cloudinary.com/dygrsvya5/image/upload/f_auto/v1763661126/RETURNS_AND_EXCHANGE_1_oubewa.jpg"
+                        src="/images/headers/returns-header.jpg"
                         alt="Returns and exchanges"
                         fill
                         className="object-cover"
