@@ -125,6 +125,7 @@ const Header: React.FC<HeaderProps> = ({ showHeader = true }) => {
                                                 <p className="text-sm font-extralight text-luxury-black">{user.displayName || 'User'}</p>
                                                 <p className="text-xs text-luxury-cool-grey">{user.email}</p>
                                             </div>
+                                            
                                             <button
                                                 onClick={handleLogout}
                                                 className="block w-full text-left px-4 py-2 text-sm text-luxury-black hover:bg-luxury-warm-grey/10 font-extralight uppercase"
