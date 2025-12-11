@@ -263,38 +263,38 @@ export default function About() {
                       >
                         My vision is for Tassel & Wicker to stand as a symbol of thoughtfulness; a reminder to celebrate everyday moments and surround ourselves with quality pieces that bring joy and meaning. Through every product and experience, I hope to inspire a way of living that feels elevated, joyful and deeply considered.
                       </motion.p>
-                    </motion.div>
+                </motion.div>
                   </div>
                 </div>
                 <div className="flex flex-col-reverse flex-1 gap-6">
-                  <motion.div
-                    variants={itemVariants}
-                    whileHover={{ scale: 1.02 }}
-                    transition={{ duration: 0.3 }}
+                <motion.div
+                  variants={itemVariants}
+                  whileHover={{ scale: 1.02 }}
+                  transition={{ duration: 0.3 }}
                     className="relative w-full h-[600px] order-2"
-                  >
-                    <Image
+                >
+                  <Image
                       src="/images/about/my-why.jpg"
-                      alt="My Why"
-                      fill
-                      className="object-cover"
-                    />
-                  </motion.div>
+                    alt="My Why"
+                    fill
+                    className="object-cover"
+                  />
+                </motion.div>
                   <motion.div variants={itemVariants} className="mt-0">
-                    <motion.p
+                  <motion.p
                       className="text-lg sm:hidden block text-gray-600 mb-6 leading-relaxed font-extralight"
-                      variants={itemVariants}
-                    >
-                      Tassel & Wicker was created from a love for the little things that make life feel elevated and intentional. Think soft woven throw blankets, polished crystals, marble coasters, tin cookies, incense cones, tassel key chains, linen notepads, duck feather cushions…little tokens of comfort that slow us down, center us and help transform an ordinary space into a sanctuary of calm and creativity.
-                    </motion.p>
+                    variants={itemVariants}
+                  >
+                    Tassel & Wicker was created from a love for the little things that make life feel elevated and intentional. Think soft woven throw blankets, polished crystals, marble coasters, tin cookies, incense cones, tassel key chains, linen notepads, duck feather cushions…little tokens of comfort that slow us down, center us and help transform an ordinary space into a sanctuary of calm and creativity.
+                  </motion.p>
 
-                    <motion.p
+                  <motion.p
                       className="text-lg sm:hidden block text-gray-600 leading-relaxed font-extralight"
-                      variants={itemVariants}
-                    >
-                      My vision is for Tassel & Wicker to stand as a symbol of thoughtfulness; a reminder to celebrate everyday moments and surround ourselves with quality pieces that bring joy and meaning. Through every product and experience, I hope to inspire a way of living that feels elevated, joyful and deeply considered.
-                    </motion.p>
-                  </motion.div>
+                    variants={itemVariants}
+                  >
+                    My vision is for Tassel & Wicker to stand as a symbol of thoughtfulness; a reminder to celebrate everyday moments and surround ourselves with quality pieces that bring joy and meaning. Through every product and experience, I hope to inspire a way of living that feels elevated, joyful and deeply considered.
+                  </motion.p>
+                </motion.div>
               
                 </div>
                 {/* Right Column - Image */}

@@ -377,6 +377,14 @@ export default function Checkout() {
         }
     }, [items.length, router]);
 
+    // Auto-select checkout option for logged-in users
+    useEffect(() => {
+        if (hasHydrated && user && !checkoutOption) {
+            // Automatically proceed to checkout if user is logged in
+            setCheckoutOption('signin');
+        }
+    }, [hasHydrated, user, checkoutOption]);
+
     // Handle checkout option selection
     const handleCheckoutOptionSelect = (option: 'signin' | 'guest') => {
         setCheckoutOption(option);
@@ -533,8 +541,9 @@ export default function Checkout() {
         );
     }
 
-    // Show checkout options if not selected yet
-    if (!checkoutOption) {
+    // Show checkout options only if not selected yet AND user is not logged in
+    // If user is logged in, we'll skip this and go directly to checkout
+    if (!checkoutOption && !user) {
         return (
             <div className="min-h-screen bg-white text-luxury-black">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24">
@@ -550,6 +559,19 @@ export default function Checkout() {
                     <div className="bg-white p-8 border border-luxury-warm-grey/20 rounded-lg">
                         <CheckoutOptions onSelect={handleCheckoutOptionSelect} />
                     </div>
+                </div>
+            </div>
+        );
+    }
+
+    // Show loading state if user is logged in but checkoutOption hasn't been set yet
+    if (user && !checkoutOption) {
+        return (
+            <div className="min-h-screen bg-white flex items-center justify-center">
+                <div className="text-center">
+                    <p className="text-luxury-cool-grey font-extralight">
+                        Loading checkout...
+                    </p>
                 </div>
             </div>
         );
