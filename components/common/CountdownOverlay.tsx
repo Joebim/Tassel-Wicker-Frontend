@@ -35,9 +35,12 @@ export default function CountdownOverlay() {
         const urlParams = new URLSearchParams(window.location.search);
         const showTimerParam = urlParams.get('showTimer');
 
+        // Check localStorage for saved preference
+        const savedPreference = localStorage.getItem(STORAGE_KEY);
+
         // Determine if timer should be hidden
         // If showTimer=false in query param, hide it and save to localStorage
-        // If no showTimer query param (normal link), clear localStorage and show timer
+        // If showTimer is saved as false in localStorage, hide it
         // Otherwise, show the timer (if countdown hasn't ended)
         let hideTimer = false;
 
@@ -45,10 +48,8 @@ export default function CountdownOverlay() {
             hideTimer = true;
             // Save to localStorage so admin users don't see it on future visits
             localStorage.setItem(STORAGE_KEY, 'false');
-        } else {
-            // Normal link without ?showTimer=false - clear localStorage and show timer
-            localStorage.removeItem(STORAGE_KEY);
-            hideTimer = false;
+        } else if (savedPreference === 'false') {
+            hideTimer = true;
         }
 
         // Defer state update to avoid synchronous setState in effect
