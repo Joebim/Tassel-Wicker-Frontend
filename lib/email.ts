@@ -140,15 +140,20 @@ export async function sendEmail(config: EmailConfig): Promise<{
     });
 
     if (error) {
+      // Handle error - Resend error might be ErrorResponse type
+      const errorObj = error as any;
+      const errorMessage = errorObj?.message || "Failed to send email";
+      
       console.error(`${logPrefix} RESEND API ERROR:`, {
         error: error,
-        errorMessage: error.message || "No error message",
-        errorName: error.name || "No error name",
-        errorStack: error instanceof Error ? error.stack : "No stack trace",
+        errorMessage: errorMessage,
+        errorType: typeof error,
+        errorString: String(error),
       });
+      
       return {
         success: false,
-        error: error.message || "Failed to send email",
+        error: errorMessage,
       };
     }
 
