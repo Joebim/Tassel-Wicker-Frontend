@@ -659,24 +659,6 @@ export const shopProducts: ShopProduct[] = [
         "Our team is available at info@tasselandwicker.com if you need guidance curating your basket.",
     },
   },
-  {
-    id: "4",
-    name: "Branded Tote Bag",
-    price: 63,
-    image:
-      "/images/products/branded-tote-bag.jpg",
-    category: "Accessories",
-    description:
-      "Made from recycled cotton and polyester, this unisex, lightweight and durable bag is built for everyday use. Its simple, timeless design makes it a practical and sustainable choice.",
-    isNew: true,
-    isFeatured: false,
-    details: {
-      composition: "80% recycled cotton, 20% recycled polyester canvas",
-      dimensions: "37 x 49 x 14cm",
-      size: "One size",
-      weight: "300 GSM",
-    },
-  },
 ];
 
 export const getAllProducts = (): ProductDataItem[] => {

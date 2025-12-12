@@ -48,10 +48,10 @@ function getBaseEmailTemplate(content: string, title?: string): string {
                     <!-- Header -->
                     <tr>
                         <td style="padding: 40px 40px 30px; text-align: center; background-color: #4c062c;">
-                            <img src="https://www.tasselandwicker.com/images/brand/logo-primary.png" alt="Tassel & Wicker" style="max-width: 200px; height: auto; margin: 0 auto 20px; display: block;" />
+                            <img src="https://res.cloudinary.com/dtaegi6gk/image/upload/v1765549381/TASSEL_WICKER_LOGO_PRIMARY_kwe6pc.png" alt="Tassel & Wicker" style="max-width: 200px; height: auto; margin: 0 auto 20px; display: block;" />
                             ${
                               title
-                                ? `<p style="margin: 10px 0 0; color: #ffffff; font-size: 14px; font-weight: 200; letter-spacing: 1px; text-transform: uppercase;">${title}</p>`
+                                ? `<p style="margin: 10px 0 0; color: #ffffff; font-size: 14px; font-weight: 200; letter-spacing: 1px; text-transform: uppercase; font-family: 'Balgin', 'Mathilda', system-ui, sans-serif;">${title}</p>`
                                 : ""
                             }
                         </td>
@@ -67,7 +67,7 @@ function getBaseEmailTemplate(content: string, title?: string): string {
                     <!-- Footer -->
                     <tr>
                         <td style="padding: 30px 40px; background-color: #4c062c; text-align: center;">
-                            <img src="https://www.tasselandwicker.com/images/brand/logo-primary.png" alt="Tassel & Wicker" style="max-width: 150px; height: auto; margin: 0 auto 10px; display: block; filter: brightness(0) invert(1);" />
+                            <img src="https://res.cloudinary.com/dtaegi6gk/image/upload/v1765549381/TASSEL_WICKER_LOGO_PRIMARY_kwe6pc.png" alt="Tassel & Wicker" style="max-width: 150px; height: auto; margin: 0 auto 10px; display: block; filter: brightness(0) invert(1);" />
                             <p style="margin: 5px 0 0; color: #ffffff; font-size: 11px; font-weight: 200;">
                                 Wicker Gift Baskets & Lifestyle Essentials
                             </p>
@@ -145,16 +145,14 @@ export function createOrderConfirmationEmailTemplate(
   order: OrderDetails
 ): string {
   // Always format prices in GBP - Stripe handles conversion during checkout
-  const formatPrice = (amount: number, currency: string): string => {
+  const formatPrice = (amount: number, _currency: string): string => {
     // Always use GBP symbol regardless of currency parameter
     return `£${amount.toFixed(2)}`;
   };
 
   // Capitalize first letter of customer name
-  const capitalizedName = order.customerName.charAt(0).toUpperCase() + order.customerName.slice(1);
-  
-  // Generate a simpler order number (numeric only)
-  const simpleOrderNumber = order.orderId.replace(/[^0-9]/g, '').slice(-8) || order.orderId;
+  const capitalizedName =
+    order.customerName.charAt(0).toUpperCase() + order.customerName.slice(1);
 
   const itemsList = order.items
     .map(
@@ -177,28 +175,30 @@ export function createOrderConfirmationEmailTemplate(
 
   const shippingInfo = order.shippingAddress
     ? `
-        <tr>
-            <td style="padding: 15px 0; border-bottom: 1px solid #e6e6e6;">
-                <p style="margin: 0; color: #6b6b6b; font-size: 12px; font-weight: 200; text-transform: uppercase; letter-spacing: 1px;">
-                    Shipping Address
-                </p>
-                <p style="margin: 5px 0 0; color: #1a1a1a; font-size: 16px; font-weight: 200; line-height: 1.6;">
-                    ${order.shippingAddress.name}<br>
-                    ${order.shippingAddress.address}<br>
-                    ${order.shippingAddress.city}, ${order.shippingAddress.postalCode}<br>
-                    ${order.shippingAddress.country}
-                </p>
-            </td>
-        </tr>
+        <table role="presentation" style="width: 100%; border-collapse: collapse; margin-bottom: 30px;">
+            <tr>
+                <td style="padding: 15px 0; border-bottom: 1px solid #e6e6e6;">
+                    <p style="margin: 0; color: #6b6b6b; font-size: 12px; font-weight: 200; text-transform: uppercase; letter-spacing: 1px; font-family: 'Balgin', 'Mathilda', system-ui, sans-serif;">
+                        Shipping Address
+                    </p>
+                    <p style="margin: 5px 0 0; color: #1a1a1a; font-size: 16px; font-weight: 200; line-height: 1.6; font-family: 'Balgin', 'Mathilda', system-ui, sans-serif;">
+                        ${order.shippingAddress.name}<br>
+                        ${order.shippingAddress.address}<br>
+                        ${order.shippingAddress.city}, ${order.shippingAddress.postalCode}<br>
+                        ${order.shippingAddress.country}
+                    </p>
+                </td>
+            </tr>
+        </table>
     `
     : "";
 
   const content = `
-    <p style="margin: 0 0 30px; color: #1a1a1a; font-size: 16px; font-weight: 200; line-height: 1.6;">
-        Dear ${order.customerName},
+    <p style="margin: 0 0 30px; color: #1a1a1a; font-size: 16px; font-weight: 200; line-height: 1.6; font-family: 'Balgin', 'Mathilda', system-ui, sans-serif;">
+        Dear ${capitalizedName},
     </p>
     
-    <p style="margin: 0 0 30px; color: #1a1a1a; font-size: 16px; font-weight: 200; line-height: 1.6;">
+    <p style="margin: 0 0 30px; color: #1a1a1a; font-size: 16px; font-weight: 200; line-height: 1.6; font-family: 'Balgin', 'Mathilda', system-ui, sans-serif;">
         Thank you for your order! We're delighted to confirm that your order has been received and is being processed.
     </p>
     
@@ -207,7 +207,7 @@ export function createOrderConfirmationEmailTemplate(
             Order Number
         </p>
         <p style="margin: 0; color: #4c062c; font-size: 24px; font-weight: 200; letter-spacing: 2px;">
-            ${simpleOrderNumber}
+            ${order.orderId}
         </p>
         ${
           order.orderDate
@@ -239,16 +239,18 @@ export function createOrderConfirmationEmailTemplate(
     ${
       order.paymentMethod
         ? `
-        <tr>
-            <td style="padding: 15px 0; border-bottom: 1px solid #e6e6e6;">
-                <p style="margin: 0; color: #6b6b6b; font-size: 12px; font-weight: 200; text-transform: uppercase; letter-spacing: 1px;">
-                    Payment Method
-                </p>
-                <p style="margin: 5px 0 0; color: #1a1a1a; font-size: 16px; font-weight: 200;">
-                    ${order.paymentMethod}
-                </p>
-            </td>
-        </tr>
+        <table role="presentation" style="width: 100%; border-collapse: collapse; margin-bottom: 30px;">
+            <tr>
+                <td style="padding: 15px 0; border-bottom: 1px solid #e6e6e6;">
+                    <p style="margin: 0; color: #6b6b6b; font-size: 12px; font-weight: 200; text-transform: uppercase; letter-spacing: 1px; font-family: 'Balgin', 'Mathilda', system-ui, sans-serif;">
+                        Payment Method
+                    </p>
+                    <p style="margin: 5px 0 0; color: #1a1a1a; font-size: 16px; font-weight: 200; font-family: 'Balgin', 'Mathilda', system-ui, sans-serif;">
+                        ${order.paymentMethod}
+                    </p>
+                </td>
+            </tr>
+        </table>
     `
         : ""
     }
@@ -263,8 +265,8 @@ export function createOrderConfirmationEmailTemplate(
     </div>
     
     <div style="margin-top: 40px; padding-top: 30px; border-top: 1px solid #e6e6e6;">
-        <p style="margin: 0; color: #6b6b6b; font-size: 12px; font-weight: 200; text-align: center; text-transform: uppercase;">
-            Thank you for choosing Tassel & Wicker.
+        <p style="margin: 0; color: #6b6b6b; font-size: 12px; font-weight: 200; text-align: center; text-transform: uppercase; font-family: 'Balgin', 'Mathilda', system-ui, sans-serif;">
+            THANK YOU FOR CHOOSING TASSEL & WICKER
         </p>
     </div>
   `;
@@ -279,20 +281,21 @@ export function createPaymentConfirmationEmailTemplate(
   order: OrderDetails
 ): string {
   // Always format prices in GBP - Stripe handles conversion during checkout
-  const formatPrice = (amount: number, currency: string): string => {
+  const formatPrice = (amount: number, _currency: string): string => {
     // Always use GBP symbol regardless of currency parameter
     return `£${amount.toFixed(2)}`;
   };
 
   // Capitalize first letter of customer name
-  const capitalizedName = order.customerName.charAt(0).toUpperCase() + order.customerName.slice(1);
+  const capitalizedName =
+    order.customerName.charAt(0).toUpperCase() + order.customerName.slice(1);
 
   const content = `
-    <p style="margin: 0 0 30px; color: #1a1a1a; font-size: 16px; font-weight: 200; line-height: 1.6;">
+    <p style="margin: 0 0 30px; color: #1a1a1a; font-size: 16px; font-weight: 200; line-height: 1.6; font-family: 'Balgin', 'Mathilda', system-ui, sans-serif;">
         Dear ${capitalizedName},
     </p>
     
-    <p style="margin: 0 0 30px; color: #1a1a1a; font-size: 16px; font-weight: 200; line-height: 1.6;">
+    <p style="margin: 0 0 30px; color: #1a1a1a; font-size: 16px; font-weight: 200; line-height: 1.6; font-family: 'Balgin', 'Mathilda', system-ui, sans-serif;">
         We are pleased to confirm that your payment of <strong>${formatPrice(
           order.totalAmount,
           order.currency
@@ -305,13 +308,13 @@ export function createPaymentConfirmationEmailTemplate(
         </p>
     </div>
     
-    <p style="margin: 0 0 30px; color: #1a1a1a; font-size: 16px; font-weight: 200; line-height: 1.6;">
+    <p style="margin: 0 0 30px; color: #1a1a1a; font-size: 16px; font-weight: 200; line-height: 1.6; font-family: 'Balgin', 'Mathilda', system-ui, sans-serif;">
         Your order is now being prepared for shipment. You will receive a shipping confirmation email with tracking details once your items are on their way.
     </p>
     
     <div style="margin-top: 40px; padding-top: 30px; border-top: 1px solid #e6e6e6;">
-        <p style="margin: 0; color: #6b6b6b; font-size: 12px; font-weight: 200; text-align: center;">
-            You can contact us at <a href="mailto:info@tasselandwicker.com" style="color: #4c062c; text-decoration: none;">info@tasselandwicker.com</a> if you have any questions.
+        <p style="margin: 0; color: #6b6b6b; font-size: 12px; font-weight: 200; text-align: center; font-family: 'Balgin', 'Mathilda', system-ui, sans-serif;">
+            You can contact us at <a href="mailto:info@tasselandwicker.com" style="color: #4c062c; text-decoration: none; font-family: 'Balgin', 'Mathilda', system-ui, sans-serif;">info@tasselandwicker.com</a> if you have any questions.
         </p>
     </div>
   `;

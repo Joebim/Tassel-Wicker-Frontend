@@ -127,7 +127,7 @@ const Footer: React.FC = () => {
                         <ul className="space-y-3">
                             <li>
                                 <Link href="/shipping" className="text-luxury-warm-grey hover:text-brand-cream transition-colors duration-200 text-sm font-extralight uppercase">
-                                    Shipping Info
+                                    Shipping Information
                                 </Link>
                             </li>
                             <li>

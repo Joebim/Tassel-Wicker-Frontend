@@ -42,6 +42,7 @@ export default function BuildYourBasket() {
     const [showOverlay, setShowOverlay] = useState(!currentBasket);
     const [selectedProduct, setSelectedProduct] = useState<typeof allProducts[0] | null>(null);
     const [modalVariantIndex, setModalVariantIndex] = useState<Record<string, number>>({});
+    const [selectedBasketType, setSelectedBasketType] = useState<'natural' | 'black' | null>(null);
 
     useEffect(() => {
         if (currentBasket) {
@@ -79,6 +80,11 @@ export default function BuildYourBasket() {
 
     const handleBasketTypeSelect = (type: 'natural' | 'black') => {
         setBasketType(type);
+        setSelectedBasketType(null);
+    };
+
+    const handleBasketClick = (type: 'natural' | 'black') => {
+        setSelectedBasketType(type);
     };
 
     const handleAddItem = () => {
@@ -425,7 +431,7 @@ export default function BuildYourBasket() {
                                 whileHover={{ scale: 1.02 }}
                                 whileTap={{ scale: 0.98 }}
                                 className="border border-luxury-warm-grey/20 rounded-lg overflow-hidden cursor-pointer hover:border-brand-purple/50 transition-all duration-300"
-                                onClick={() => handleBasketTypeSelect('natural')}
+                                onClick={() => handleBasketClick('natural')}
                             >
                                 <div className="aspect-square overflow-hidden relative">
                                     <Image
@@ -451,7 +457,7 @@ export default function BuildYourBasket() {
                                 whileHover={{ scale: 1.02 }}
                                 whileTap={{ scale: 0.98 }}
                                 className="border border-luxury-warm-grey/20 rounded-lg overflow-hidden cursor-pointer hover:border-brand-purple/50 transition-all duration-300"
-                                onClick={() => handleBasketTypeSelect('black')}
+                                onClick={() => handleBasketClick('black')}
                             >
                                 <div className="aspect-square overflow-hidden relative">
                                     <Image
@@ -887,6 +893,98 @@ export default function BuildYourBasket() {
                                                     </div>
                                                 </div>
                                             )}
+                                        </div>
+                                    </div>
+                                </div>
+                            </motion.div>
+                        </div>
+                    </>
+                )}
+            </AnimatePresence>
+
+            {/* Basket Detail Modal */}
+            <AnimatePresence>
+                {selectedBasketType && (
+                    <>
+                        {/* Backdrop */}
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            transition={{ duration: 0.3 }}
+                            className="fixed inset-0 bg-white/60 backdrop-blur-md z-50"
+                            onClick={() => setSelectedBasketType(null)}
+                        />
+
+                        {/* Modal Card */}
+                        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6">
+                            <motion.div
+                                initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                                animate={{ opacity: 1, scale: 1, y: 0 }}
+                                exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                                transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                                className="bg-white rounded-lg shadow-2xl max-w-4xl w-full max-h-[calc(90vh-2px)] overflow-hidden flex flex-col"
+                                onClick={(e) => e.stopPropagation()}
+                            >
+                                {/* Header with Close Button */}
+                                <div className="flex items-center justify-between gap-4 px-6 py-4 border-b border-black/10 shrink-0">
+                                    <h2 className="text-[15px] sm:text-[19px] font-extralight uppercase tracking-wide text-luxury-black">
+                                        The {selectedBasketType === 'natural' ? 'Natural' : 'Black'} Wicker Basket
+                                    </h2>
+                                    <button
+                                        onClick={() => setSelectedBasketType(null)}
+                                        className="inline-flex items-center justify-center gap-1 text-black/60 hover:text-black transition-colors duration-200 cursor-pointer p-2"
+                                    >
+                                        <LuX size={18} />
+                                    </button>
+                                </div>
+
+                                {/* Scrollable Content */}
+                                <div className="flex-1 overflow-y-auto">
+                                    {/* Main Content - Image smaller, text larger */}
+                                    <div className="grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-6 p-6 min-h-full">
+                                        {/* Left Panel - Basket Image */}
+                                        <div className="relative flex items-start justify-center lg:sticky lg:top-6 lg:h-[calc(100vh-12rem)]">
+                                            <div className="relative w-full sm:max-w-[240px] min-h-[460px] sm:min-h-auto aspect-square lg:max-w-full lg:h-full lg:aspect-auto">
+                                                <Image
+                                                    src={selectedBasketType === 'natural' ? "/images/products/wicker-basket.jpg" : "/images/products/black-wicker-basket.jpg"}
+                                                    alt={`${selectedBasketType === 'natural' ? 'Natural' : 'Black'} Wicker Basket`}
+                                                    fill
+                                                    className="object-cover rounded-lg"
+                                                    sizes="240px"
+                                                />
+                                            </div>
+                                        </div>
+
+                                        {/* Right Panel - Basket Details */}
+                                        <div className="flex flex-col gap-6">
+                                            {/* Category */}
+                                            <p className="text-black text-[15px] font-extralight uppercase">
+                                                Baskets
+                                            </p>
+
+                                            {/* Separator Line */}
+                                            <div className="w-12 h-px bg-black"></div>
+
+                                            {/* Description */}
+                                            <div>
+                                                <p className="text-black/70 leading-relaxed font-extralight text-[15px]">
+                                                    A medium-sized wicker basket with a branded removable cotton liner and vegan leather straps. Handmade by skilled weavers, each piece is eco-friendly and designed to last. The removable liner is made from 140g/sqm cotton and tailored to fit our wicker baskets with extended straps. It secures neatly around the hinges with discreet hook-and-loop fasteners. Perfect for storage, picnics, or home styling, our wicker baskets can be beautifully repurposed for everyday living. Length: 35cm | Width: 47cm | Height: 21cm
+                                                </p>
+                                            </div>
+
+                                            {/* Select Basket Button */}
+                                            <button
+                                                onClick={() => {
+                                                    handleBasketTypeSelect(selectedBasketType);
+                                                }}
+                                                className="flex items-center gap-2 text-luxury-black hover:text-brand-purple transition-colors duration-200 cursor-pointer w-fit py-2"
+                                            >
+                                                <span className="text-[13px] font-extralight tracking-wider uppercase">Select This Basket</span>
+                                                <div className="w-5 h-5 border border-luxury-black rounded-full flex items-center justify-center">
+                                                    <LuArrowLeft size={11} className="rotate-180" />
+                                                </div>
+                                            </button>
                                         </div>
                                     </div>
                                 </div>
