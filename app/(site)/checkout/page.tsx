@@ -206,24 +206,7 @@ const PaymentForm: React.FC<{
                     // Store payment intent in Zustand store (not in URL for security)
                     usePaymentStore.getState().setPaymentIntent(paymentIntentId, clientSecret);
 
-                    try {
-                        const emailResponse = await fetch('/api/send-order-email', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({
-                                paymentIntentId: paymentIntentId,
-                                customerEmail: emailToUse,
-                                customerName: userName,
-                            }),
-                        });
-                        const emailData = await emailResponse.json();
-                        if (emailData.success) {
-                            console.log('[CHECKOUT] Email sent successfully from checkout page');
-                        }
-                    } catch (emailError) {
-                        console.error('[CHECKOUT] Error sending email:', emailError);
-                    }
-
+                    // Email will be sent from payment-success page to avoid duplicates
                     // Redirect without sensitive information in URL
                     // Cart will be cleared on payment-success page after email is sent
                     window.location.href = `/payment-success`;
