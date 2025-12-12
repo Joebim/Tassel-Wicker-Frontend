@@ -665,10 +665,24 @@ export default function Checkout() {
                     });
 
                     const data = await response.json();
+                    console.log('[CHECKOUT] Payment intent API response data:', {
+                        success: data.success || 'unknown',
+                        hasClientSecret: !!data.clientSecret,
+                        clientSecret: data.clientSecret ? data.clientSecret.substring(0, 20) + '...' : 'none',
+                        paymentIntentId: data.paymentIntentId ? data.paymentIntentId.substring(0, 20) + '...' : 'none',
+                        error: data.error || 'none',
+                    });
+
                     if (data.clientSecret) {
+                        console.log('[CHECKOUT] ✅ PAYMENT INTENT CREATED SUCCESSFULLY');
+                        console.log('[CHECKOUT] Storing client secret and payment intent ID...');
                         setClientSecret(data.clientSecret);
                         setPaymentIntentId(data.paymentIntentId);
+                        console.log('[CHECKOUT] ✅ Payment intent state updated');
                     } else if (data.error) {
+                        console.error('[CHECKOUT] ❌ Payment intent creation failed:', {
+                            error: data.error,
+                        });
                         useToastStore.getState().addToast({
                             type: 'error',
                             title: 'Payment Error',
@@ -676,7 +690,10 @@ export default function Checkout() {
                         });
                     }
                 } catch (error) {
-                    console.error('Error creating payment intent:', error);
+                    console.error('[CHECKOUT] ========== PAYMENT INTENT CREATION ERROR ==========');
+                    console.error('[CHECKOUT] Error type:', error instanceof Error ? error.constructor.name : typeof error);
+                    console.error('[CHECKOUT] Error message:', error instanceof Error ? error.message : String(error));
+                    console.error('[CHECKOUT] Error stack:', error instanceof Error ? error.stack : 'No stack trace');
                     useToastStore.getState().addToast({
                         type: 'error',
                         title: 'Payment Error',
