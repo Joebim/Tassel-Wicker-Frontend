@@ -140,7 +140,7 @@ function LoginContent() {
                         <p className="text-luxury-cool-grey font-extralight">
                             Don&apos;t have an account?{' '}
                             <Link
-                                href="/signup"
+                                href={`/signup${searchParams.get('redirect') ? `?redirect=${encodeURIComponent(searchParams.get('redirect')!)}` : ''}`}
                                 className="text-brand-purple hover:text-brand-purple-light transition-colors font-extralight"
                             >
                                 Sign up

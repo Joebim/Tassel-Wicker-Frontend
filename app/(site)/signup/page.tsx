@@ -1,14 +1,14 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { motion } from 'framer-motion';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { LuMail, LuLock, LuEye, LuEyeOff, LuUser } from 'react-icons/lu';
 import { authService } from '@/services/authService';
 import { useToastStore } from '@/store/toastStore';
 
-export default function Signup() {
+function SignupContent() {
     const [formData, setFormData] = useState({
         displayName: '',
         email: '',
@@ -19,6 +19,7 @@ export default function Signup() {
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const router = useRouter();
+    const searchParams = useSearchParams();
 
     useEffect(() => {
         if (typeof window !== 'undefined') {
@@ -59,7 +60,9 @@ export default function Signup() {
         const result = await authService.signUp(formData.email, formData.password, formData.displayName);
 
         if (result.success) {
-            router.push('/');
+            // Redirect to the specified page or home
+            const redirectTo = searchParams?.get('redirect') || '/';
+            router.push(redirectTo);
         }
 
         setIsLoading(false);
@@ -211,7 +214,7 @@ export default function Signup() {
                         <p className="text-luxury-cool-grey font-extralight">
                             Already have an account?{' '}
                             <Link
-                                href="/login"
+                                href={`/login${searchParams?.get('redirect') ? `?redirect=${encodeURIComponent(searchParams.get('redirect')!)}` : ''}`}
                                 className="text-luxury-black hover:text-brand-purple transition-colors font-extralight"
                             >
                                 Sign in
@@ -221,6 +224,18 @@ export default function Signup() {
                 </motion.form>
             </div>
         </div>
+    );
+}
+
+export default function Signup() {
+    return (
+        <Suspense fallback={
+            <div className="min-h-screen bg-white flex items-center justify-center">
+                <div className="text-luxury-cool-grey font-extralight">Loading...</div>
+            </div>
+        }>
+            <SignupContent />
+        </Suspense>
     );
 }
 
