@@ -333,6 +333,38 @@ function PaymentSuccessContent() {
         }
     }, []);
 
+    // Clear cart immediately when payment intent is confirmed (payment succeeded)
+    useEffect(() => {
+        if (!isStoreHydrated || !paymentIntent) {
+            console.log('[CLIENT] Cart clearing check skipped:', {
+                isStoreHydrated,
+                hasPaymentIntent: !!paymentIntent,
+            });
+            return;
+        }
+
+        console.log('[CLIENT] ========== CART CLEARING CHECK ==========');
+        console.log('[CLIENT] Payment intent confirmed, ensuring cart is cleared...');
+        console.log('[CLIENT] Cart state before clear:', {
+            hasClearedCart,
+            cartItemsCount: useCartStore.getState().items.length,
+        });
+        
+        // Always clear cart when payment intent is present (payment succeeded)
+        if (!hasClearedCart) {
+            console.log('[CLIENT] Clearing cart immediately (payment succeeded)...');
+            clearCart();
+            setHasClearedCart(true);
+            const cartState = useCartStore.getState();
+            console.log('[CLIENT] ✅ Cart cleared:', {
+                itemsCount: cartState.items.length,
+                totalItems: cartState.getTotalItems(),
+            });
+        } else {
+            console.log('[CLIENT] Cart already cleared (hasClearedCart = true)');
+        }
+    }, [paymentIntent, isStoreHydrated, hasClearedCart, clearCart]);
+
     // Send order confirmation email when payment intent is available
     useEffect(() => {
         console.log('[CLIENT] ========== EMAIL EFFECT TRIGGERED ==========');
