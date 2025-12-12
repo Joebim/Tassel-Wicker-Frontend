@@ -3,7 +3,7 @@
 // Disable static generation - this page needs to check URL params dynamically
 export const dynamic = 'force-dynamic';
 
-import { useEffect, useState, Suspense, useCallback, useRef } from 'react';
+import { useEffect, useState, Suspense, useCallback } from 'react';
 import Link from 'next/link';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
@@ -28,7 +28,40 @@ function PaymentSuccessContent() {
     const [emailSent, setEmailSent] = useState(false);
     const [paymentIntent, setPaymentIntentState] = useState<string | null>(null);
     const [isStoreHydrated, setIsStoreHydrated] = useState(false);
-    const emailSentRef = useRef<string | null>(null); // Track which payment intent has been sent
+    const [isProcessingEmail, setIsProcessingEmail] = useState(false);
+
+    // Check if email was already sent for this payment intent (using sessionStorage to prevent duplicates)
+    const checkEmailSent = (paymentIntentId: string): boolean => {
+        if (typeof window === 'undefined') return false;
+        const sentEmails = sessionStorage.getItem('sent_order_emails');
+        if (sentEmails) {
+            try {
+                const sentList = JSON.parse(sentEmails);
+                return sentList.includes(paymentIntentId);
+            } catch {
+                return false;
+            }
+        }
+        return false;
+    };
+
+    // Mark email as sent for this payment intent
+    const markEmailSent = (paymentIntentId: string): void => {
+        if (typeof window === 'undefined') return;
+        const sentEmails = sessionStorage.getItem('sent_order_emails');
+        let sentList: string[] = [];
+        if (sentEmails) {
+            try {
+                sentList = JSON.parse(sentEmails);
+            } catch {
+                sentList = [];
+            }
+        }
+        if (!sentList.includes(paymentIntentId)) {
+            sentList.push(paymentIntentId);
+            sessionStorage.setItem('sent_order_emails', JSON.stringify(sentList));
+        }
+    };
 
     // Hydrate Zustand store on mount
     useEffect(() => {
@@ -46,9 +79,23 @@ function PaymentSuccessContent() {
     useEffect(() => {
         if (typeof window === 'undefined' || !isStoreHydrated) return;
 
+        console.log('[CLIENT] ========== PAYMENT SUCCESS PAGE INITIALIZATION ==========');
+        console.log('[CLIENT] Store state:', {
+            paymentIntentId: paymentIntentId || 'none',
+            storeCustomerEmail: storeCustomerEmail || 'none',
+            storeCustomerName: storeCustomerName || 'none',
+            isStoreHydrated,
+        });
+
         // First check Zustand store
         if (paymentIntentId && !paymentIntent) {
-            console.log('[CLIENT] Setting payment intent from store:', paymentIntentId);
+            console.log('[CLIENT] ✅ Found payment intent in store:', paymentIntentId);
+            console.log('[CLIENT] Checking if email already sent for this payment intent...');
+            const alreadySent = checkEmailSent(paymentIntentId);
+            if (alreadySent) {
+                console.log('[CLIENT] ⚠️ Email already sent for this payment intent, skipping');
+                setEmailSent(true);
+            }
             setPaymentIntentState(paymentIntentId);
             return;
         }
@@ -58,18 +105,27 @@ function PaymentSuccessContent() {
         const urlClientSecret = searchParams?.get('payment_intent_client_secret');
 
         if (urlPaymentIntent && urlClientSecret && !paymentIntent) {
-            console.log('[CLIENT] Setting payment intent from URL:', urlPaymentIntent);
+            console.log('[CLIENT] ⚠️ Found payment intent in URL (should not happen):', urlPaymentIntent);
+            console.log('[CLIENT] Checking if email already sent for this payment intent...');
+            const alreadySent = checkEmailSent(urlPaymentIntent);
+            if (alreadySent) {
+                console.log('[CLIENT] ⚠️ Email already sent for this payment intent, skipping');
+                setEmailSent(true);
+            }
+            
             // Store in Zustand for future use
             setPaymentIntent(urlPaymentIntent, urlClientSecret);
             setPaymentIntentState(urlPaymentIntent);
             
-            // Clean up URL params to remove sensitive information
+            // IMMEDIATELY clean up URL params to remove sensitive information
+            console.log('[CLIENT] Cleaning up URL params immediately...');
             const url = new URL(window.location.href);
             url.searchParams.delete('payment_intent');
             url.searchParams.delete('payment_intent_client_secret');
             router.replace(url.pathname, { scroll: false });
+            console.log('[CLIENT] ✅ URL params cleaned up');
         }
-    }, [searchParams, paymentIntentId, setPaymentIntent, router, paymentIntent, isStoreHydrated]);
+    }, [searchParams, paymentIntentId, setPaymentIntent, router, paymentIntent, isStoreHydrated, storeCustomerEmail, storeCustomerName]);
 
     // Get customer email - prefer store, fallback to localStorage
     const getCustomerEmail = () => {
@@ -96,23 +152,27 @@ function PaymentSuccessContent() {
 
     // Send order confirmation email
     const sendOrderEmail = useCallback(async () => {
-        // Prevent duplicate sends - check if we already sent for this payment intent
-        if (!paymentIntent) {
-            console.log('[CLIENT] Email send skipped: No payment intent');
+        console.log('[CLIENT] ========== SEND ORDER EMAIL CALLED ==========');
+        console.log('[CLIENT] Current state:', {
+            paymentIntent: paymentIntent || 'none',
+            emailSent,
+            isProcessingEmail,
+            hasClearedCart,
+        });
+
+        // Check if email was already sent for this payment intent
+        if (paymentIntent && checkEmailSent(paymentIntent)) {
+            console.log('[CLIENT] ⚠️ Email already sent for payment intent:', paymentIntent);
+            console.log('[CLIENT] Skipping email send to prevent duplicate');
+            setEmailSent(true);
             return;
         }
 
-        // Check if we already sent email for this payment intent
-        const emailSentKey = `email_sent_${paymentIntent}`;
-        const alreadySent = emailSentRef.current === paymentIntent || 
-                           (typeof window !== 'undefined' && localStorage.getItem(emailSentKey) === 'true');
-        
-        if (alreadySent || emailSent) {
-            console.log('[CLIENT] Email send skipped: Already sent for this payment intent', {
-                paymentIntent,
-                emailSentRef: emailSentRef.current,
-                localStorageCheck: typeof window !== 'undefined' ? localStorage.getItem(emailSentKey) : 'N/A',
-                emailSent
+        if (!paymentIntent || emailSent || isProcessingEmail) {
+            console.log('[CLIENT] Email send skipped:', { 
+                paymentIntent: !!paymentIntent, 
+                emailSent,
+                isProcessingEmail,
             });
             return;
         }
@@ -120,15 +180,20 @@ function PaymentSuccessContent() {
         const customerEmail = getCustomerEmail();
         const customerName = getCustomerName();
 
-        console.log('[CLIENT] Attempting to send order email:', {
+        console.log('[CLIENT] ========== PREPARING TO SEND EMAIL ==========');
+        console.log('[CLIENT] Email Details:', {
             paymentIntent,
             customerEmail: customerEmail ? `${customerEmail.substring(0, 3)}***` : 'missing',
+            customerEmailFull: customerEmail || 'missing',
             customerName: customerName || 'missing',
+            fromStore: !!storeCustomerEmail,
+            fromLocalStorage: !!localStorage.getItem('checkout_customer_email'),
         });
 
         if (!customerEmail) {
-            console.warn('[CLIENT] No customer email found in localStorage, skipping email send');
-            console.warn('[CLIENT] localStorage keys:', Object.keys(localStorage));
+            console.error('[CLIENT] ❌ No customer email found, cannot send email');
+            console.error('[CLIENT] localStorage keys:', Object.keys(localStorage));
+            console.error('[CLIENT] Store customer email:', storeCustomerEmail || 'none');
             // Still clear cart even if no email (payment succeeded)
             if (!hasClearedCart) {
                 clearCart();
@@ -137,8 +202,20 @@ function PaymentSuccessContent() {
             return;
         }
 
+        // Mark as processing to prevent duplicate sends
+        setIsProcessingEmail(true);
+        markEmailSent(paymentIntent);
+
         try {
-            console.log('[CLIENT] Sending POST request to /api/send-order-email');
+            console.log('[CLIENT] ========== SENDING EMAIL REQUEST ==========');
+            console.log('[CLIENT] Request payload:', {
+                paymentIntentId: paymentIntent,
+                customerEmail: customerEmail,
+                customerName: customerName,
+            });
+            console.log('[CLIENT] Making POST request to /api/send-order-email...');
+            
+            const requestStartTime = Date.now();
             const response = await fetch('/api/send-order-email', {
                 method: 'POST',
                 headers: {
@@ -151,31 +228,45 @@ function PaymentSuccessContent() {
                 }),
             });
 
-            console.log('[CLIENT] Response status:', response.status);
+            const requestDuration = Date.now() - requestStartTime;
+            console.log('[CLIENT] ========== EMAIL REQUEST RESPONSE ==========');
+            console.log('[CLIENT] Response received:', {
+                status: response.status,
+                statusText: response.statusText,
+                duration: `${requestDuration}ms`,
+                headers: Object.fromEntries(response.headers.entries()),
+            });
+
             const data = await response.json();
-            console.log('[CLIENT] Response data:', data);
+            console.log('[CLIENT] Response data:', {
+                success: data.success,
+                message: data.message,
+                orderId: data.orderId,
+                orderEmailMessageId: data.orderEmailMessageId || 'none',
+                paymentEmailMessageId: data.paymentEmailMessageId || 'none',
+                error: data.error || 'none',
+            });
 
             // Always clear cart after payment success (whether email succeeds or fails)
             if (!hasClearedCart) {
+                console.log('[CLIENT] Clearing cart...');
                 clearCart();
                 setHasClearedCart(true);
+                console.log('[CLIENT] ✅ Cart cleared');
             }
 
             if (data.success) {
                 setEmailSent(true);
-                // Mark this payment intent as having email sent
-                emailSentRef.current = paymentIntent;
-                if (typeof window !== 'undefined') {
-                    localStorage.setItem(`email_sent_${paymentIntent}`, 'true');
-                }
-                console.log('[CLIENT] Order confirmation email sent successfully');
+                console.log('[CLIENT] ✅✅✅ EMAIL SENT SUCCESSFULLY ✅✅✅');
+                console.log('[CLIENT] Order Email Message ID:', data.orderEmailMessageId);
+                console.log('[CLIENT] Payment Email Message ID:', data.paymentEmailMessageId);
                 useToastStore.getState().addToast({
                     type: 'success',
                     title: 'Payment Successful',
                     message: 'Your order has been placed successfully!',
                 });
             } else {
-                console.error('[CLIENT] Failed to send order confirmation email:', data.error);
+                console.error('[CLIENT] ❌ FAILED TO SEND EMAIL:', data.error);
                 // Email failed but payment succeeded - still show success
                 useToastStore.getState().addToast({
                     type: 'success',
@@ -184,8 +275,10 @@ function PaymentSuccessContent() {
                 });
             }
         } catch (error) {
-            console.error('[CLIENT] Error sending order confirmation email:', error);
-            console.error('[CLIENT] Error details:', error instanceof Error ? error.stack : error);
+            console.error('[CLIENT] ========== EMAIL SEND ERROR ==========');
+            console.error('[CLIENT] Error type:', error instanceof Error ? error.constructor.name : typeof error);
+            console.error('[CLIENT] Error message:', error instanceof Error ? error.message : String(error));
+            console.error('[CLIENT] Error stack:', error instanceof Error ? error.stack : 'No stack trace');
             // Even if email fails, clear cart since payment succeeded
             if (!hasClearedCart) {
                 clearCart();
@@ -197,8 +290,10 @@ function PaymentSuccessContent() {
                 title: 'Payment Successful',
                 message: 'Your order has been placed successfully!',
             });
+        } finally {
+            setIsProcessingEmail(false);
         }
-    }, [paymentIntent, emailSent, hasClearedCart, clearCart]);
+    }, [paymentIntent, emailSent, hasClearedCart, clearCart, isProcessingEmail, storeCustomerEmail]);
 
     // Scroll to top when component mounts
     useEffect(() => {
@@ -209,46 +304,56 @@ function PaymentSuccessContent() {
 
     // Send order confirmation email when payment intent is available
     useEffect(() => {
+        console.log('[CLIENT] ========== EMAIL EFFECT TRIGGERED ==========');
+        console.log('[CLIENT] Effect dependencies:', {
+            isStoreHydrated,
+            paymentIntent: paymentIntent || 'none',
+            emailSent,
+            isProcessingEmail,
+        });
+
         if (!isStoreHydrated) {
-            console.log('[CLIENT] Waiting for store hydration...');
+            console.log('[CLIENT] ⏳ Waiting for store hydration...');
             return;
         }
 
-        // Check if email was already sent for this payment intent (prevent duplicates)
-        const emailSentKey = `email_sent_${paymentIntent}`;
-        const alreadySent = emailSentRef.current === paymentIntent || 
-                           (typeof window !== 'undefined' && localStorage.getItem(emailSentKey) === 'true');
-        
-        if (!paymentIntent || emailSent || alreadySent) {
-            console.log('[CLIENT] Email effect skipped:', { 
-                hasPaymentIntent: !!paymentIntent, 
+        if (!paymentIntent) {
+            console.log('[CLIENT] ⏸️ No payment intent available yet');
+            return;
+        }
+
+        // Check if email was already sent for this payment intent
+        if (checkEmailSent(paymentIntent)) {
+            console.log('[CLIENT] ✅ Email already sent for this payment intent (checked via sessionStorage)');
+            setEmailSent(true);
+            return;
+        }
+
+        if (emailSent || isProcessingEmail) {
+            console.log('[CLIENT] ⏸️ Email already sent or currently processing:', {
                 emailSent,
-                alreadySent,
-                emailSentRef: emailSentRef.current,
-                localStorageCheck: typeof window !== 'undefined' ? localStorage.getItem(emailSentKey) : 'N/A',
-                isStoreHydrated
+                isProcessingEmail,
             });
-            // Still clear cart if not already cleared
-            if (!hasClearedCart && paymentIntent) {
-                clearCart();
-                setHasClearedCart(true);
-            }
             return;
         }
 
         const customerEmail = getCustomerEmail();
-        console.log('[CLIENT] Email effect triggered:', { 
+        console.log('[CLIENT] ========== EMAIL EFFECT - READY TO SEND ==========');
+        console.log('[CLIENT] Email Details:', { 
             paymentIntent, 
             emailSent, 
-            alreadySent,
+            isProcessingEmail,
             hasCustomerEmail: !!customerEmail,
             customerEmailPrefix: customerEmail ? `${customerEmail.substring(0, 3)}***` : 'none',
+            customerEmailFull: customerEmail || 'none',
             fromStore: !!storeCustomerEmail,
-            fromLocalStorage: typeof window !== 'undefined' ? !!localStorage.getItem('checkout_customer_email') : false
+            fromLocalStorage: !!localStorage.getItem('checkout_customer_email'),
+            sessionStorageCheck: checkEmailSent(paymentIntent),
         });
 
         if (!customerEmail) {
-            console.warn('[CLIENT] No customer email found, cannot send email. Clearing cart anyway.');
+            console.error('[CLIENT] ❌ No customer email found, cannot send email');
+            console.error('[CLIENT] Clearing cart anyway since payment succeeded');
             // Still clear cart even without email
             if (!hasClearedCart) {
                 clearCart();
@@ -257,33 +362,34 @@ function PaymentSuccessContent() {
             return;
         }
 
-        console.log('[CLIENT] Setting up email send timer (2 second delay)');
+        console.log('[CLIENT] ⏱️ Setting up email send timer (2 second delay)...');
         // Delay to ensure payment is fully processed
         const timer = setTimeout(async () => {
-            console.log('[CLIENT] Timer fired, calling sendOrderEmail');
+            console.log('[CLIENT] ⏰ Timer fired, calling sendOrderEmail');
             try {
                 await sendOrderEmail();
             } catch (error) {
-                console.error('[CLIENT] Error in sendOrderEmail:', error);
+                console.error('[CLIENT] ❌ Error in sendOrderEmail:', error);
             }
             
             // Clean up localStorage and payment store after email is sent (or attempted)
             if (typeof window !== 'undefined') {
                 setTimeout(() => {
-                    console.log('[CLIENT] Cleaning up localStorage and payment store');
+                    console.log('[CLIENT] 🧹 Cleaning up localStorage and payment store');
                     localStorage.removeItem('checkout_customer_email');
                     localStorage.removeItem('checkout_first_name');
                     localStorage.removeItem('checkout_last_name');
                     clearPaymentIntent(); // Clear payment intent from store after use
-                }, 30000); // Keep for 30 seconds in case of retries
+                    console.log('[CLIENT] ✅ Cleanup complete');
+                }, 10000); // Keep for 10 seconds in case of retries
             }
         }, 2000); // 2 second delay
         
         return () => {
-            console.log('[CLIENT] Cleaning up email timer');
+            console.log('[CLIENT] 🧹 Cleaning up email timer');
             clearTimeout(timer);
         };
-    }, [paymentIntent, emailSent, isStoreHydrated, sendOrderEmail, hasClearedCart, clearCart, clearPaymentIntent, storeCustomerEmail]);
+    }, [paymentIntent, emailSent, isStoreHydrated, sendOrderEmail, hasClearedCart, clearCart, clearPaymentIntent, storeCustomerEmail, isProcessingEmail]);
 
     return (
         <div className="min-h-screen bg-white text-luxury-black flex items-center justify-center py-6 sm:py-12 lg:py-24">

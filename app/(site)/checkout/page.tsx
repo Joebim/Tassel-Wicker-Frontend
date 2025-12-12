@@ -180,6 +180,18 @@ const PaymentForm: React.FC<{
                 localStorage.setItem('checkout_last_name', nameParts.slice(1).join(' ') || '');
             }
 
+            // Store payment intent and customer info BEFORE confirming payment
+            // This ensures data is available even if Stripe redirects
+            const paymentIntentIdFromSecret = clientSecret.split('_secret_')[0];
+            if (paymentIntentIdFromSecret) {
+                usePaymentStore.getState().setPaymentIntent(paymentIntentIdFromSecret, clientSecret);
+                usePaymentStore.getState().setCustomerInfo(emailToUse, userName);
+                console.log('[CHECKOUT] Stored payment intent and customer info before payment confirmation:', {
+                    paymentIntentId: paymentIntentIdFromSecret.substring(0, 10) + '...',
+                    customerEmail: emailToUse.substring(0, 3) + '***',
+                });
+            }
+
             // Confirm payment with existing clientSecret
             const { error: confirmError } = await stripe.confirmPayment({
                 elements,
@@ -188,8 +200,6 @@ const PaymentForm: React.FC<{
                     return_url: `${window.location.origin}/payment-success`,
                     receipt_email: emailToUse,
                 },
-                // Store payment intent in Zustand if redirect happens
-                // Note: If redirect occurs, we'll handle it on the payment-success page
                 redirect: 'if_required',
             });
 
