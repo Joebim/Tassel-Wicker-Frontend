@@ -214,12 +214,25 @@ function PaymentSuccessContent() {
             return;
         }
 
-        if (!paymentIntent || emailSent) {
+        // Check if email was already sent for this payment intent (prevent duplicates)
+        const emailSentKey = `email_sent_${paymentIntent}`;
+        const alreadySent = emailSentRef.current === paymentIntent || 
+                           (typeof window !== 'undefined' && localStorage.getItem(emailSentKey) === 'true');
+        
+        if (!paymentIntent || emailSent || alreadySent) {
             console.log('[CLIENT] Email effect skipped:', { 
                 hasPaymentIntent: !!paymentIntent, 
                 emailSent,
+                alreadySent,
+                emailSentRef: emailSentRef.current,
+                localStorageCheck: typeof window !== 'undefined' ? localStorage.getItem(emailSentKey) : 'N/A',
                 isStoreHydrated
             });
+            // Still clear cart if not already cleared
+            if (!hasClearedCart && paymentIntent) {
+                clearCart();
+                setHasClearedCart(true);
+            }
             return;
         }
 
@@ -227,10 +240,11 @@ function PaymentSuccessContent() {
         console.log('[CLIENT] Email effect triggered:', { 
             paymentIntent, 
             emailSent, 
+            alreadySent,
             hasCustomerEmail: !!customerEmail,
             customerEmailPrefix: customerEmail ? `${customerEmail.substring(0, 3)}***` : 'none',
             fromStore: !!storeCustomerEmail,
-            fromLocalStorage: !!localStorage.getItem('checkout_customer_email')
+            fromLocalStorage: typeof window !== 'undefined' ? !!localStorage.getItem('checkout_customer_email') : false
         });
 
         if (!customerEmail) {
@@ -261,7 +275,7 @@ function PaymentSuccessContent() {
                     localStorage.removeItem('checkout_first_name');
                     localStorage.removeItem('checkout_last_name');
                     clearPaymentIntent(); // Clear payment intent from store after use
-                }, 10000); // Keep for 10 seconds in case of retries
+                }, 30000); // Keep for 30 seconds in case of retries
             }
         }, 2000); // 2 second delay
         
