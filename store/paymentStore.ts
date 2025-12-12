@@ -5,7 +5,10 @@ import { createClientStorage } from "@/utils/storage";
 interface PaymentStore {
   paymentIntentId: string | null;
   paymentIntentClientSecret: string | null;
+  customerEmail: string | null;
+  customerName: string | null;
   setPaymentIntent: (paymentIntentId: string, paymentIntentClientSecret: string) => void;
+  setCustomerInfo: (email: string, name: string) => void;
   clearPaymentIntent: () => void;
 }
 
@@ -14,6 +17,8 @@ export const usePaymentStore = create<PaymentStore>()(
     (set) => ({
       paymentIntentId: null,
       paymentIntentClientSecret: null,
+      customerEmail: null,
+      customerName: null,
 
       setPaymentIntent: (paymentIntentId: string, paymentIntentClientSecret: string) => {
         set({
@@ -22,10 +27,19 @@ export const usePaymentStore = create<PaymentStore>()(
         });
       },
 
+      setCustomerInfo: (email: string, name: string) => {
+        set({
+          customerEmail: email,
+          customerName: name,
+        });
+      },
+
       clearPaymentIntent: () => {
         set({
           paymentIntentId: null,
           paymentIntentClientSecret: null,
+          customerEmail: null,
+          customerName: null,
         });
       },
     }),

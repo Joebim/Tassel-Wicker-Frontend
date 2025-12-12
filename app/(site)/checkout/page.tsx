@@ -203,8 +203,9 @@ const PaymentForm: React.FC<{
                     const paymentIntentId = result.paymentIntent.id;
                     console.log('[CHECKOUT] Payment succeeded without redirect, payment intent:', paymentIntentId);
 
-                    // Store payment intent in Zustand store (not in URL for security)
+                    // Store payment intent and customer info in Zustand store (not in URL for security)
                     usePaymentStore.getState().setPaymentIntent(paymentIntentId, clientSecret);
+                    usePaymentStore.getState().setCustomerInfo(emailToUse, userName);
 
                     // Email will be sent from payment-success page to avoid duplicates
                     // Redirect without sensitive information in URL

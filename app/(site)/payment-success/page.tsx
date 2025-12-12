@@ -16,17 +16,38 @@ function PaymentSuccessContent() {
     const searchParams = useSearchParams();
     const router = useRouter();
     const { clearCart } = useCartStore();
-    const { paymentIntentId, paymentIntentClientSecret, setPaymentIntent, clearPaymentIntent } = usePaymentStore();
+    const { 
+        paymentIntentId, 
+        paymentIntentClientSecret, 
+        customerEmail: storeCustomerEmail,
+        customerName: storeCustomerName,
+        setPaymentIntent, 
+        clearPaymentIntent 
+    } = usePaymentStore();
     const [hasClearedCart, setHasClearedCart] = useState(false);
     const [emailSent, setEmailSent] = useState(false);
     const [paymentIntent, setPaymentIntentState] = useState<string | null>(null);
+    const [isStoreHydrated, setIsStoreHydrated] = useState(false);
+
+    // Hydrate Zustand store on mount
+    useEffect(() => {
+        if (typeof window === 'undefined') return;
+        
+        // Small delay to ensure Zustand store is hydrated
+        const timer = setTimeout(() => {
+            setIsStoreHydrated(true);
+        }, 100);
+        
+        return () => clearTimeout(timer);
+    }, []);
 
     // Initialize payment intent from store or URL (if redirected), then clean up URL
     useEffect(() => {
-        if (typeof window === 'undefined') return;
+        if (typeof window === 'undefined' || !isStoreHydrated) return;
 
         // First check Zustand store
-        if (paymentIntentId) {
+        if (paymentIntentId && !paymentIntent) {
+            console.log('[CLIENT] Setting payment intent from store:', paymentIntentId);
             setPaymentIntentState(paymentIntentId);
             return;
         }
@@ -35,7 +56,8 @@ function PaymentSuccessContent() {
         const urlPaymentIntent = searchParams?.get('payment_intent');
         const urlClientSecret = searchParams?.get('payment_intent_client_secret');
 
-        if (urlPaymentIntent && urlClientSecret) {
+        if (urlPaymentIntent && urlClientSecret && !paymentIntent) {
+            console.log('[CLIENT] Setting payment intent from URL:', urlPaymentIntent);
             // Store in Zustand for future use
             setPaymentIntent(urlPaymentIntent, urlClientSecret);
             setPaymentIntentState(urlPaymentIntent);
@@ -46,10 +68,13 @@ function PaymentSuccessContent() {
             url.searchParams.delete('payment_intent_client_secret');
             router.replace(url.pathname, { scroll: false });
         }
-    }, [searchParams, paymentIntentId, setPaymentIntent, router]);
+    }, [searchParams, paymentIntentId, setPaymentIntent, router, paymentIntent, isStoreHydrated]);
 
-    // Get customer email from localStorage (stored during checkout)
+    // Get customer email - prefer store, fallback to localStorage
     const getCustomerEmail = () => {
+        if (storeCustomerEmail) {
+            return storeCustomerEmail;
+        }
         if (typeof window !== 'undefined') {
             return localStorage.getItem('checkout_customer_email') || '';
         }
@@ -57,6 +82,9 @@ function PaymentSuccessContent() {
     };
 
     const getCustomerName = () => {
+        if (storeCustomerName) {
+            return storeCustomerName;
+        }
         if (typeof window !== 'undefined') {
             const firstName = localStorage.getItem('checkout_first_name') || '';
             const lastName = localStorage.getItem('checkout_last_name') || '';
@@ -159,36 +187,67 @@ function PaymentSuccessContent() {
 
     // Send order confirmation email when payment intent is available
     useEffect(() => {
-        console.log('[CLIENT] Email effect triggered:', { paymentIntent, emailSent });
-
-        if (paymentIntent && !emailSent) {
-            console.log('[CLIENT] Setting up email send timer (1 second delay)');
-            // Delay slightly to ensure payment is fully processed
-            const timer = setTimeout(async () => {
-                console.log('[CLIENT] Timer fired, calling sendOrderEmail');
-                await sendOrderEmail();
-                // Clean up localStorage and payment store after email is sent (or attempted)
-                if (typeof window !== 'undefined') {
-                    setTimeout(() => {
-                        console.log('[CLIENT] Cleaning up localStorage and payment store');
-                        localStorage.removeItem('checkout_customer_email');
-                        localStorage.removeItem('checkout_first_name');
-                        localStorage.removeItem('checkout_last_name');
-                        clearPaymentIntent(); // Clear payment intent from store after use
-                    }, 5000); // Keep for 5 seconds in case of retries
-                }
-            }, 1000);
-            return () => {
-                console.log('[CLIENT] Cleaning up email timer');
-                clearTimeout(timer);
-            };
-        } else {
-            console.log('[CLIENT] Email effect conditions not met:', {
-                hasPaymentIntent: !!paymentIntent,
-                emailSent,
-            });
+        if (!isStoreHydrated) {
+            console.log('[CLIENT] Waiting for store hydration...');
+            return;
         }
-    }, [paymentIntent, emailSent, sendOrderEmail, hasClearedCart, clearCart]);
+
+        if (!paymentIntent || emailSent) {
+            console.log('[CLIENT] Email effect skipped:', { 
+                hasPaymentIntent: !!paymentIntent, 
+                emailSent,
+                isStoreHydrated
+            });
+            return;
+        }
+
+        const customerEmail = getCustomerEmail();
+        console.log('[CLIENT] Email effect triggered:', { 
+            paymentIntent, 
+            emailSent, 
+            hasCustomerEmail: !!customerEmail,
+            customerEmailPrefix: customerEmail ? `${customerEmail.substring(0, 3)}***` : 'none',
+            fromStore: !!storeCustomerEmail,
+            fromLocalStorage: !!localStorage.getItem('checkout_customer_email')
+        });
+
+        if (!customerEmail) {
+            console.warn('[CLIENT] No customer email found, cannot send email. Clearing cart anyway.');
+            // Still clear cart even without email
+            if (!hasClearedCart) {
+                clearCart();
+                setHasClearedCart(true);
+            }
+            return;
+        }
+
+        console.log('[CLIENT] Setting up email send timer (2 second delay)');
+        // Delay to ensure payment is fully processed
+        const timer = setTimeout(async () => {
+            console.log('[CLIENT] Timer fired, calling sendOrderEmail');
+            try {
+                await sendOrderEmail();
+            } catch (error) {
+                console.error('[CLIENT] Error in sendOrderEmail:', error);
+            }
+            
+            // Clean up localStorage and payment store after email is sent (or attempted)
+            if (typeof window !== 'undefined') {
+                setTimeout(() => {
+                    console.log('[CLIENT] Cleaning up localStorage and payment store');
+                    localStorage.removeItem('checkout_customer_email');
+                    localStorage.removeItem('checkout_first_name');
+                    localStorage.removeItem('checkout_last_name');
+                    clearPaymentIntent(); // Clear payment intent from store after use
+                }, 10000); // Keep for 10 seconds in case of retries
+            }
+        }, 2000); // 2 second delay
+        
+        return () => {
+            console.log('[CLIENT] Cleaning up email timer');
+            clearTimeout(timer);
+        };
+    }, [paymentIntent, emailSent, isStoreHydrated, sendOrderEmail, hasClearedCart, clearCart, clearPaymentIntent, storeCustomerEmail]);
 
     return (
         <div className="min-h-screen bg-white text-luxury-black flex items-center justify-center py-6 sm:py-12 lg:py-24">
