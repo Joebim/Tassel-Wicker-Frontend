@@ -46,7 +46,7 @@ function PaymentSuccessContent() {
             url.searchParams.delete('payment_intent_client_secret');
             router.replace(url.pathname, { scroll: false });
         }
-    }, [searchParams, paymentIntentId, setPaymentIntent, router, clearPaymentIntent]);
+    }, [searchParams, paymentIntentId, setPaymentIntent, router]);
 
     // Get customer email from localStorage (stored during checkout)
     const getCustomerEmail = () => {
@@ -84,6 +84,11 @@ function PaymentSuccessContent() {
         if (!customerEmail) {
             console.warn('[CLIENT] No customer email found in localStorage, skipping email send');
             console.warn('[CLIENT] localStorage keys:', Object.keys(localStorage));
+            // Still clear cart even if no email (payment succeeded)
+            if (!hasClearedCart) {
+                clearCart();
+                setHasClearedCart(true);
+            }
             return;
         }
 
@@ -105,36 +110,43 @@ function PaymentSuccessContent() {
             const data = await response.json();
             console.log('[CLIENT] Response data:', data);
 
+            // Always clear cart after payment success (whether email succeeds or fails)
+            if (!hasClearedCart) {
+                clearCart();
+                setHasClearedCart(true);
+            }
+
             if (data.success) {
                 setEmailSent(true);
                 console.log('[CLIENT] Order confirmation email sent successfully');
-                
-                // Clear cart only after order is confirmed to be created (email sent successfully)
-                if (!hasClearedCart) {
-                    clearCart();
-                    setHasClearedCart(true);
-                    useToastStore.getState().addToast({
-                        type: 'success',
-                        title: 'Payment Successful',
-                        message: 'Your order has been placed successfully!',
-                    });
-                }
+                useToastStore.getState().addToast({
+                    type: 'success',
+                    title: 'Payment Successful',
+                    message: 'Your order has been placed successfully!',
+                });
             } else {
                 console.error('[CLIENT] Failed to send order confirmation email:', data.error);
-                // Even if email fails, clear cart since payment succeeded
-                if (!hasClearedCart && paymentIntent) {
-                    clearCart();
-                    setHasClearedCart(true);
-                }
+                // Email failed but payment succeeded - still show success
+                useToastStore.getState().addToast({
+                    type: 'success',
+                    title: 'Payment Successful',
+                    message: 'Your order has been placed successfully!',
+                });
             }
         } catch (error) {
             console.error('[CLIENT] Error sending order confirmation email:', error);
             console.error('[CLIENT] Error details:', error instanceof Error ? error.stack : error);
             // Even if email fails, clear cart since payment succeeded
-            if (!hasClearedCart && paymentIntent) {
+            if (!hasClearedCart) {
                 clearCart();
                 setHasClearedCart(true);
             }
+            // Still show success since payment succeeded
+            useToastStore.getState().addToast({
+                type: 'success',
+                title: 'Payment Successful',
+                message: 'Your order has been placed successfully!',
+            });
         }
     }, [paymentIntent, emailSent, hasClearedCart, clearCart]);
 

@@ -78,6 +78,15 @@ export async function POST(request: NextRequest) {
         currency: paymentIntent.currency,
         status: paymentIntent.status,
       });
+
+      // Verify payment status - only send email if payment succeeded
+      if (paymentIntent.status !== 'succeeded') {
+        console.warn("[SEND-ORDER-EMAIL] Payment intent status is not 'succeeded':", paymentIntent.status);
+        return NextResponse.json(
+          { success: false, error: `Payment status is ${paymentIntent.status}, not succeeded` },
+          { status: 400 }
+        );
+      }
     } catch (error) {
       console.error(
         "[SEND-ORDER-EMAIL] Error retrieving payment intent:",
