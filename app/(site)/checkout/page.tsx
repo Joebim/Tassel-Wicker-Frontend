@@ -10,6 +10,7 @@ import { LuArrowLeft } from 'react-icons/lu';
 import { useCartStore, type CartItem } from '@/store/cartStore';
 import { useAuthStore } from '@/store/authStore';
 import { useToastStore } from '@/store/toastStore';
+import { usePaymentStore } from '@/store/paymentStore';
 import { usePrice, usePriceFormat } from '@/hooks/usePrice';
 import { useCurrencyStore } from '@/store/currencyStore';
 import CheckoutOptions from '@/components/checkout/CheckoutOptions';
@@ -173,6 +174,8 @@ const PaymentForm: React.FC<{
                     return_url: `${window.location.origin}/payment-success`,
                     receipt_email: userEmail,
                 },
+                // Store payment intent in Zustand if redirect happens
+                // Note: If redirect occurs, we'll handle it on the payment-success page
                 redirect: 'if_required',
             });
 
@@ -185,6 +188,9 @@ const PaymentForm: React.FC<{
                 if (result.paymentIntent?.status === 'succeeded') {
                     const paymentIntentId = result.paymentIntent.id;
                     console.log('[CHECKOUT] Payment succeeded without redirect, payment intent:', paymentIntentId);
+
+                    // Store payment intent in Zustand store (not in URL for security)
+                    usePaymentStore.getState().setPaymentIntent(paymentIntentId, clientSecret);
 
                     try {
                         const emailResponse = await fetch('/api/send-order-email', {
@@ -204,7 +210,8 @@ const PaymentForm: React.FC<{
                         console.error('[CHECKOUT] Error sending email:', emailError);
                     }
 
-                    window.location.href = `/payment-success?payment_intent=${paymentIntentId}&payment_intent_client_secret=${clientSecret}`;
+                    // Redirect without sensitive information in URL
+                    window.location.href = `/payment-success`;
                 } else {
                     onSuccess();
                 }
