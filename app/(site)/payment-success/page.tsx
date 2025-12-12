@@ -66,27 +66,51 @@ function PaymentSuccessContent() {
         }
     };
 
-    // Hydrate Zustand store on mount
+    // Check if payment store is hydrated
+    const { isHydrated: paymentStoreHydrated } = usePaymentStore();
+
+    // Wait for payment store to be hydrated
     useEffect(() => {
         if (typeof window === 'undefined') {
-            console.log('[PAYMENT-SUCCESS] Server-side render, skipping store hydration');
+            console.log('[PAYMENT-SUCCESS] Server-side render, skipping store hydration check');
             return;
         }
         
-        console.log('[PAYMENT-SUCCESS] ========== INITIALIZING STORE HYDRATION ==========');
-        console.log('[PAYMENT-SUCCESS] Waiting for Zustand store to hydrate...');
+        console.log('[PAYMENT-SUCCESS] ========== CHECKING STORE HYDRATION ==========');
+        console.log('[PAYMENT-SUCCESS] Payment store hydrated:', paymentStoreHydrated);
         
-        // Small delay to ensure Zustand store is hydrated
-        const timer = setTimeout(() => {
-            console.log('[PAYMENT-SUCCESS] ✅ Store hydration complete');
+        // Check if store is already hydrated
+        if (paymentStoreHydrated) {
+            console.log('[PAYMENT-SUCCESS] ✅ Payment store is already hydrated');
             setIsStoreHydrated(true);
+            return;
+        }
+        
+        // If not hydrated, wait and check again
+        console.log('[PAYMENT-SUCCESS] Waiting for payment store to hydrate...');
+        const checkInterval = setInterval(() => {
+            const hydrated = usePaymentStore.getState().isHydrated;
+            console.log('[PAYMENT-SUCCESS] Checking hydration status:', hydrated);
+            if (hydrated) {
+                console.log('[PAYMENT-SUCCESS] ✅ Payment store hydrated!');
+                setIsStoreHydrated(true);
+                clearInterval(checkInterval);
+            }
         }, 100);
+
+        // Timeout after 2 seconds to prevent infinite waiting
+        const timeout = setTimeout(() => {
+            console.warn('[PAYMENT-SUCCESS] ⚠️ Payment store hydration timeout, proceeding anyway');
+            setIsStoreHydrated(true);
+            clearInterval(checkInterval);
+        }, 2000);
         
         return () => {
-            clearTimeout(timer);
-            console.log('[PAYMENT-SUCCESS] Store hydration timer cleaned up');
+            clearInterval(checkInterval);
+            clearTimeout(timeout);
+            console.log('[PAYMENT-SUCCESS] Store hydration check cleaned up');
         };
-    }, []);
+    }, [paymentStoreHydrated]);
 
     // Initialize payment intent from store or URL (if redirected), then clean up URL
     useEffect(() => {
@@ -260,13 +284,9 @@ function PaymentSuccessContent() {
                 error: data.error || 'none',
             });
 
-            // Always clear cart after payment success (whether email succeeds or fails)
-            if (!hasClearedCart) {
-                console.log('[CLIENT] Clearing cart...');
-                clearCart();
-                setHasClearedCart(true);
-                console.log('[CLIENT] ✅ Cart cleared');
-            }
+            // Cart is already cleared by the separate useEffect when payment intent is confirmed
+            // This ensures cart is cleared even if email sending fails
+            console.log('[CLIENT] Email request completed, cart clearing handled separately');
 
             if (data.success) {
                 setEmailSent(true);
@@ -292,11 +312,8 @@ function PaymentSuccessContent() {
             console.error('[CLIENT] Error type:', error instanceof Error ? error.constructor.name : typeof error);
             console.error('[CLIENT] Error message:', error instanceof Error ? error.message : String(error));
             console.error('[CLIENT] Error stack:', error instanceof Error ? error.stack : 'No stack trace');
-            // Even if email fails, clear cart since payment succeeded
-            if (!hasClearedCart) {
-                clearCart();
-                setHasClearedCart(true);
-            }
+            // Cart is already cleared by the separate useEffect when payment intent is confirmed
+            console.log('[CLIENT] Email failed, but cart clearing handled separately');
             // Still show success since payment succeeded
             useToastStore.getState().addToast({
                 type: 'success',

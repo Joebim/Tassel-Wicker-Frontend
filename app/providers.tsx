@@ -11,6 +11,7 @@ import { useAuthStore } from '@/store/authStore';
 import { useCartStore } from '@/store/cartStore';
 import { useCustomBasketStore } from '@/store/customBasketStore';
 import { useCurrencyStore } from '@/store/currencyStore';
+import { usePaymentStore } from '@/store/paymentStore';
 import CookieConsent from '@/components/common/CookieConsent';
 
 export default function Providers({ children }: { children: React.ReactNode }) {
@@ -35,6 +36,7 @@ export default function Providers({ children }: { children: React.ReactNode }) {
     useCartStore.persist.rehydrate();
     useCustomBasketStore.persist.rehydrate();
     useCurrencyStore.persist.rehydrate();
+    usePaymentStore.persist.rehydrate();
 
     // Clean up any legacy auth data from local/session storage
     if (typeof window !== 'undefined') {
