@@ -34,10 +34,29 @@ export async function sendEmail(config: EmailConfig): Promise<{
   messageId?: string;
   error?: string;
 }> {
+  const logPrefix = "[EMAIL-SERVICE]";
+  const timestamp = new Date().toISOString();
+  
+  console.log(`${logPrefix} ========== EMAIL SEND REQUEST STARTED ==========`);
+  console.log(`${logPrefix} Timestamp: ${timestamp}`);
+  
   try {
+    // Check Resend API key configuration
+    const resendApiKey = process.env.RESEND_API_KEY;
+    const hasApiKey = !!resendApiKey;
+    const apiKeyLength = resendApiKey ? resendApiKey.length : 0;
+    const apiKeyPrefix = resendApiKey ? resendApiKey.substring(0, 8) : "N/A";
+    
+    console.log(`${logPrefix} Resend API Key Check:`, {
+      configured: hasApiKey,
+      length: apiKeyLength,
+      prefix: `${apiKeyPrefix}...`,
+    });
+
     const resend = createResendClient();
 
     if (!resend) {
+      console.error(`${logPrefix} CRITICAL: Resend client creation failed - API key missing`);
       return {
         success: false,
         error:
@@ -45,12 +64,21 @@ export async function sendEmail(config: EmailConfig): Promise<{
       };
     }
 
+    console.log(`${logPrefix} Resend client created successfully`);
+
     const fromAddress =
       process.env.SMTP_FROM ||
       "info@tasselandwicker.com";
     const fromName =
       process.env.SMTP_FROM_NAME ||
       "Tassel & Wicker";
+
+    console.log(`${logPrefix} Email Configuration:`, {
+      fromAddress,
+      fromName,
+      fromEnv: !!process.env.SMTP_FROM,
+      fromNameEnv: !!process.env.SMTP_FROM_NAME,
+    });
 
     // Resend expects 'to' as an array
     const toArray = Array.isArray(config.to) ? config.to : [config.to];
@@ -68,6 +96,31 @@ export async function sendEmail(config: EmailConfig): Promise<{
         : [config.bcc]
       : undefined;
 
+    const emailPayload = {
+      from: `${fromName} <${fromAddress}>`,
+      to: toArray,
+      subject: config.subject,
+      html: config.html.substring(0, 200) + "... (truncated)", // Log first 200 chars of HTML
+      replyTo: config.replyTo,
+      cc: ccArray,
+      bcc: bccArray,
+      htmlLength: config.html.length,
+    };
+
+    console.log(`${logPrefix} Email Payload Prepared:`, {
+      from: emailPayload.from,
+      to: emailPayload.to,
+      subject: emailPayload.subject,
+      htmlPreview: emailPayload.html,
+      htmlLength: emailPayload.htmlLength,
+      replyTo: emailPayload.replyTo || "not set",
+      cc: emailPayload.cc || "not set",
+      bcc: emailPayload.bcc || "not set",
+    });
+
+    console.log(`${logPrefix} Sending email via Resend API...`);
+    const sendStartTime = Date.now();
+    
     const { data, error } = await resend.emails.send({
       from: `${fromName} <${fromAddress}>`,
       to: toArray,
@@ -78,20 +131,46 @@ export async function sendEmail(config: EmailConfig): Promise<{
       bcc: bccArray,
     });
 
+    const sendDuration = Date.now() - sendStartTime;
+    console.log(`${logPrefix} Resend API Response received (${sendDuration}ms):`, {
+      hasData: !!data,
+      hasError: !!error,
+      messageId: data?.id || "none",
+      errorType: error ? typeof error : "none",
+    });
+
     if (error) {
-      console.error("Resend error:", error);
+      console.error(`${logPrefix} RESEND API ERROR:`, {
+        error: error,
+        errorMessage: error.message || "No error message",
+        errorName: error.name || "No error name",
+        errorStack: error instanceof Error ? error.stack : "No stack trace",
+      });
       return {
         success: false,
         error: error.message || "Failed to send email",
       };
     }
 
+    console.log(`${logPrefix} EMAIL SENT SUCCESSFULLY:`, {
+      messageId: data?.id,
+      recipient: toArray.join(", "),
+      subject: config.subject,
+      timestamp: new Date().toISOString(),
+    });
+
     return {
       success: true,
       messageId: data?.id,
     };
   } catch (error) {
-    console.error("Error sending email:", error);
+    console.error(`${logPrefix} EXCEPTION IN EMAIL SERVICE:`, {
+      error: error,
+      errorMessage: error instanceof Error ? error.message : "Unknown error",
+      errorName: error instanceof Error ? error.name : "Unknown",
+      errorStack: error instanceof Error ? error.stack : "No stack trace",
+      timestamp: new Date().toISOString(),
+    });
     const errorMessage =
       error instanceof Error ? error.message : "Failed to send email";
     return {

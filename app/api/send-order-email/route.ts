@@ -144,21 +144,48 @@ export async function POST(request: NextRequest) {
       }),
     };
 
+    // Generate email templates
+    console.log("[SEND-ORDER-EMAIL] Generating email templates...");
+    const orderEmailHtml = createOrderConfirmationEmailTemplate(orderDetails);
+    const paymentEmailHtml = createPaymentConfirmationEmailTemplate(orderDetails);
+    console.log("[SEND-ORDER-EMAIL] Email templates generated:", {
+      orderEmailLength: orderEmailHtml.length,
+      paymentEmailLength: paymentEmailHtml.length,
+    });
+
     // Send order confirmation email
-    console.log(
-      "[SEND-ORDER-EMAIL] Sending order confirmation email to:",
-      customerEmail
-    );
+    console.log("[SEND-ORDER-EMAIL] ========== SENDING ORDER CONFIRMATION EMAIL ==========");
+    console.log("[SEND-ORDER-EMAIL] Email Details:", {
+      to: customerEmail,
+      subject: `Order Confirmation - Order #${orderId.substring(3, 13)}`,
+      htmlLength: orderEmailHtml.length,
+      orderId: orderId,
+    });
+    
+    const orderEmailStartTime = Date.now();
     const orderEmailResult = await sendEmail({
       to: customerEmail,
       subject: `Order Confirmation - Order #${orderId.substring(3, 13)}`,
-      html: createOrderConfirmationEmailTemplate(orderDetails),
+      html: orderEmailHtml,
+    });
+    const orderEmailDuration = Date.now() - orderEmailStartTime;
+
+    console.log("[SEND-ORDER-EMAIL] Order confirmation email result:", {
+      success: orderEmailResult.success,
+      messageId: orderEmailResult.messageId || "none",
+      error: orderEmailResult.error || "none",
+      duration: `${orderEmailDuration}ms`,
     });
 
     if (!orderEmailResult.success) {
       console.error(
-        "[SEND-ORDER-EMAIL] Failed to send order confirmation email:",
-        orderEmailResult.error
+        "[SEND-ORDER-EMAIL] ❌ FAILED TO SEND ORDER CONFIRMATION EMAIL:",
+        {
+          error: orderEmailResult.error,
+          customerEmail: customerEmail,
+          orderId: orderId,
+          timestamp: new Date().toISOString(),
+        }
       );
       return NextResponse.json(
         {
@@ -171,42 +198,84 @@ export async function POST(request: NextRequest) {
     }
 
     console.log(
-      "[SEND-ORDER-EMAIL] Order confirmation email sent successfully:",
-      orderEmailResult.messageId
+      "[SEND-ORDER-EMAIL] ✅ ORDER CONFIRMATION EMAIL SENT SUCCESSFULLY:",
+      {
+        messageId: orderEmailResult.messageId,
+        recipient: customerEmail,
+        orderId: orderId,
+        timestamp: new Date().toISOString(),
+      }
     );
 
     // Send payment confirmation email
-    console.log(
-      "[SEND-ORDER-EMAIL] Sending payment confirmation email to:",
-      customerEmail
-    );
+    console.log("[SEND-ORDER-EMAIL] ========== SENDING PAYMENT CONFIRMATION EMAIL ==========");
+    console.log("[SEND-ORDER-EMAIL] Email Details:", {
+      to: customerEmail,
+      subject: `Payment Confirmation - Order #${orderId.substring(3, 13)}`,
+      htmlLength: paymentEmailHtml.length,
+      orderId: orderId,
+    });
+    
+    const paymentEmailStartTime = Date.now();
     const paymentEmailResult = await sendEmail({
       to: customerEmail,
       subject: `Payment Confirmation - Order #${orderId.substring(3, 13)}`,
-      html: createPaymentConfirmationEmailTemplate(orderDetails),
+      html: paymentEmailHtml,
+    });
+    const paymentEmailDuration = Date.now() - paymentEmailStartTime;
+
+    console.log("[SEND-ORDER-EMAIL] Payment confirmation email result:", {
+      success: paymentEmailResult.success,
+      messageId: paymentEmailResult.messageId || "none",
+      error: paymentEmailResult.error || "none",
+      duration: `${paymentEmailDuration}ms`,
     });
 
     if (!paymentEmailResult.success) {
       console.error(
-        "[SEND-ORDER-EMAIL] Failed to send payment confirmation email:",
-        paymentEmailResult.error
+        "[SEND-ORDER-EMAIL] ⚠️ FAILED TO SEND PAYMENT CONFIRMATION EMAIL (non-fatal):",
+        {
+          error: paymentEmailResult.error,
+          customerEmail: customerEmail,
+          orderId: orderId,
+          note: "Order confirmation email was sent successfully",
+          timestamp: new Date().toISOString(),
+        }
       );
       // Don't fail the request if payment email fails, order email already sent
     } else {
       console.log(
-        "[SEND-ORDER-EMAIL] Payment confirmation email sent successfully:",
-        paymentEmailResult.messageId
+        "[SEND-ORDER-EMAIL] ✅ PAYMENT CONFIRMATION EMAIL SENT SUCCESSFULLY:",
+        {
+          messageId: paymentEmailResult.messageId,
+          recipient: customerEmail,
+          orderId: orderId,
+          timestamp: new Date().toISOString(),
+        }
       );
     }
 
-    console.log(
-      "[SEND-ORDER-EMAIL] Request completed successfully for order:",
-      orderId
-    );
+    console.log("[SEND-ORDER-EMAIL] ========== REQUEST COMPLETED SUCCESSFULLY ==========");
+    console.log("[SEND-ORDER-EMAIL] Summary:", {
+      orderId: orderId,
+      customerEmail: customerEmail,
+      customerName: customerName || "not provided",
+      orderEmailSent: orderEmailResult.success,
+      orderEmailMessageId: orderEmailResult.messageId || "none",
+      paymentEmailSent: paymentEmailResult.success,
+      paymentEmailMessageId: paymentEmailResult.messageId || "none",
+      totalItems: orderItems.length,
+      totalAmount: totalAmount,
+      currency: currency,
+      timestamp: new Date().toISOString(),
+    });
+    
     return NextResponse.json({
       success: true,
       message: "Order confirmation emails sent successfully",
       orderId: orderId,
+      orderEmailMessageId: orderEmailResult.messageId,
+      paymentEmailMessageId: paymentEmailResult.messageId,
     });
   } catch (error) {
     console.error("[SEND-ORDER-EMAIL] Unexpected error:", error);
