@@ -3,7 +3,7 @@
 // Disable static generation - this page needs to check URL params dynamically
 export const dynamic = 'force-dynamic';
 
-import { useEffect, useState, Suspense, useCallback } from 'react';
+import { useEffect, useState, Suspense, useCallback, useRef } from 'react';
 import Link from 'next/link';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
@@ -28,6 +28,7 @@ function PaymentSuccessContent() {
     const [emailSent, setEmailSent] = useState(false);
     const [paymentIntent, setPaymentIntentState] = useState<string | null>(null);
     const [isStoreHydrated, setIsStoreHydrated] = useState(false);
+    const emailSentRef = useRef<string | null>(null); // Track which payment intent has been sent
 
     // Hydrate Zustand store on mount
     useEffect(() => {
@@ -95,8 +96,24 @@ function PaymentSuccessContent() {
 
     // Send order confirmation email
     const sendOrderEmail = useCallback(async () => {
-        if (!paymentIntent || emailSent) {
-            console.log('[CLIENT] Email send skipped:', { paymentIntent: !!paymentIntent, emailSent });
+        // Prevent duplicate sends - check if we already sent for this payment intent
+        if (!paymentIntent) {
+            console.log('[CLIENT] Email send skipped: No payment intent');
+            return;
+        }
+
+        // Check if we already sent email for this payment intent
+        const emailSentKey = `email_sent_${paymentIntent}`;
+        const alreadySent = emailSentRef.current === paymentIntent || 
+                           (typeof window !== 'undefined' && localStorage.getItem(emailSentKey) === 'true');
+        
+        if (alreadySent || emailSent) {
+            console.log('[CLIENT] Email send skipped: Already sent for this payment intent', {
+                paymentIntent,
+                emailSentRef: emailSentRef.current,
+                localStorageCheck: typeof window !== 'undefined' ? localStorage.getItem(emailSentKey) : 'N/A',
+                emailSent
+            });
             return;
         }
 
@@ -146,6 +163,11 @@ function PaymentSuccessContent() {
 
             if (data.success) {
                 setEmailSent(true);
+                // Mark this payment intent as having email sent
+                emailSentRef.current = paymentIntent;
+                if (typeof window !== 'undefined') {
+                    localStorage.setItem(`email_sent_${paymentIntent}`, 'true');
+                }
                 console.log('[CLIENT] Order confirmation email sent successfully');
                 useToastStore.getState().addToast({
                     type: 'success',

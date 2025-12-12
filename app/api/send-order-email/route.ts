@@ -256,7 +256,7 @@ export async function POST(request: NextRequest) {
     }
 
     console.log("[SEND-ORDER-EMAIL] ========== REQUEST COMPLETED SUCCESSFULLY ==========");
-    console.log("[SEND-ORDER-EMAIL] Summary:", {
+    const summary = {
       orderId: orderId,
       customerEmail: customerEmail,
       customerName: customerName || "not provided",
@@ -268,7 +268,12 @@ export async function POST(request: NextRequest) {
       totalAmount: totalAmount,
       currency: currency,
       timestamp: new Date().toISOString(),
-    });
+      environment: process.env.NODE_ENV || "unknown",
+    };
+    console.log("[SEND-ORDER-EMAIL] Summary:", summary);
+    
+    // Log to console in a way that's visible in production logs
+    console.log(`[EMAIL-SUCCESS] Order ${orderId} - Emails sent to ${customerEmail} at ${summary.timestamp}`);
     
     return NextResponse.json({
       success: true,
@@ -276,6 +281,7 @@ export async function POST(request: NextRequest) {
       orderId: orderId,
       orderEmailMessageId: orderEmailResult.messageId,
       paymentEmailMessageId: paymentEmailResult.messageId,
+      summary: summary,
     });
   } catch (error) {
     console.error("[SEND-ORDER-EMAIL] Unexpected error:", error);
