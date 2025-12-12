@@ -144,7 +144,26 @@ const PaymentForm: React.FC<{
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
+        console.log('[CHECKOUT] ========== PAYMENT FORM SUBMITTED ==========');
+        console.log('[CHECKOUT] Payment form submission started at:', new Date().toISOString());
+        console.log('[CHECKOUT] Form state:', {
+            hasStripe: !!stripe,
+            hasElements: !!elements,
+            isGuest,
+            userEmail: userEmail || 'none',
+            guestEmail: guestEmail || 'none',
+            emailToUse: emailToUse || 'none',
+            userName: userName || 'none',
+            totalPrice,
+            clientSecret: clientSecret ? clientSecret.substring(0, 20) + '...' : 'none',
+            paymentIntentId: paymentIntentId || 'none',
+        });
+
         if (!stripe || !elements) {
+            console.error('[CHECKOUT] ❌ Stripe or Elements not available:', {
+                hasStripe: !!stripe,
+                hasElements: !!elements,
+            });
             return;
         }
 
@@ -152,47 +171,78 @@ const PaymentForm: React.FC<{
         setError('');
 
         try {
+            console.log('[CHECKOUT] Submitting Stripe Elements...');
             const { error: submitError } = await elements.submit();
             if (submitError) {
+                console.error('[CHECKOUT] ❌ Elements submission error:', {
+                    error: submitError.message,
+                    code: submitError.code,
+                    type: submitError.type,
+                });
                 setError(submitError.message || 'Please check your payment details');
                 setIsProcessing(false);
                 return;
             }
+            console.log('[CHECKOUT] ✅ Elements submitted successfully');
 
             // Validate guest email if guest checkout
+            console.log('[CHECKOUT] Validating customer information...');
             if (isGuest && !guestEmail) {
+                console.error('[CHECKOUT] ❌ Guest email is required but missing');
                 setError('Please enter your email address');
                 setIsProcessing(false);
                 return;
             }
 
             if (isGuest && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(guestEmail)) {
+                console.error('[CHECKOUT] ❌ Guest email format is invalid:', guestEmail);
                 setError('Please enter a valid email address');
                 setIsProcessing(false);
                 return;
             }
 
+            console.log('[CHECKOUT] ✅ Customer information validated:', {
+                isGuest,
+                email: emailToUse.substring(0, 3) + '***',
+                name: userName || 'none',
+            });
+
             // Store customer info in localStorage for email sending on success page
             if (typeof window !== 'undefined') {
+                console.log('[CHECKOUT] Storing customer info in localStorage...');
                 localStorage.setItem('checkout_customer_email', emailToUse);
                 const nameParts = userName.split(' ');
                 localStorage.setItem('checkout_first_name', nameParts[0] || '');
                 localStorage.setItem('checkout_last_name', nameParts.slice(1).join(' ') || '');
+                console.log('[CHECKOUT] ✅ Customer info stored in localStorage');
             }
 
             // Store payment intent and customer info BEFORE confirming payment
             // This ensures data is available even if Stripe redirects
+            console.log('[CHECKOUT] ========== PREPARING PAYMENT CONFIRMATION ==========');
             const paymentIntentIdFromSecret = clientSecret.split('_secret_')[0];
             if (paymentIntentIdFromSecret) {
+                console.log('[CHECKOUT] Storing payment intent and customer info in Zustand store...');
                 usePaymentStore.getState().setPaymentIntent(paymentIntentIdFromSecret, clientSecret);
                 usePaymentStore.getState().setCustomerInfo(emailToUse, userName);
-                console.log('[CHECKOUT] Stored payment intent and customer info before payment confirmation:', {
-                    paymentIntentId: paymentIntentIdFromSecret.substring(0, 10) + '...',
+                console.log('[CHECKOUT] ✅ Payment data stored:', {
+                    paymentIntentId: paymentIntentIdFromSecret.substring(0, 15) + '...',
                     customerEmail: emailToUse.substring(0, 3) + '***',
+                    customerName: userName || 'none',
+                    timestamp: new Date().toISOString(),
                 });
             }
 
             // Confirm payment with existing clientSecret
+            console.log('[CHECKOUT] ========== CONFIRMING PAYMENT WITH STRIPE ==========');
+            console.log('[CHECKOUT] Payment confirmation details:', {
+                clientSecret: clientSecret.substring(0, 20) + '...',
+                returnUrl: `${window.location.origin}/payment-success`,
+                receiptEmail: emailToUse.substring(0, 3) + '***',
+                redirectMode: 'if_required',
+            });
+            
+            const confirmStartTime = Date.now();
             const { error: confirmError } = await stripe.confirmPayment({
                 elements,
                 clientSecret,
@@ -202,30 +252,73 @@ const PaymentForm: React.FC<{
                 },
                 redirect: 'if_required',
             });
+            const confirmDuration = Date.now() - confirmStartTime;
+
+            console.log('[CHECKOUT] Payment confirmation response received:', {
+                duration: `${confirmDuration}ms`,
+                hasError: !!confirmError,
+                error: confirmError?.message || 'none',
+            });
 
             if (confirmError) {
+                console.error('[CHECKOUT] ❌ PAYMENT CONFIRMATION FAILED:', {
+                    error: confirmError.message,
+                    code: confirmError.code,
+                    type: confirmError.type,
+                    declineCode: confirmError.decline_code || 'none',
+                    paymentIntent: confirmError.payment_intent || 'none',
+                });
                 setError(confirmError.message || 'Payment failed. Please try again.');
                 setIsProcessing(false);
             } else {
+                console.log('[CHECKOUT] ✅ Payment confirmation successful, retrieving payment intent status...');
+                const retrieveStartTime = Date.now();
                 const result = await stripe.retrievePaymentIntent(clientSecret);
+                const retrieveDuration = Date.now() - retrieveStartTime;
+
+                console.log('[CHECKOUT] Payment intent retrieved:', {
+                    duration: `${retrieveDuration}ms`,
+                    status: result.paymentIntent?.status || 'unknown',
+                    id: result.paymentIntent?.id || 'none',
+                    amount: result.paymentIntent?.amount || 0,
+                    currency: result.paymentIntent?.currency || 'none',
+                });
 
                 if (result.paymentIntent?.status === 'succeeded') {
                     const paymentIntentId = result.paymentIntent.id;
-                    console.log('[CHECKOUT] Payment succeeded without redirect, payment intent:', paymentIntentId);
+                    console.log('[CHECKOUT] ========== PAYMENT SUCCEEDED ==========');
+                    console.log('[CHECKOUT] Payment successful details:', {
+                        paymentIntentId: paymentIntentId.substring(0, 20) + '...',
+                        amount: result.paymentIntent.amount,
+                        currency: result.paymentIntent.currency,
+                        customerEmail: emailToUse.substring(0, 3) + '***',
+                        timestamp: new Date().toISOString(),
+                    });
 
                     // Store payment intent and customer info in Zustand store (not in URL for security)
+                    console.log('[CHECKOUT] Final storage of payment data in Zustand...');
                     usePaymentStore.getState().setPaymentIntent(paymentIntentId, clientSecret);
                     usePaymentStore.getState().setCustomerInfo(emailToUse, userName);
+                    console.log('[CHECKOUT] ✅ Payment data stored in Zustand store');
 
                     // Email will be sent from payment-success page to avoid duplicates
                     // Redirect without sensitive information in URL
                     // Cart will be cleared on payment-success page after email is sent
+                    console.log('[CHECKOUT] ========== REDIRECTING TO PAYMENT SUCCESS PAGE ==========');
+                    console.log('[CHECKOUT] Redirect URL: /payment-success (no URL params)');
+                    console.log('[CHECKOUT] Email will be sent from payment-success page');
                     window.location.href = `/payment-success`;
                 } else {
+                    console.log('[CHECKOUT] Payment status is not succeeded:', result.paymentIntent?.status);
+                    console.log('[CHECKOUT] Calling onSuccess callback...');
                     onSuccess();
                 }
             }
         } catch (err) {
+            console.error('[CHECKOUT] ========== EXCEPTION IN PAYMENT PROCESSING ==========');
+            console.error('[CHECKOUT] Error type:', err instanceof Error ? err.constructor.name : typeof err);
+            console.error('[CHECKOUT] Error message:', err instanceof Error ? err.message : String(err));
+            console.error('[CHECKOUT] Error stack:', err instanceof Error ? err.stack : 'No stack trace');
             const errorMessage = err instanceof Error ? err.message : 'An unexpected error occurred';
             setError(errorMessage);
             onError(errorMessage);
@@ -463,17 +556,43 @@ export default function Checkout() {
     useEffect(() => {
         if (items.length > 0 && baseTotalPrice > 0 && !isLoadingFXQuote) {
             const createPaymentIntent = async () => {
+                console.log('[CHECKOUT] ========== CREATING PAYMENT INTENT ==========');
+                console.log('[CHECKOUT] Payment intent creation started at:', new Date().toISOString());
+                console.log('[CHECKOUT] Initial values:', {
+                    itemsCount: items.length,
+                    baseTotalPrice,
+                    isLoadingFXQuote,
+                    currency,
+                    userEmail: user?.email?.substring(0, 3) + '***' || 'none',
+                    userName: user?.displayName || 'none',
+                    userId: user?.uid || 'guest',
+                });
+
                 try {
                     // Calculate amount in customer's currency if FX quote is available
                     let finalAmount = baseTotalPrice;
                     let finalCurrency = 'gbp';
                     let fxQuoteIdToUse: string | null = null;
 
+                    console.log('[CHECKOUT] Calculating final amount and currency...');
+                    console.log('[CHECKOUT] FX Quote status:', {
+                        hasFxQuote: !!fxQuote,
+                        lockStatus: fxQuote?.lockStatus || 'none',
+                        lockDuration: fxQuote?.lockDuration || 'none',
+                        currency,
+                    });
+
                     // Use FX quote for price conversion (both 'active' and 'none' statuses)
                     // Note: FX quotes with lock_duration='none' cannot be used in PaymentIntents
                     if (fxQuote && (fxQuote.lockStatus === 'active' || fxQuote.lockStatus === 'none') && currency !== 'GBP') {
                         const exchangeRate = fxQuote.rates[currency.toLowerCase()]?.exchange_rate;
                         const lockDuration = fxQuote.lockDuration;
+
+                        console.log('[CHECKOUT] FX Quote conversion:', {
+                            exchangeRate: exchangeRate || 'none',
+                            lockDuration,
+                            originalAmountGBP: baseTotalPrice,
+                        });
 
                         if (exchangeRate) {
                             // Convert GBP amount to customer currency
@@ -482,14 +601,37 @@ export default function Checkout() {
                             finalAmount = baseTotalPrice / exchangeRate;
                             finalCurrency = currency.toLowerCase();
 
+                            console.log('[CHECKOUT] Amount converted:', {
+                                originalGBP: baseTotalPrice,
+                                convertedAmount: finalAmount,
+                                targetCurrency: finalCurrency,
+                                exchangeRate,
+                            });
+
                             // Only use FX quote ID in PaymentIntent if it has a locked duration (not 'none')
                             if (lockDuration && lockDuration !== 'none') {
                                 fxQuoteIdToUse = fxQuote.id;
+                                console.log('[CHECKOUT] Using FX quote ID in payment intent:', fxQuoteIdToUse.substring(0, 15) + '...');
+                            } else {
+                                console.log('[CHECKOUT] FX quote lock duration is "none", Stripe will handle conversion');
                             }
                             // For lock_duration='none', don't set fxQuoteIdToUse - Stripe will handle conversion
+                        } else {
+                            console.warn('[CHECKOUT] ⚠️ No exchange rate found for currency:', currency);
                         }
+                    } else {
+                        console.log('[CHECKOUT] Using base GBP amount (no FX conversion)');
                     }
 
+                    console.log('[CHECKOUT] Final payment intent parameters:', {
+                        amount: finalAmount,
+                        currency: finalCurrency,
+                        fxQuoteId: fxQuoteIdToUse || 'none',
+                        itemsCount: items.length,
+                    });
+
+                    console.log('[CHECKOUT] Making POST request to /api/create-payment-intent...');
+                    const requestStartTime = Date.now();
                     const response = await fetch('/api/create-payment-intent', {
                         method: 'POST',
                         headers: {
@@ -513,6 +655,13 @@ export default function Checkout() {
                                 baseAmountGBP: baseTotalPrice.toString(),
                             },
                         }),
+                    });
+                    const requestDuration = Date.now() - requestStartTime;
+
+                    console.log('[CHECKOUT] Payment intent API response received:', {
+                        status: response.status,
+                        statusText: response.statusText,
+                        duration: `${requestDuration}ms`,
                     });
 
                     const data = await response.json();

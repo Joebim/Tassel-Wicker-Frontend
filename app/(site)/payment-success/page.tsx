@@ -13,6 +13,9 @@ import { useToastStore } from '@/store/toastStore';
 import { usePaymentStore } from '@/store/paymentStore';
 
 function PaymentSuccessContent() {
+    console.log('[PAYMENT-SUCCESS] ========== COMPONENT RENDERED ==========');
+    console.log('[PAYMENT-SUCCESS] Component render time:', new Date().toISOString());
+    
     const searchParams = useSearchParams();
     const router = useRouter();
     const { clearCart } = useCartStore();
@@ -65,14 +68,24 @@ function PaymentSuccessContent() {
 
     // Hydrate Zustand store on mount
     useEffect(() => {
-        if (typeof window === 'undefined') return;
+        if (typeof window === 'undefined') {
+            console.log('[PAYMENT-SUCCESS] Server-side render, skipping store hydration');
+            return;
+        }
+        
+        console.log('[PAYMENT-SUCCESS] ========== INITIALIZING STORE HYDRATION ==========');
+        console.log('[PAYMENT-SUCCESS] Waiting for Zustand store to hydrate...');
         
         // Small delay to ensure Zustand store is hydrated
         const timer = setTimeout(() => {
+            console.log('[PAYMENT-SUCCESS] ✅ Store hydration complete');
             setIsStoreHydrated(true);
         }, 100);
         
-        return () => clearTimeout(timer);
+        return () => {
+            clearTimeout(timer);
+            console.log('[PAYMENT-SUCCESS] Store hydration timer cleaned up');
+        };
     }, []);
 
     // Initialize payment intent from store or URL (if redirected), then clean up URL
@@ -298,6 +311,7 @@ function PaymentSuccessContent() {
     // Scroll to top when component mounts
     useEffect(() => {
         if (typeof window !== 'undefined') {
+            console.log('[PAYMENT-SUCCESS] Scrolling to top of page');
             window.scrollTo(0, 0);
         }
     }, []);
