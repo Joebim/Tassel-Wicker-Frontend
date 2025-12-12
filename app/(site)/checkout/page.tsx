@@ -46,8 +46,6 @@ const PaymentForm: React.FC<{
     currency: string;
     exchangeRate: number | null;
 }> = ({ userEmail, userName, isGuest = false, onSuccess, onError, totalPrice, clientSecret, paymentIntentId, onShippingChange, currency, exchangeRate }) => {
-    // isGuest is available for future guest checkout logic
-    void isGuest;
     const stripe = useStripe();
     const elements = useElements();
     const [isProcessing, setIsProcessing] = useState(false);
@@ -56,6 +54,9 @@ const PaymentForm: React.FC<{
     const [shippingCostGBP, setShippingCostGBP] = useState<number>(0);
     const [shippingRates, setShippingRates] = useState<Array<{ id: string; amount: number; currency: string; displayName: string }>>([]);
     const [addressComplete, setAddressComplete] = useState(false);
+    const [guestEmail, setGuestEmail] = useState<string>('');
+    // Use guest email if guest checkout, otherwise use user email
+    const emailToUse = isGuest ? guestEmail : userEmail;
     // totalPrice is in GBP, shippingCostGBP is in GBP, so use usePrice to convert the sum
     const { formattedPrice } = usePrice(totalPrice + shippingCostGBP);
 
@@ -158,9 +159,22 @@ const PaymentForm: React.FC<{
                 return;
             }
 
+            // Validate guest email if guest checkout
+            if (isGuest && !guestEmail) {
+                setError('Please enter your email address');
+                setIsProcessing(false);
+                return;
+            }
+
+            if (isGuest && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(guestEmail)) {
+                setError('Please enter a valid email address');
+                setIsProcessing(false);
+                return;
+            }
+
             // Store customer info in localStorage for email sending on success page
             if (typeof window !== 'undefined') {
-                localStorage.setItem('checkout_customer_email', userEmail);
+                localStorage.setItem('checkout_customer_email', emailToUse);
                 const nameParts = userName.split(' ');
                 localStorage.setItem('checkout_first_name', nameParts[0] || '');
                 localStorage.setItem('checkout_last_name', nameParts.slice(1).join(' ') || '');
@@ -172,7 +186,7 @@ const PaymentForm: React.FC<{
                 clientSecret,
                 confirmParams: {
                     return_url: `${window.location.origin}/payment-success`,
-                    receipt_email: userEmail,
+                    receipt_email: emailToUse,
                 },
                 // Store payment intent in Zustand if redirect happens
                 // Note: If redirect occurs, we'll handle it on the payment-success page
@@ -198,7 +212,7 @@ const PaymentForm: React.FC<{
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify({
                                 paymentIntentId: paymentIntentId,
-                                customerEmail: userEmail,
+                                customerEmail: emailToUse,
                                 customerName: userName,
                             }),
                         });
@@ -211,6 +225,7 @@ const PaymentForm: React.FC<{
                     }
 
                     // Redirect without sensitive information in URL
+                    // Cart will be cleared on payment-success page after email is sent
                     window.location.href = `/payment-success`;
                 } else {
                     onSuccess();
@@ -226,6 +241,26 @@ const PaymentForm: React.FC<{
 
     return (
         <form onSubmit={handleSubmit} className="space-y-6">
+            {/* Guest Email Field */}
+            {isGuest && (
+                <div className="bg-white p-6 rounded-lg border">
+                    <h3 className="text-lg font-extralight text-luxury-black mb-4 uppercase">
+                        Email Address
+                    </h3>
+                    <input
+                        type="email"
+                        value={guestEmail}
+                        onChange={(e) => setGuestEmail(e.target.value)}
+                        placeholder="Enter your email address"
+                        required
+                        className="w-full px-4 py-3 border border-luxury-warm-grey/20 rounded-lg bg-white focus:outline-none focus:border-brand-purple/50 transition-colors duration-200 font-extralight text-luxury-black placeholder-luxury-cool-grey"
+                    />
+                    <p className="text-xs text-luxury-cool-grey font-extralight mt-2">
+                        We'll send your order confirmation to this email address
+                    </p>
+                </div>
+            )}
+
             {/* Shipping Address */}
             <div className="bg-white p-6 rounded-lg border">
                 <h3 className="text-lg font-extralight text-luxury-black mb-4 uppercase">

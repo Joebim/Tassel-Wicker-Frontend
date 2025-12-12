@@ -121,12 +121,22 @@ function PaymentSuccessContent() {
                 }
             } else {
                 console.error('[CLIENT] Failed to send order confirmation email:', data.error);
+                // Even if email fails, clear cart since payment succeeded
+                if (!hasClearedCart && paymentIntent) {
+                    clearCart();
+                    setHasClearedCart(true);
+                }
             }
         } catch (error) {
             console.error('[CLIENT] Error sending order confirmation email:', error);
             console.error('[CLIENT] Error details:', error instanceof Error ? error.stack : error);
+            // Even if email fails, clear cart since payment succeeded
+            if (!hasClearedCart && paymentIntent) {
+                clearCart();
+                setHasClearedCart(true);
+            }
         }
-    }, [paymentIntent, emailSent]);
+    }, [paymentIntent, emailSent, hasClearedCart, clearCart]);
 
     // Scroll to top when component mounts
     useEffect(() => {
