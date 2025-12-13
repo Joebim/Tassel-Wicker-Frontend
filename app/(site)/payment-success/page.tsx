@@ -3,7 +3,7 @@
 // Disable static generation - this page needs to check URL params dynamically
 export const dynamic = 'force-dynamic';
 
-import { useEffect, useState, Suspense, useCallback } from 'react';
+import { useEffect, useState, Suspense, useCallback, useRef } from 'react';
 import Link from 'next/link';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
@@ -32,6 +32,7 @@ function PaymentSuccessContent() {
     const [paymentIntent, setPaymentIntentState] = useState<string | null>(null);
     const [isStoreHydrated, setIsStoreHydrated] = useState(false);
     const [isProcessingEmail, setIsProcessingEmail] = useState(false);
+    const emailSendAttemptedRef = useRef<string | null>(null); // Track which payment intent we've attempted to send email for
 
     // Check if email was already sent for this payment intent (using sessionStorage to prevent duplicates)
     const checkEmailSent = (paymentIntentId: string): boolean => {
@@ -189,25 +190,41 @@ function PaymentSuccessContent() {
 
     // Send order confirmation email
     const sendOrderEmail = useCallback(async () => {
+        if (!paymentIntent) {
+            console.log('[CLIENT] No payment intent, skipping email send');
+            return;
+        }
+
         console.log('[CLIENT] ========== SEND ORDER EMAIL CALLED ==========');
         console.log('[CLIENT] Current state:', {
-            paymentIntent: paymentIntent || 'none',
+            paymentIntent,
             emailSent,
             isProcessingEmail,
             hasClearedCart,
+            emailSendAttempted: emailSendAttemptedRef.current,
         });
 
-        // Check if email was already sent for this payment intent
-        if (paymentIntent && checkEmailSent(paymentIntent)) {
-            console.log('[CLIENT] ⚠️ Email already sent for payment intent:', paymentIntent);
+        // CRITICAL: Check sessionStorage FIRST to prevent duplicates (before any state checks)
+        if (checkEmailSent(paymentIntent)) {
+            console.log('[CLIENT] ⚠️ Email already sent for payment intent (sessionStorage check):', paymentIntent);
             console.log('[CLIENT] Skipping email send to prevent duplicate');
             setEmailSent(true);
             return;
         }
 
-        if (!paymentIntent || emailSent || isProcessingEmail) {
-            console.log('[CLIENT] Email send skipped:', { 
-                paymentIntent: !!paymentIntent, 
+        // CRITICAL: Check ref to see if we've already attempted to send for this payment intent
+        if (emailSendAttemptedRef.current === paymentIntent) {
+            console.log('[CLIENT] ⚠️ Email send already attempted for this payment intent (ref check):', paymentIntent);
+            console.log('[CLIENT] Skipping email send to prevent duplicate');
+            return;
+        }
+
+        // CRITICAL: Mark as attempted IMMEDIATELY to prevent race conditions
+        emailSendAttemptedRef.current = paymentIntent;
+        markEmailSent(paymentIntent);
+
+        if (emailSent || isProcessingEmail) {
+            console.log('[CLIENT] Email send skipped (state check):', { 
                 emailSent,
                 isProcessingEmail,
             });
@@ -241,7 +258,6 @@ function PaymentSuccessContent() {
 
         // Mark as processing to prevent duplicate sends
         setIsProcessingEmail(true);
-        markEmailSent(paymentIntent);
 
         try {
             console.log('[CLIENT] ========== SENDING EMAIL REQUEST ==========');
@@ -385,10 +401,16 @@ function PaymentSuccessContent() {
             return;
         }
 
-        // Check if email was already sent for this payment intent
+        // CRITICAL: Check sessionStorage FIRST before doing anything else
         if (checkEmailSent(paymentIntent)) {
-            console.log('[CLIENT] ✅ Email already sent for this payment intent (checked via sessionStorage)');
+            console.log('[CLIENT] ✅ Email already sent for this payment intent (sessionStorage check)');
             setEmailSent(true);
+            return;
+        }
+
+        // CRITICAL: Check ref to prevent duplicate attempts
+        if (emailSendAttemptedRef.current === paymentIntent) {
+            console.log('[CLIENT] ⚠️ Email send already attempted for this payment intent (ref check)');
             return;
         }
 
@@ -412,6 +434,7 @@ function PaymentSuccessContent() {
             fromStore: !!storeCustomerEmail,
             fromLocalStorage: !!localStorage.getItem('checkout_customer_email'),
             sessionStorageCheck: checkEmailSent(paymentIntent),
+            emailSendAttempted: emailSendAttemptedRef.current,
         });
 
         if (!customerEmail) {
@@ -424,6 +447,9 @@ function PaymentSuccessContent() {
             }
             return;
         }
+
+        // CRITICAL: Mark as attempted IMMEDIATELY to prevent race conditions
+        emailSendAttemptedRef.current = paymentIntent;
 
         console.log('[CLIENT] ⏱️ Setting up email send timer (2 second delay)...');
         // Delay to ensure payment is fully processed
