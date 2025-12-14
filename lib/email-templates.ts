@@ -48,7 +48,7 @@ function getBaseEmailTemplate(content: string, title?: string): string {
                     <!-- Header -->
                     <tr>
                         <td style="padding: 40px 40px 30px; text-align: center; background-color: #4c062c;">
-                            <img src="https://res.cloudinary.com/dtaegi6gk/image/upload/v1765549381/TASSEL_WICKER_LOGO_PRIMARY_kwe6pc.png" alt="Tassel & Wicker" style="max-width: 200px; height: auto; margin: 0 auto 20px; display: block;" />
+                            <img src="https://res.cloudinary.com/dtaegi6gk/image/upload/v1765738878/TASSEL_WICKER_LOGO_PRIMARY_WHITE_zusxr2.png" alt="Tassel & Wicker" style="max-width: 200px; height: auto; margin: 0 auto 20px; display: block;" />
                             ${
                               title
                                 ? `<p style="margin: 10px 0 0; color: #ffffff; font-size: 14px; font-weight: 200; letter-spacing: 1px; text-transform: uppercase; font-family: 'Balgin', 'Mathilda', system-ui, sans-serif;">${title}</p>`
@@ -67,7 +67,7 @@ function getBaseEmailTemplate(content: string, title?: string): string {
                     <!-- Footer -->
                     <tr>
                         <td style="padding: 30px 40px; background-color: #4c062c; text-align: center;">
-                            <img src="https://res.cloudinary.com/dtaegi6gk/image/upload/v1765549381/TASSEL_WICKER_LOGO_PRIMARY_kwe6pc.png" alt="Tassel & Wicker" style="max-width: 150px; height: auto; margin: 0 auto 10px; display: block; filter: brightness(0) invert(1);" />
+                            <img src="https://res.cloudinary.com/dtaegi6gk/image/upload/v1765738878/TASSEL_WICKER_LOGO_PRIMARY_WHITE_zusxr2.png" alt="Tassel & Wicker" style="max-width: 150px; height: auto; margin: 0 auto 10px; display: block; filter: brightness(0) invert(1);" />
                             <p style="margin: 5px 0 0; color: #ffffff; font-size: 11px; font-weight: 200;">
                                 Wicker Gift Baskets & Lifestyle Essentials
                             </p>
@@ -145,7 +145,7 @@ export function createOrderConfirmationEmailTemplate(
   order: OrderDetails
 ): string {
   // Always format prices in GBP - Stripe handles conversion during checkout
-  const formatPrice = (amount: number, _currency: string): string => {
+  const formatPrice = (amount: number): string => {
     // Always use GBP symbol regardless of currency parameter
     return `£${amount.toFixed(2)}`;
   };
@@ -165,7 +165,7 @@ export function createOrderConfirmationEmailTemplate(
             </td>
             <td style="padding: 15px 0; border-bottom: 1px solid #e6e6e6; text-align: right;">
                 <p style="margin: 0; color: #1a1a1a; font-size: 16px; font-weight: 200;">
-                    ${formatPrice(item.price * item.quantity, order.currency)}
+                    ${formatPrice(item.price * item.quantity)}
                 </p>
             </td>
         </tr>
@@ -225,10 +225,7 @@ export function createOrderConfirmationEmailTemplate(
         <tr>
             <td style="padding: 20px 0 0; border-top: 2px solid #1a1a1a;" colspan="2">
                 <p style="margin: 0; color: #1a1a1a; font-size: 18px; font-weight: 200; text-align: right;">
-                    <strong>Total: ${formatPrice(
-                      order.totalAmount,
-                      order.currency
-                    )}</strong>
+                    <strong>Total: ${formatPrice(order.totalAmount)}</strong>
                 </p>
             </td>
         </tr>
@@ -281,7 +278,7 @@ export function createPaymentConfirmationEmailTemplate(
   order: OrderDetails
 ): string {
   // Always format prices in GBP - Stripe handles conversion during checkout
-  const formatPrice = (amount: number, _currency: string): string => {
+  const formatPrice = (amount: number): string => {
     // Always use GBP symbol regardless of currency parameter
     return `£${amount.toFixed(2)}`;
   };
@@ -297,8 +294,7 @@ export function createPaymentConfirmationEmailTemplate(
     
     <p style="margin: 0 0 30px; color: #1a1a1a; font-size: 16px; font-weight: 200; line-height: 1.6; font-family: 'Balgin', 'Mathilda', system-ui, sans-serif;">
         We are pleased to confirm that your payment of <strong>${formatPrice(
-          order.totalAmount,
-          order.currency
+          order.totalAmount
         )}</strong> has been successfully processed.
     </p>
     
