@@ -15,17 +15,17 @@ import { usePaymentStore } from '@/store/paymentStore';
 function PaymentSuccessContent() {
     console.log('[PAYMENT-SUCCESS] ========== COMPONENT RENDERED ==========');
     console.log('[PAYMENT-SUCCESS] Component render time:', new Date().toISOString());
-    
+
     const searchParams = useSearchParams();
     const router = useRouter();
     const { clearCart } = useCartStore();
-    const { 
-        paymentIntentId, 
-        paymentIntentClientSecret, 
+    const {
+        paymentIntentId,
+        paymentIntentClientSecret,
         customerEmail: storeCustomerEmail,
         customerName: storeCustomerName,
-        setPaymentIntent, 
-        clearPaymentIntent 
+        setPaymentIntent,
+        clearPaymentIntent
     } = usePaymentStore();
     const [hasClearedCart, setHasClearedCart] = useState(false);
     const [emailSent, setEmailSent] = useState(false);
@@ -76,17 +76,17 @@ function PaymentSuccessContent() {
             console.log('[PAYMENT-SUCCESS] Server-side render, skipping store hydration check');
             return;
         }
-        
+
         console.log('[PAYMENT-SUCCESS] ========== CHECKING STORE HYDRATION ==========');
         console.log('[PAYMENT-SUCCESS] Payment store hydrated:', paymentStoreHydrated);
-        
+
         // Check if store is already hydrated
         if (paymentStoreHydrated) {
             console.log('[PAYMENT-SUCCESS] ✅ Payment store is already hydrated');
             setIsStoreHydrated(true);
             return;
         }
-        
+
         // If not hydrated, wait and check again
         console.log('[PAYMENT-SUCCESS] Waiting for payment store to hydrate...');
         const checkInterval = setInterval(() => {
@@ -105,7 +105,7 @@ function PaymentSuccessContent() {
             setIsStoreHydrated(true);
             clearInterval(checkInterval);
         }, 2000);
-        
+
         return () => {
             clearInterval(checkInterval);
             clearTimeout(timeout);
@@ -150,11 +150,11 @@ function PaymentSuccessContent() {
                 console.log('[CLIENT] ⚠️ Email already sent for this payment intent, skipping');
                 setEmailSent(true);
             }
-            
+
             // Store in Zustand for future use
             setPaymentIntent(urlPaymentIntent, urlClientSecret);
             setPaymentIntentState(urlPaymentIntent);
-            
+
             // IMMEDIATELY clean up URL params to remove sensitive information
             console.log('[CLIENT] Cleaning up URL params immediately...');
             const url = new URL(window.location.href);
@@ -220,7 +220,7 @@ function PaymentSuccessContent() {
         }
 
         if (emailSent || isProcessingEmail) {
-            console.log('[CLIENT] Email send skipped (state check):', { 
+            console.log('[CLIENT] Email send skipped (state check):', {
                 emailSent,
                 isProcessingEmail,
             });
@@ -264,7 +264,7 @@ function PaymentSuccessContent() {
                 customerName: customerName,
             });
             console.log('[CLIENT] Making POST request to /api/send-order-email...');
-            
+
             const requestStartTime = Date.now();
             const response = await fetch('/api/send-order-email', {
                 method: 'POST',
@@ -336,19 +336,6 @@ function PaymentSuccessContent() {
                 title: 'Payment Successful',
                 message: 'Your order has been placed successfully!',
             });
-        } catch (error) {
-            console.error('[CLIENT] ========== EMAIL SEND ERROR ==========');
-            console.error('[CLIENT] Error type:', error instanceof Error ? error.constructor.name : typeof error);
-            console.error('[CLIENT] Error message:', error instanceof Error ? error.message : String(error));
-            console.error('[CLIENT] Error stack:', error instanceof Error ? error.stack : 'No stack trace');
-            // Cart is already cleared by the separate useEffect when payment intent is confirmed
-            console.log('[CLIENT] Email failed, but cart clearing handled separately');
-            // Still show success since payment succeeded
-            useToastStore.getState().addToast({
-                type: 'success',
-                title: 'Payment Successful',
-                message: 'Your order has been placed successfully!',
-            });
         } finally {
             setIsProcessingEmail(false);
             // Don't clear the ref - keep it set to prevent duplicate sends
@@ -380,7 +367,7 @@ function PaymentSuccessContent() {
             hasClearedCart,
             cartItemsCount: useCartStore.getState().items.length,
         });
-        
+
         // Always clear cart when payment intent is present (payment succeeded)
         if (!hasClearedCart) {
             console.log('[CLIENT] Clearing cart immediately (payment succeeded)...');
@@ -439,9 +426,9 @@ function PaymentSuccessContent() {
 
         const customerEmail = getCustomerEmail();
         console.log('[CLIENT] ========== EMAIL EFFECT - READY TO SEND ==========');
-        console.log('[CLIENT] Email Details:', { 
-            paymentIntent, 
-            emailSent, 
+        console.log('[CLIENT] Email Details:', {
+            paymentIntent,
+            emailSent,
             isProcessingEmail,
             hasCustomerEmail: !!customerEmail,
             customerEmailPrefix: customerEmail ? `${customerEmail.substring(0, 3)}***` : 'none',
@@ -472,7 +459,7 @@ function PaymentSuccessContent() {
             } catch (error) {
                 console.error('[CLIENT] ❌ Error in sendOrderEmail:', error);
             }
-            
+
             // Clean up localStorage and payment store after email is sent (or attempted)
             if (typeof window !== 'undefined') {
                 setTimeout(() => {
@@ -485,7 +472,7 @@ function PaymentSuccessContent() {
                 }, 10000); // Keep for 10 seconds in case of retries
             }
         }, 2000); // 2 second delay
-        
+
         return () => {
             console.log('[CLIENT] 🧹 Cleaning up email timer');
             clearTimeout(timer);

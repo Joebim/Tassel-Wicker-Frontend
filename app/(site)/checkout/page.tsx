@@ -241,7 +241,7 @@ const PaymentForm: React.FC<{
                 receiptEmail: emailToUse.substring(0, 3) + '***',
                 redirectMode: 'if_required',
             });
-            
+
             const confirmStartTime = Date.now();
             const { error: confirmError } = await stripe.confirmPayment({
                 elements,

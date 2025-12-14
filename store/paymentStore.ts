@@ -8,7 +8,10 @@ interface PaymentStore {
   customerEmail: string | null;
   customerName: string | null;
   isHydrated: boolean;
-  setPaymentIntent: (paymentIntentId: string, paymentIntentClientSecret: string) => void;
+  setPaymentIntent: (
+    paymentIntentId: string,
+    paymentIntentClientSecret: string
+  ) => void;
   setCustomerInfo: (email: string, name: string) => void;
   clearPaymentIntent: () => void;
 }
@@ -22,7 +25,10 @@ export const usePaymentStore = create<PaymentStore>()(
       customerName: null,
       isHydrated: false,
 
-      setPaymentIntent: (paymentIntentId: string, paymentIntentClientSecret: string) => {
+      setPaymentIntent: (
+        paymentIntentId: string,
+        paymentIntentClientSecret: string
+      ) => {
         set({
           paymentIntentId,
           paymentIntentClientSecret,
@@ -55,7 +61,7 @@ export const usePaymentStore = create<PaymentStore>()(
           state.isHydrated = true;
         }
         if (error) {
-          console.error('[PAYMENT-STORE] Rehydration error:', error);
+          console.error("[PAYMENT-STORE] Rehydration error:", error);
           // Still mark as hydrated so app doesn't hang
           usePaymentStore.setState({ isHydrated: true });
         }
@@ -63,4 +69,3 @@ export const usePaymentStore = create<PaymentStore>()(
     }
   )
 );
-
