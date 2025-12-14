@@ -212,16 +212,12 @@ function PaymentSuccessContent() {
             return;
         }
 
-        // CRITICAL: Check ref to see if we've already attempted to send for this payment intent
+        // Check ref to see if we're currently processing this payment intent
         if (emailSendAttemptedRef.current === paymentIntent) {
-            console.log('[CLIENT] ⚠️ Email send already attempted for this payment intent (ref check):', paymentIntent);
+            console.log('[CLIENT] ⚠️ Email send already in progress for this payment intent (ref check):', paymentIntent);
             console.log('[CLIENT] Skipping email send to prevent duplicate');
             return;
         }
-
-        // CRITICAL: Mark as attempted IMMEDIATELY to prevent race conditions
-        emailSendAttemptedRef.current = paymentIntent;
-        markEmailSent(paymentIntent);
 
         if (emailSent || isProcessingEmail) {
             console.log('[CLIENT] Email send skipped (state check):', { 
@@ -230,6 +226,10 @@ function PaymentSuccessContent() {
             });
             return;
         }
+
+        // Mark as processing IMMEDIATELY to prevent race conditions (but don't mark as sent yet)
+        emailSendAttemptedRef.current = paymentIntent;
+        setIsProcessingEmail(true);
 
         const customerEmail = getCustomerEmail();
         const customerName = getCustomerName();
@@ -255,9 +255,6 @@ function PaymentSuccessContent() {
             }
             return;
         }
-
-        // Mark as processing to prevent duplicate sends
-        setIsProcessingEmail(true);
 
         try {
             console.log('[CLIENT] ========== SENDING EMAIL REQUEST ==========');
@@ -305,10 +302,13 @@ function PaymentSuccessContent() {
             console.log('[CLIENT] Email request completed, cart clearing handled separately');
 
             if (data.success) {
+                // Mark as sent in sessionStorage ONLY after successful send
+                markEmailSent(paymentIntent);
                 setEmailSent(true);
                 console.log('[CLIENT] ✅✅✅ EMAIL SENT SUCCESSFULLY ✅✅✅');
                 console.log('[CLIENT] Order Email Message ID:', data.orderEmailMessageId);
                 console.log('[CLIENT] Payment Email Message ID:', data.paymentEmailMessageId);
+                console.log('[CLIENT] Marked email as sent in sessionStorage for payment intent:', paymentIntent);
                 useToastStore.getState().addToast({
                     type: 'success',
                     title: 'Payment Successful',
@@ -336,8 +336,23 @@ function PaymentSuccessContent() {
                 title: 'Payment Successful',
                 message: 'Your order has been placed successfully!',
             });
+        } catch (error) {
+            console.error('[CLIENT] ========== EMAIL SEND ERROR ==========');
+            console.error('[CLIENT] Error type:', error instanceof Error ? error.constructor.name : typeof error);
+            console.error('[CLIENT] Error message:', error instanceof Error ? error.message : String(error));
+            console.error('[CLIENT] Error stack:', error instanceof Error ? error.stack : 'No stack trace');
+            // Cart is already cleared by the separate useEffect when payment intent is confirmed
+            console.log('[CLIENT] Email failed, but cart clearing handled separately');
+            // Still show success since payment succeeded
+            useToastStore.getState().addToast({
+                type: 'success',
+                title: 'Payment Successful',
+                message: 'Your order has been placed successfully!',
+            });
         } finally {
             setIsProcessingEmail(false);
+            // Don't clear the ref - keep it set to prevent duplicate sends
+            // The sessionStorage check will prevent duplicates on page refresh
         }
     }, [paymentIntent, emailSent, hasClearedCart, clearCart, isProcessingEmail, storeCustomerEmail]);
 
@@ -408,17 +423,17 @@ function PaymentSuccessContent() {
             return;
         }
 
-        // CRITICAL: Check ref to prevent duplicate attempts
-        if (emailSendAttemptedRef.current === paymentIntent) {
-            console.log('[CLIENT] ⚠️ Email send already attempted for this payment intent (ref check)');
-            return;
-        }
-
         if (emailSent || isProcessingEmail) {
             console.log('[CLIENT] ⏸️ Email already sent or currently processing:', {
                 emailSent,
                 isProcessingEmail,
             });
+            return;
+        }
+
+        // Check ref to see if we're already processing
+        if (emailSendAttemptedRef.current === paymentIntent) {
+            console.log('[CLIENT] ⚠️ Email send already in progress for this payment intent (ref check)');
             return;
         }
 
@@ -447,9 +462,6 @@ function PaymentSuccessContent() {
             }
             return;
         }
-
-        // CRITICAL: Mark as attempted IMMEDIATELY to prevent race conditions
-        emailSendAttemptedRef.current = paymentIntent;
 
         console.log('[CLIENT] ⏱️ Setting up email send timer (2 second delay)...');
         // Delay to ensure payment is fully processed
