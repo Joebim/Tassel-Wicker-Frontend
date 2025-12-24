@@ -10,10 +10,14 @@ import { useToastStore } from '@/store/toastStore';
 
 function SignupContent() {
     const [formData, setFormData] = useState({
-        displayName: '',
+        firstName: '',
+        lastName: '',
         email: '',
+        phone: '',
         password: '',
-        confirmPassword: ''
+        confirmPassword: '',
+        acceptTerms: false,
+        newsletter: true,
     });
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -46,18 +50,26 @@ function SignupContent() {
             return;
         }
 
-        if (formData.password.length < 6) {
+        if (formData.password.length < 8) {
             useToastStore.getState().addToast({
                 type: "error",
                 title: "Password Too Short",
-                message: "Password must be at least 6 characters long.",
+                message: "Password must be at least 8 characters long.",
             });
             return;
         }
 
         setIsLoading(true);
 
-        const result = await authService.signUp(formData.email, formData.password, formData.displayName);
+        const result = await authService.signUp({
+            email: formData.email,
+            password: formData.password,
+            firstName: formData.firstName,
+            lastName: formData.lastName,
+            phone: formData.phone || undefined,
+            acceptTerms: formData.acceptTerms,
+            newsletter: formData.newsletter,
+        });
 
         if (result.success) {
             // Redirect to the specified page or home
@@ -94,22 +106,43 @@ function SignupContent() {
                 >
                     <div className="space-y-4">
                         <div>
-                            <label htmlFor="displayName" className="block text-sm font-extralight text-luxury-black uppercase mb-2">
-                                Full Name
+                            <label htmlFor="firstName" className="block text-sm font-extralight text-luxury-black uppercase mb-2">
+                                First Name
                             </label>
                             <div className="relative">
                                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                     <LuUser className="h-5 w-5 text-luxury-cool-grey" />
                                 </div>
                                 <input
-                                    id="displayName"
-                                    name="displayName"
+                                    id="firstName"
+                                    name="firstName"
                                     type="text"
                                     required
-                                    value={formData.displayName}
+                                    value={formData.firstName}
                                     onChange={handleChange}
                                     className="block w-full pl-10 pr-3 py-3 border border-luxury-cool-grey bg-white text-luxury-black placeholder-luxury-cool-grey focus:outline-none focus:ring-2 focus:ring-brand-purple focus:border-transparent font-extralight"
-                                    placeholder="Enter your full name"
+                                    placeholder="Enter your first name"
+                                />
+                            </div>
+                        </div>
+
+                        <div>
+                            <label htmlFor="lastName" className="block text-sm font-extralight text-luxury-black uppercase mb-2">
+                                Last Name
+                            </label>
+                            <div className="relative">
+                                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <LuUser className="h-5 w-5 text-luxury-cool-grey" />
+                                </div>
+                                <input
+                                    id="lastName"
+                                    name="lastName"
+                                    type="text"
+                                    required
+                                    value={formData.lastName}
+                                    onChange={handleChange}
+                                    className="block w-full pl-10 pr-3 py-3 border border-luxury-cool-grey bg-white text-luxury-black placeholder-luxury-cool-grey focus:outline-none focus:ring-2 focus:ring-brand-purple focus:border-transparent font-extralight"
+                                    placeholder="Enter your last name"
                                 />
                             </div>
                         </div>
@@ -131,6 +164,26 @@ function SignupContent() {
                                     onChange={handleChange}
                                     className="block w-full pl-10 pr-3 py-3 border border-luxury-cool-grey bg-white text-luxury-black placeholder-luxury-cool-grey focus:outline-none focus:ring-2 focus:ring-brand-purple focus:border-transparent font-extralight"
                                     placeholder="Enter your email"
+                                />
+                            </div>
+                        </div>
+
+                        <div>
+                            <label htmlFor="phone" className="block text-sm font-extralight text-luxury-black uppercase mb-2">
+                                Phone (Optional)
+                            </label>
+                            <div className="relative">
+                                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <LuUser className="h-5 w-5 text-luxury-cool-grey" />
+                                </div>
+                                <input
+                                    id="phone"
+                                    name="phone"
+                                    type="tel"
+                                    value={formData.phone}
+                                    onChange={handleChange}
+                                    className="block w-full pl-10 pr-3 py-3 border border-luxury-cool-grey bg-white text-luxury-black placeholder-luxury-cool-grey focus:outline-none focus:ring-2 focus:ring-brand-purple focus:border-transparent font-extralight"
+                                    placeholder="Enter your phone number"
                                 />
                             </div>
                         </div>
@@ -198,6 +251,41 @@ function SignupContent() {
                                 </button>
                             </div>
                         </div>
+                    </div>
+
+                    <div className="space-y-3">
+                        <label className="flex items-start gap-3 text-sm font-extralight text-luxury-cool-grey">
+                            <input
+                                type="checkbox"
+                                name="acceptTerms"
+                                checked={formData.acceptTerms}
+                                onChange={(e) => setFormData({ ...formData, acceptTerms: e.target.checked })}
+                                className="mt-1 h-4 w-4 text-brand-purple focus:ring-brand-purple border-luxury-cool-grey"
+                                required
+                            />
+                            <span>
+                                I agree to the{' '}
+                                <Link href="/terms-of-service" className="text-luxury-black hover:text-brand-purple transition-colors">
+                                    Terms of Service
+                                </Link>{' '}
+                                and{' '}
+                                <Link href="/privacy-policy" className="text-luxury-black hover:text-brand-purple transition-colors">
+                                    Privacy Policy
+                                </Link>
+                                .
+                            </span>
+                        </label>
+
+                        <label className="flex items-start gap-3 text-sm font-extralight text-luxury-cool-grey">
+                            <input
+                                type="checkbox"
+                                name="newsletter"
+                                checked={formData.newsletter}
+                                onChange={(e) => setFormData({ ...formData, newsletter: e.target.checked })}
+                                className="mt-1 h-4 w-4 text-brand-purple focus:ring-brand-purple border-luxury-cool-grey"
+                            />
+                            <span>Subscribe to our newsletter for updates and exclusives.</span>
+                        </label>
                     </div>
 
                     <div>

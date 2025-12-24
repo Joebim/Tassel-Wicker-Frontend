@@ -5,9 +5,12 @@ import { useSearchParams, useRouter } from 'next/navigation';
 import { LuSearch, LuArrowLeft, LuX, LuFilter } from 'react-icons/lu';
 import LuxuryProductCard from '@/components/shop/LuxuryProductCard';
 import { useCartStore } from '@/store/cartStore';
-import { getAllProducts, shopProducts } from '@/utils/productData';
 import { getDefaultImage, getDefaultPrice } from '@/utils/productHelpers';
-import type { ProductDataItem, ShopProduct } from '@/types/productData';
+import type { ProductDataItem } from '@/types/productData';
+import { backendProducts } from '@/services/backend';
+import { toProductDataItem } from '@/utils/backendProductMapper';
+import { useToastStore } from '@/store/toastStore';
+import { ProductGridSkeleton } from '@/components/common/SkeletonLoader';
 
 function SearchContent() {
     const searchParams = useSearchParams();
@@ -33,13 +36,31 @@ function SearchContent() {
         [router]
     );
 
-    const allProducts = getAllProducts();
+    const [combinedProducts, setCombinedProducts] = useState<Array<ProductDataItem>>([]);
+    const [isLoadingProducts, setIsLoadingProducts] = useState(true);
 
-    // Combine shop products with all products from productData
-    const combinedProducts = useMemo(() => {
-        // Use products directly - LuxuryProductCard now handles variants
-        return [...shopProducts, ...allProducts];
-    }, [allProducts]);
+    useEffect(() => {
+        let alive = true;
+        const load = async () => {
+            try {
+                setIsLoadingProducts(true);
+                const res = await backendProducts.listProducts({ page: 1, limit: 500 });
+                if (!alive) return;
+                // Map backend products into the UI product shape used across the shop/search pages.
+                setCombinedProducts((res.items || []).map((p) => toProductDataItem(p)));
+            } catch (e) {
+                useToastStore.getState().addToast({
+                    type: 'error',
+                    title: 'Failed to load products',
+                    message: e instanceof Error ? e.message : 'Could not load products.',
+                });
+            } finally {
+                if (alive) setIsLoadingProducts(false);
+            }
+        };
+        load();
+        return () => { alive = false; };
+    }, []);
 
     // Get unique categories
     const categories = useMemo(() => {
@@ -117,20 +138,13 @@ function SearchContent() {
         updateQueryParams('', selectedCategory);
     };
 
-    const handleAddToCart = (product: ProductDataItem | ShopProduct) => {
+    const handleAddToCart = (product: ProductDataItem) => {
         const defaultImage = 'variants' in product && product.variants && product.variants.length > 0
             ? getDefaultImage(product as ProductDataItem)
             : (product.image || '');
         const defaultPrice = 'variants' in product && product.variants && product.variants.length > 0
             ? getDefaultPrice(product as ProductDataItem)
             : (product.price || 0);
-        const basketItems = 'items' in product && product.items && product.items.length > 0
-            ? product.items.map((item) => ({
-                name: item.name,
-                image: item.image ?? getDefaultImage(item as ProductDataItem),
-                category: item.category
-            }))
-            : undefined;
         addItem({
             id: product.id,
             name: product.name,
@@ -138,7 +152,6 @@ function SearchContent() {
             image: defaultImage,
             category: product.category,
             description: product.description || product.name,
-            basketItems,
         });
     };
 
@@ -192,7 +205,9 @@ function SearchContent() {
                     {/* Results Count */}
                     <div className="mt-4 flex items-center justify-between">
                         <div className="text-luxury-cool-grey font-extralight uppercase text-sm">
-                            {filteredProducts.length} {filteredProducts.length === 1 ? 'result' : 'results'} found
+                            {isLoadingProducts
+                                ? 'Loading…'
+                                : `${filteredProducts.length} ${filteredProducts.length === 1 ? 'result' : 'results'} found`}
                         </div>
                         {hasActiveFilters && (
                             <button
@@ -266,7 +281,9 @@ function SearchContent() {
 
                     {/* Products Grid */}
                     <div className="flex-1">
-                        {filteredProducts.length > 0 ? (
+                        {isLoadingProducts ? (
+                            <ProductGridSkeleton count={6} />
+                        ) : filteredProducts.length > 0 ? (
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                                 {filteredProducts.map((product) => (
                                     <LuxuryProductCard

@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { AuthProvider } from '@/context/AuthContext';
 import { CartProvider } from '@/context/CartContext';
 import { ThemeProvider } from '@/context/ThemeContext';
 import { AnimationProvider } from '@/context/AnimationContext';
@@ -12,6 +11,7 @@ import { useCartStore } from '@/store/cartStore';
 import { useCustomBasketStore } from '@/store/customBasketStore';
 import { useCurrencyStore } from '@/store/currencyStore';
 import { usePaymentStore } from '@/store/paymentStore';
+import { authService } from '@/services/authService';
 import CookieConsent from '@/components/common/CookieConsent';
 
 export default function Providers({ children }: { children: React.ReactNode }) {
@@ -50,20 +50,22 @@ export default function Providers({ children }: { children: React.ReactNode }) {
         // Ignore storage cleanup errors
       }
     }
+
+    // Validate any persisted auth token and refresh if needed
+    // (runs client-side only)
+    authService.bootstrap();
   }, []);
 
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
         <CurrencyProvider>
-          <AuthProvider>
-            <CartProvider>
-              <AnimationProvider>
-                {children}
-                <CookieConsent />
-              </AnimationProvider>
-            </CartProvider>
-          </AuthProvider>
+          <CartProvider>
+            <AnimationProvider>
+              {children}
+              <CookieConsent />
+            </AnimationProvider>
+          </CartProvider>
         </CurrencyProvider>
       </ThemeProvider>
     </QueryClientProvider>

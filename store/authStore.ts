@@ -1,18 +1,21 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { createClientCookieStorage } from "@/utils/storage";
-
-export interface User {
-  uid: string;
-  email: string;
-  displayName?: string;
-}
+import type { User } from "@/types/user";
 
 interface AuthStore {
   user: User | null;
+  token: string | null;
+  refreshToken: string | null;
   isLoading: boolean;
   hasHydrated: boolean;
+  setAuth: (payload: {
+    user: User;
+    token: string;
+    refreshToken: string;
+  }) => void;
   setUser: (user: User | null) => void;
+  setTokens: (payload: { token: string; refreshToken: string }) => void;
   setLoading: (loading: boolean) => void;
   logout: () => void;
 }
@@ -21,11 +24,21 @@ export const useAuthStore = create<AuthStore>()(
   persist(
     (set) => ({
       user: null,
+      token: null,
+      refreshToken: null,
       isLoading: false,
       hasHydrated: false,
 
+      setAuth: ({ user, token, refreshToken }) => {
+        set({ user, token, refreshToken });
+      },
+
       setUser: (user: User | null) => {
         set({ user });
+      },
+
+      setTokens: ({ token, refreshToken }) => {
+        set({ token, refreshToken });
       },
 
       setLoading: (isLoading: boolean) => {
@@ -33,7 +46,7 @@ export const useAuthStore = create<AuthStore>()(
       },
 
       logout: () => {
-        set({ user: null });
+        set({ user: null, token: null, refreshToken: null });
       },
     }),
     {

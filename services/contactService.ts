@@ -1,10 +1,4 @@
-import emailjs from "@emailjs/browser";
-
-// EmailJS Configuration
-// These values should be set as environment variables in production
-const EMAILJS_SERVICE_ID = process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID || "";
-const EMAILJS_TEMPLATE_ID = process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID || "";
-const EMAILJS_PUBLIC_KEY = process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY || "";
+import { apiFetch } from "@/services/apiClient";
 
 export interface ContactFormData {
   name: string;
@@ -18,31 +12,20 @@ export const contactService = {
     formData: ContactFormData
   ): Promise<{ success: boolean; error?: string }> {
     try {
-      // Validate environment variables
-      if (!EMAILJS_SERVICE_ID || !EMAILJS_TEMPLATE_ID || !EMAILJS_PUBLIC_KEY) {
-        return {
-          success: false,
-          error: "Email service is not configured. Please contact support.",
-        };
-      }
+      // Use backend endpoint (docs/BACKEND_API_GUIDE.md)
+      const message = formData.phone?.trim()
+        ? `${formData.message}\n\nPhone: ${formData.phone}`
+        : formData.message;
 
-      // Initialize EmailJS (only needed once)
-      emailjs.init(EMAILJS_PUBLIC_KEY);
-
-      // Send email using EmailJS
-      await emailjs.send(
-        EMAILJS_SERVICE_ID,
-        EMAILJS_TEMPLATE_ID,
-        {
-          from_name: formData.name,
-          from_email: formData.email,
-          from_phone: formData.phone,
-          message: formData.message,
-          to_email: "info@tasselandwicker.com",
-          reply_to: formData.email,
-        },
-        EMAILJS_PUBLIC_KEY
-      );
+      await apiFetch("/api/contact", {
+        method: "POST",
+        auth: false,
+        body: JSON.stringify({
+          name: formData.name,
+          email: formData.email,
+          message,
+        }),
+      });
 
       return { success: true };
     } catch (error) {

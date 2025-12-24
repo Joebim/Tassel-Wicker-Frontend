@@ -40,7 +40,6 @@ const LuxuryProductCard: React.FC<LuxuryProductCardProps> = ({ product, onAddToC
     };
     const getProductLink = () => {
         if (product.isCustom) return '/build-your-basket';
-        if (product.id === '4' && product.name === 'Branded Tote Bag') return '/product/tote-bag';
         return `/product/${product.id}`;
     };
 

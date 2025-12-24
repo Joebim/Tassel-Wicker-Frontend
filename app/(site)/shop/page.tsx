@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import Image from 'next/image';
 import { LuFilter, LuGrip, LuList, LuChevronDown } from 'react-icons/lu';
 import LuxuryFilter from '@/components/shop/LuxuryFilter';
@@ -9,9 +9,12 @@ import CircularText from '@/components/common/CircularText';
 import { useCartStore } from '@/store/cartStore';
 import ScrollTextAnimation from '@/components/common/ScrollTextAnimation';
 import ScrollVelocity from '@/components/common/ScrollVelocity';
-import { shopProducts } from '@/utils/productData';
 import type { ShopProduct } from '@/types/productData';
 import { useWindowWidth } from '@/hooks/useWindowsWidth';
+import { backendProducts } from '@/services/backend';
+import { toShopProduct } from '@/utils/backendProductMapper';
+import { useToastStore } from '@/store/toastStore';
+import { ProductGridSkeleton } from '@/components/common/SkeletonLoader';
 
 export default function Shop() {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
@@ -19,6 +22,8 @@ export default function Shop() {
   const [filters, setFilters] = useState<{ category?: string; price?: string }>({});
   const { addItem } = useCartStore();
   const { isDesktop } = useWindowWidth();
+  const [isLoadingProducts, setIsLoadingProducts] = useState(true);
+  const [products, setProducts] = useState<ShopProduct[]>([]);
 
   const handleAddToCart = (product: ShopProduct) => {
     const price = product.price ?? 0;
@@ -42,7 +47,31 @@ export default function Shop() {
     });
   };
 
-  const products = useMemo(() => shopProducts, []);
+  useEffect(() => {
+    let alive = true;
+    const load = async () => {
+      try {
+        setIsLoadingProducts(true);
+        // Pull main products for the shop experience (baskets, custom, standalone mains)
+        const res = await backendProducts.listProducts({ page: 1, limit: 200, role: 'main' });
+        if (!alive) return;
+        setProducts((res.items || []).map((p) => toShopProduct(p)));
+      } catch (e) {
+        useToastStore.getState().addToast({
+          type: 'error',
+          title: 'Failed to load products',
+          message: e instanceof Error ? e.message : 'Could not load products.',
+        });
+      } finally {
+        if (alive) setIsLoadingProducts(false);
+      }
+    };
+    load();
+    return () => {
+      alive = false;
+    };
+  }, []);
+
   const derivedCategories = ['All', ...Array.from(new Set(products.map(p => p.category)))];
 
   const filteredProducts = useMemo(() => {
@@ -185,7 +214,7 @@ export default function Shop() {
             </div>
 
             <div className="text-[12px] sm:text-[15px] text-luxury-cool-grey font-extralight uppercase">
-              {filteredProducts.length} products
+              {isLoadingProducts ? 'Loading…' : `${filteredProducts.length} products`}
             </div>
           </div>
 
@@ -211,14 +240,22 @@ export default function Shop() {
           </div>
         </div>
 
-        <div className={`grid gap-8 ${viewMode === 'grid'
-          ? 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3'
-          : 'grid-cols-1'
-          }`}>
-          {filteredProducts.map((product) => (
-            <LuxuryProductCard key={product.id} product={product} onAddToCart={(item) => handleAddToCart(item as ShopProduct)} />
-          ))}
-        </div>
+        {isLoadingProducts ? (
+          <ProductGridSkeleton count={6} />
+        ) : (
+          <div className={`grid gap-8 ${viewMode === 'grid'
+            ? 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3'
+            : 'grid-cols-1'
+            }`}>
+            {filteredProducts.map((product) => (
+              <LuxuryProductCard
+                key={product.id}
+                product={product}
+                onAddToCart={(item) => handleAddToCart(item as ShopProduct)}
+              />
+            ))}
+          </div>
+        )}
       </div>
 
       <div className="py-8 sm:py-14 bg-amber-50">

@@ -11,6 +11,7 @@ import { LuCheck, LuArrowRight, LuShoppingBag } from 'react-icons/lu';
 import { useCartStore } from '@/store/cartStore';
 import { useToastStore } from '@/store/toastStore';
 import { usePaymentStore } from '@/store/paymentStore';
+import { apiFetch } from '@/services/apiClient';
 
 
 function PaymentSuccessContent() {
@@ -199,20 +200,16 @@ function PaymentSuccessContent() {
 
         try {
             const requestStartTime = Date.now();
-            const response = await fetch('/api/send-order-email', {
+            const data = await apiFetch<any>('/api/send-order-email', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
+                auth: false,
                 body: JSON.stringify({
                     paymentIntentId: paymentIntent,
                     customerEmail: customerEmail,
                     customerName: customerName,
                 }),
             });
-
             const requestDuration = Date.now() - requestStartTime;
-            const data = await response.json();
 
             // Cart is already cleared by the separate useEffect when payment intent is confirmed
             // This ensures cart is cleared even if email sending fails

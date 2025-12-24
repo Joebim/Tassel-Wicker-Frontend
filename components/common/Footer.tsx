@@ -6,6 +6,7 @@ import { FaInstagram, FaPinterestP } from "react-icons/fa";
 import { LuMail } from 'react-icons/lu';
 import LogoAnimated from '@/assets/images/brand/tassel-wicker-logo-animated.svg';
 import { useToastStore } from '@/store/toastStore';
+import { apiFetch } from '@/services/apiClient';
 
 const Footer: React.FC = () => {
     const [email, setEmail] = useState('');
@@ -27,11 +28,9 @@ const Footer: React.FC = () => {
         setIsSubmitting(true);
 
         try {
-            const response = await fetch('/api/newsletter', {
+            const result = await apiFetch<any>('/api/newsletter', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
+                auth: false,
                 body: JSON.stringify({
                     email: email.trim(),
                     locale: 'en',
@@ -39,9 +38,7 @@ const Footer: React.FC = () => {
                 }),
             });
 
-            const result = await response.json();
-
-            if (result.success) {
+            if (result?.success) {
                 addToast({
                     type: 'success',
                     title: 'Subscribed!',

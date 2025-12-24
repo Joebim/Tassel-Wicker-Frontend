@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Image from 'next/image';
 import { useToastStore } from '@/store/toastStore';
 import ScrollTextAnimation from '@/components/common/ScrollTextAnimation';
+import { apiFetch } from '@/services/apiClient';
 
 export default function Contact() {
     const [formData, setFormData] = useState({
@@ -19,17 +20,13 @@ export default function Contact() {
         setIsSubmitting(true);
 
         try {
-            const response = await fetch('/api/contact', {
+            const result = await apiFetch<any>('/api/contact', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
+                auth: false,
                 body: JSON.stringify(formData),
             });
 
-            const result = await response.json();
-
-            if (result.success) {
+            if (result?.success) {
                 addToast({
                     type: 'success',
                     title: 'Message Sent',
@@ -75,12 +72,12 @@ export default function Contact() {
                     priority
                     sizes="100vw"
                     onError={(e) => {
-                      const target = e.target as HTMLImageElement;
-                      if (target.src && !target.src.includes('retry')) {
-                        setTimeout(() => {
-                          target.src = `${target.src}${target.src.includes('?') ? '&' : '?'}retry=${Date.now()}`;
-                        }, 1000);
-                      }
+                        const target = e.target as HTMLImageElement;
+                        if (target.src && !target.src.includes('retry')) {
+                            setTimeout(() => {
+                                target.src = `${target.src}${target.src.includes('?') ? '&' : '?'}retry=${Date.now()}`;
+                            }, 1000);
+                        }
                     }}
                 />
                 {/* Overlay */}

@@ -1,192 +1,148 @@
-import { initializeApp } from "firebase/app";
-import {
-  getAuth,
-  createUserWithEmailAndPassword,
-  signInWithEmailAndPassword,
-  signOut,
-  updateProfile,
-} from "firebase/auth";
-import { useAuthStore, type User } from "../store/authStore";
-import { useToastStore } from "../store/toastStore";
+import type {
+  RegisterCredentials,
+  LoginCredentials,
+  AuthUser,
+  User,
+} from "@/types/user";
+import { useAuthStore } from "@/store/authStore";
+import { useToastStore } from "@/store/toastStore";
+import { apiFetch } from "@/services/apiClient";
 
-// Check if Firebase config is available
-const getFirebaseConfig = () => {
-  const apiKey = process.env.NEXT_PUBLIC_FIREBASE_API_KEY;
-  const authDomain = process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN;
-  const projectId = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID;
-  const storageBucket = process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET;
-  const messagingSenderId =
-    process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID;
-  const appId = process.env.NEXT_PUBLIC_FIREBASE_APP_ID;
-  const measurementId = process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID;
-
-  if (!apiKey || !authDomain || !projectId) {
-    console.warn(
-      "Firebase configuration is incomplete. Please set NEXT_PUBLIC_FIREBASE_* environment variables."
-    );
-    return null;
-  }
-
-  return {
-    apiKey,
-    authDomain,
-    projectId,
-    storageBucket: storageBucket || "",
-    messagingSenderId: messagingSenderId || "",
-    appId: appId || "",
-    measurementId: measurementId || "",
-  };
-};
-
-const firebaseConfig = getFirebaseConfig();
-let app: ReturnType<typeof initializeApp> | null = null;
-let auth: ReturnType<typeof getAuth> | null = null;
-
-if (firebaseConfig) {
-  try {
-    app = initializeApp(firebaseConfig);
-    auth = getAuth(app);
-  } catch (error) {
-    console.error("Failed to initialize Firebase:", error);
-  }
+function getDisplayName(user: User) {
+  return `${user.firstName} ${user.lastName}`.trim() || user.email;
 }
 
-export { auth };
-
 export const authService = {
-  async signUp(email: string, password: string, displayName: string) {
-    if (!auth) {
-      const errorMessage =
-        "Firebase is not configured. Please set up your environment variables.";
-      useToastStore.getState().addToast({
-        type: "error",
-        title: "Configuration Error",
-        message: errorMessage,
-      });
-      return { success: false, error: errorMessage };
-    }
-
+  async signUp(payload: RegisterCredentials) {
     try {
-      const { setUser, setLoading } = useAuthStore.getState();
+      const { setLoading, setAuth } = useAuthStore.getState();
       setLoading(true);
 
-      const userCredential = await createUserWithEmailAndPassword(
-        auth,
-        email,
-        password
-      );
-      await updateProfile(userCredential.user, { displayName });
+      const data = await apiFetch<AuthUser>("/api/auth/register", {
+        method: "POST",
+        auth: false,
+        body: JSON.stringify(payload),
+      });
 
-      const user: User = {
-        uid: userCredential.user.uid,
-        email: userCredential.user.email!,
-        displayName: displayName,
-      };
-
-      setUser(user);
+      setAuth({
+        user: data.user,
+        token: data.token,
+        refreshToken: data.refreshToken,
+      });
       setLoading(false);
+
       useToastStore.getState().addToast({
         type: "success",
         title: "Account Created",
-        message: `Welcome ${displayName}! Your account has been created successfully.`,
+        message: `Welcome ${getDisplayName(
+          data.user
+        )}! Your account has been created successfully.`,
       });
-      return { success: true, user };
+
+      return { success: true as const, user: data.user };
     } catch (error: unknown) {
-      const { setLoading } = useAuthStore.getState();
-      setLoading(false);
-      const errorMessage =
+      useAuthStore.getState().setLoading(false);
+      const message =
         error instanceof Error
           ? error.message
           : "Failed to create account. Please try again.";
       useToastStore.getState().addToast({
         type: "error",
         title: "Sign Up Failed",
-        message: errorMessage,
+        message,
       });
-      return { success: false, error: errorMessage };
+      return { success: false as const, error: message };
     }
   },
 
-  async signIn(email: string, password: string) {
-    if (!auth) {
-      const errorMessage =
-        "Firebase is not configured. Please set up your environment variables.";
-      useToastStore.getState().addToast({
-        type: "error",
-        title: "Configuration Error",
-        message: errorMessage,
-      });
-      return { success: false, error: errorMessage };
-    }
-
+  async signIn(payload: LoginCredentials) {
     try {
-      const { setUser, setLoading } = useAuthStore.getState();
+      const { setLoading, setAuth } = useAuthStore.getState();
       setLoading(true);
 
-      const userCredential = await signInWithEmailAndPassword(
-        auth,
-        email,
-        password
-      );
+      const data = await apiFetch<AuthUser>("/api/auth/login", {
+        method: "POST",
+        auth: false,
+        body: JSON.stringify(payload),
+      });
 
-      const user: User = {
-        uid: userCredential.user.uid,
-        email: userCredential.user.email!,
-        displayName: userCredential.user.displayName || "",
-      };
-
-      setUser(user);
+      setAuth({
+        user: data.user,
+        token: data.token,
+        refreshToken: data.refreshToken,
+      });
       setLoading(false);
+
       useToastStore.getState().addToast({
         type: "success",
         title: "Welcome Back",
-        message: `Hello ${
-          user.displayName || user.email
-        }! You've been signed in successfully.`,
+        message: `Hello ${getDisplayName(
+          data.user
+        )}! You've been signed in successfully.`,
       });
-      return { success: true, user };
+
+      return { success: true as const, user: data.user };
     } catch (error: unknown) {
-      const { setLoading } = useAuthStore.getState();
-      setLoading(false);
-      const errorMessage =
+      useAuthStore.getState().setLoading(false);
+      const message =
         error instanceof Error
           ? error.message
           : "Failed to sign in. Please check your credentials.";
       useToastStore.getState().addToast({
         type: "error",
         title: "Sign In Failed",
-        message: errorMessage,
+        message,
       });
-      return { success: false, error: errorMessage };
+      return { success: false as const, error: message };
     }
   },
 
   async logout() {
-    if (!auth) {
-      return { success: false, error: "Firebase is not configured." };
-    }
-
+    const { refreshToken, logout, setLoading } = useAuthStore.getState();
     try {
-      await signOut(auth);
-      const { logout } = useAuthStore.getState();
+      setLoading(true);
+      if (refreshToken) {
+        await apiFetch<{ success: boolean }>("/api/auth/logout", {
+          method: "POST",
+          auth: false,
+          body: JSON.stringify({ refreshToken }),
+          retryOnAuthFail: false,
+        });
+      }
+    } catch {
+      // Even if backend logout fails, we still clear local auth
+    } finally {
       logout();
+      setLoading(false);
       useToastStore.getState().addToast({
         type: "info",
         title: "Signed Out",
         message: "You have been successfully signed out.",
       });
-      return { success: true };
-    } catch (error: unknown) {
-      const errorMessage =
-        error instanceof Error
-          ? error.message
-          : "Failed to sign out. Please try again.";
-      useToastStore.getState().addToast({
-        type: "error",
-        title: "Logout Failed",
-        message: errorMessage,
+    }
+    return { success: true as const };
+  },
+
+  async bootstrap() {
+    const { token, user, setUser } = useAuthStore.getState();
+    if (!token) return;
+
+    // If we already have a persisted user, we can still validate silently.
+    try {
+      const data = await apiFetch<{ user: User }>("/api/auth/me", {
+        method: "GET",
+        auth: true,
+        retryOnAuthFail: true,
       });
-      return { success: false, error: errorMessage };
+      setUser(data.user);
+    } catch (error: unknown) {
+      // If token refresh fails, apiFetch will throw; clear auth quietly
+      // (don't toast here to avoid noisy initial load)
+      // keep UX stable by only clearing when definitely unauthorized
+      const err = error as { status?: number };
+      if (err?.status === 401 || err?.status === 403) {
+        useAuthStore.getState().logout();
+      }
     }
   },
 };

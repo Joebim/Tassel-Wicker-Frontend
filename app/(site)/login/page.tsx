@@ -19,7 +19,7 @@ function LoginContent() {
     useEffect(() => {
         if (typeof window !== 'undefined') {
             window.scrollTo(0, 0);
-            
+
             // Show toast if redirected from checkout
             const redirect = searchParams.get('redirect');
             if (redirect === '/checkout') {
@@ -36,7 +36,7 @@ function LoginContent() {
         e.preventDefault();
         setIsLoading(true);
 
-        const result = await authService.signIn(email, password);
+        const result = await authService.signIn({ email, password, rememberMe: true });
 
         if (result.success) {
             // Redirect to the specified page or home
@@ -134,6 +134,15 @@ function LoginContent() {
                         >
                             {isLoading ? 'Signing In...' : 'Sign In'}
                         </button>
+                    </div>
+
+                    <div className="text-center">
+                        <Link
+                            href="/forgot-password"
+                            className="text-luxury-cool-grey hover:text-brand-purple transition-colors font-extralight uppercase text-sm"
+                        >
+                            Forgot password?
+                        </Link>
                     </div>
 
                     <div className="text-center">

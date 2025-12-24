@@ -1,12 +1,15 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, Suspense } from 'react';
+import { useCallback, useEffect, useMemo, Suspense, useState } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { LuArrowLeft } from 'react-icons/lu';
 import { getDefaultVariant } from '@/utils/productHelpers';
-import { shopProducts } from '@/utils/productData';
-import type { ShopProduct, ShopProductItem } from '@/types/productData';
+import type { ShopProductItem } from '@/types/productData';
+import { backendProducts } from '@/services/backend';
+import { toProductDataItem } from '@/utils/backendProductMapper';
+import { useToastStore } from '@/store/toastStore';
+import { PageContentSkeleton } from '@/components/common/SkeletonLoader';
 
 function LearnMoreContent() {
     const searchParams = useSearchParams();
@@ -14,29 +17,58 @@ function LearnMoreContent() {
     const productId = searchParams.get('productId');
     const itemId = searchParams.get('itemId');
 
+    const [item, setItem] = useState<ShopProductItem | null>(null);
+    const [categoryLabel, setCategoryLabel] = useState<string | undefined>(undefined);
+    const [loading, setLoading] = useState(true);
 
-    // Find product and item from query parameters
-    const { product, item } = useMemo(() => {
-        if (!productId) return { product: undefined, item: undefined };
-
-        const foundProduct = shopProducts.find(p => p.id === productId) as ShopProduct | undefined;
-        if (!foundProduct || !foundProduct.items) return { product: foundProduct, item: undefined };
-
-        // Find item by ID or index
-        let foundItem: ShopProductItem | undefined;
-        if (itemId) {
-            // Try to find by ID first
-            foundItem = foundProduct.items.find(i => i.id === itemId);
-            // If not found, try by index
-            if (!foundItem && !isNaN(Number(itemId))) {
-                foundItem = foundProduct.items[Number(itemId)];
+    useEffect(() => {
+        if (!productId) return;
+        let alive = true;
+        const load = async () => {
+            try {
+                setLoading(true);
+                const res = await backendProducts.getProduct(productId, true);
+                if (!alive) return;
+                const linked = (res.linkedProducts || []).map((lp) => toProductDataItem(lp));
+                let found = undefined as any;
+                if (itemId) {
+                    found = linked.find((x) => x.id === itemId);
+                    if (!found && !isNaN(Number(itemId))) {
+                        found = linked[Number(itemId)];
+                    }
+                }
+                if (!found) {
+                    setItem(null);
+                    setCategoryLabel(undefined);
+                    return;
+                }
+                const v = getDefaultVariant(found);
+                const mappedItem: ShopProductItem = {
+                    id: found.id,
+                    name: found.name,
+                    description: found.description,
+                    image: v.image,
+                    category: found.category,
+                    variants: found.variants || [v],
+                    details: (found as any).details,
+                };
+                setItem(mappedItem);
+                setCategoryLabel(mappedItem.category);
+            } catch (e) {
+                useToastStore.getState().addToast({
+                    type: 'error',
+                    title: 'Failed to load item',
+                    message: e instanceof Error ? e.message : 'Could not load item details.',
+                });
+                setItem(null);
+                setCategoryLabel(undefined);
+            } finally {
+                if (alive) setLoading(false);
             }
-        }
-
-        return { product: foundProduct, item: foundItem };
+        };
+        load();
+        return () => { alive = false; };
     }, [productId, itemId]);
-
-    const categoryLabel = item?.category || product?.category;
 
     const handleCategoryNavigate = useCallback(() => {
         if (!categoryLabel) return;
@@ -204,7 +236,11 @@ function LearnMoreContent() {
         return defaultVariant.image;
     }, [item]);
 
-    if (!product || !item) {
+    if (loading) {
+        return <PageContentSkeleton />;
+    }
+
+    if (!item) {
         return (
             <div className="min-h-screen bg-white flex items-center justify-center">
                 <div className="text-center">
@@ -276,7 +312,7 @@ function LearnMoreContent() {
 
                         {/* Description */}
                         <div className="mb-12">
-                            <p 
+                            <p
                                 className="text-luxury-cool-grey leading-relaxed font-extralight text-lg"
                                 dangerouslySetInnerHTML={{ __html: item.description }}
                             />

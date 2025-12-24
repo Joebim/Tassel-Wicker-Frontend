@@ -7,10 +7,13 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { LuArrowLeft, LuSearch, LuX, LuShoppingCart } from 'react-icons/lu';
 import { useCustomBasketStore, type CustomBasketItem } from '@/store/customBasketStore';
 import { useCartStore } from '@/store/cartStore';
-import { getAllProducts } from '@/utils/productData';
 import { useToastStore } from '@/store/toastStore';
 import { getDefaultVariant } from '@/utils/productHelpers';
 import { usePrice } from '@/hooks/usePrice';
+import type { ProductDataItem } from '@/types/productData';
+import { backendProducts } from '@/services/backend';
+import { toProductDataItem } from '@/utils/backendProductMapper';
+import { ProductGridSkeleton } from '@/components/common/SkeletonLoader';
 
 // Price display components
 const ProductPriceDisplay: React.FC<{ price: number }> = ({ price }) => {
@@ -40,7 +43,7 @@ export default function BuildYourBasket() {
     // Track selected variant for each product by product ID
     const [selectedVariants, setSelectedVariants] = useState<Record<string, number>>({});
     const [showOverlay, setShowOverlay] = useState(!currentBasket);
-    const [selectedProduct, setSelectedProduct] = useState<typeof allProducts[0] | null>(null);
+    const [selectedProduct, setSelectedProduct] = useState<ProductDataItem | null>(null);
     const [modalVariantIndex, setModalVariantIndex] = useState<Record<string, number>>({});
     const [selectedBasketType, setSelectedBasketType] = useState<'natural' | 'black' | null>(null);
 
@@ -54,7 +57,31 @@ export default function BuildYourBasket() {
         }
     }, [currentBasket]);
 
-    const allProducts = getAllProducts();
+    const [allProducts, setAllProducts] = useState<ProductDataItem[]>([]);
+    const [isLoadingProducts, setIsLoadingProducts] = useState(true);
+
+    useEffect(() => {
+        let alive = true;
+        const load = async () => {
+            try {
+                setIsLoadingProducts(true);
+                const res = await backendProducts.listSingles();
+                if (!alive) return;
+                setAllProducts((res.items || []).map((p) => toProductDataItem(p)));
+            } catch (e) {
+                useToastStore.getState().addToast({
+                    type: 'error',
+                    title: 'Failed to load products',
+                    message: e instanceof Error ? e.message : 'Could not load products.',
+                });
+                setAllProducts([]);
+            } finally {
+                if (alive) setIsLoadingProducts(false);
+            }
+        };
+        load();
+        return () => { alive = false; };
+    }, []);
 
     // Filter out black and natural wicker baskets from build your basket products
     const availableProducts = useMemo(() => {
@@ -142,7 +169,7 @@ export default function BuildYourBasket() {
     };
 
     // Render product details similar to learn-more page
-    const renderProductDetails = (product: typeof allProducts[0]) => {
+    const renderProductDetails = (product: ProductDataItem) => {
         if (!product.details) return null;
 
         const { details } = product;
@@ -523,127 +550,142 @@ export default function BuildYourBasket() {
 
                         {/* Product List */}
                         <div className="flex-2 overflow-y-auto overflow-x-hidden px-6 pb-6 max-h-[calc(100vh-100px)]">
-                            <div className="space-y-3">
-                                {filteredProducts.map((product) => {
-                                    // Get current variant to check selection
-                                    const variants = product.variants ?? [];
-                                    const variantIndex = selectedVariants[product.id] ?? 0;
-                                    const hasVariants = variants.length > 1;
-                                    const currentVariant = hasVariants
-                                        ? variants[variantIndex] ?? variants[0]
-                                        : getDefaultVariant(product);
-                                    const variantName = hasVariants ? currentVariant.name : undefined;
+                            {isLoadingProducts ? (
+                                <div className="space-y-3">
+                                    {Array.from({ length: 5 }).map((_, i) => (
+                                        <div key={i} className="flex gap-4 p-4 border border-luxury-warm-grey/20 rounded-lg bg-white">
+                                            <div className="w-24 h-24 bg-luxury-warm-grey/20 rounded-lg animate-pulse" />
+                                            <div className="flex-1 space-y-2">
+                                                <div className="h-5 bg-luxury-warm-grey/20 rounded animate-pulse w-3/4" />
+                                                <div className="h-4 bg-luxury-warm-grey/20 rounded animate-pulse w-1/2" />
+                                                <div className="h-4 bg-luxury-warm-grey/20 rounded animate-pulse w-2/3" />
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            ) : (
+                                <div className="space-y-3">
+                                    {filteredProducts.map((product) => {
+                                        // Get current variant to check selection
+                                        const variants = product.variants ?? [];
+                                        const variantIndex = selectedVariants[product.id] ?? 0;
+                                        const hasVariants = variants.length > 1;
+                                        const currentVariant = hasVariants
+                                            ? variants[variantIndex] ?? variants[0]
+                                            : getDefaultVariant(product);
+                                        const variantName = hasVariants ? currentVariant.name : undefined;
 
-                                    // Create unique ID for checking selection
-                                    const itemUniqueId = hasVariants && variantName
-                                        ? `${product.id}-${variantName.toLowerCase().replace(/\s+/g, '-')}`
-                                        : product.id;
+                                        // Create unique ID for checking selection
+                                        const itemUniqueId = hasVariants && variantName
+                                            ? `${product.id}-${variantName.toLowerCase().replace(/\s+/g, '-')}`
+                                            : product.id;
 
-                                    const isSelected = currentBasket.selectedItems.some((item) => item.id === itemUniqueId);
-                                    const canAdd = selectionCount < MAX_SELECTION && !isSelected;
+                                        const isSelected = currentBasket.selectedItems.some((item) => item.id === itemUniqueId);
+                                        const canAdd = selectionCount < MAX_SELECTION && !isSelected;
 
-                                    const currentImage = currentVariant.image;
-                                    const currentPrice = currentVariant.price;
+                                        const currentImage = currentVariant.image;
+                                        const currentPrice = currentVariant.price;
 
-                                    const handleVariantSelect = (e: React.MouseEvent, index: number) => {
-                                        e.stopPropagation(); // Prevent triggering the item click
-                                        setSelectedVariants(prev => ({
-                                            ...prev,
-                                            [product.id]: index
-                                        }));
-                                    };
+                                        const handleVariantSelect = (e: React.MouseEvent, index: number) => {
+                                            e.stopPropagation(); // Prevent triggering the item click
+                                            setSelectedVariants(prev => ({
+                                                ...prev,
+                                                [product.id]: index
+                                            }));
+                                        };
 
-                                    const handleItemClick = (e?: React.MouseEvent) => {
-                                        if (e) {
-                                            e.stopPropagation();
-                                        }
-                                        if (isSelected || !canAdd) {
-                                            useToastStore.getState().addToast({
-                                                type: "info",
-                                                title: isSelected ? "Already Added" : "Selection Limit Reached",
-                                                message: isSelected
-                                                    ? "This product is already in your basket."
-                                                    : `You can select up to ${MAX_SELECTION} products in your custom basket.`,
-                                            });
-                                            return;
-                                        }
-                                        // Set the selected product and its current variant for the modal
-                                        setSelectedProduct(product);
-                                        setModalVariantIndex(prev => ({
-                                            ...prev,
-                                            [product.id]: variantIndex
-                                        }));
-                                    };
+                                        const handleItemClick = (e?: React.MouseEvent) => {
+                                            if (e) {
+                                                e.stopPropagation();
+                                            }
+                                            if (isSelected || !canAdd) {
+                                                useToastStore.getState().addToast({
+                                                    type: "info",
+                                                    title: isSelected ? "Already Added" : "Selection Limit Reached",
+                                                    message: isSelected
+                                                        ? "This product is already in your basket."
+                                                        : `You can select up to ${MAX_SELECTION} products in your custom basket.`,
+                                                });
+                                                return;
+                                            }
+                                            // Set the selected product and its current variant for the modal
+                                            setSelectedProduct(product);
+                                            setModalVariantIndex(prev => ({
+                                                ...prev,
+                                                [product.id]: variantIndex
+                                            }));
+                                        };
 
-                                    return (
-                                        <motion.div
-                                            key={product.id}
-                                            whileHover={{ scale: canAdd ? 1.02 : 1 }}
-                                            onClick={() => canAdd && handleItemClick()}
-                                            className={` h-36 sm:h-40 p-4 border rounded-lg transition-all duration-200 cursor-pointer ${isSelected
-                                                ? 'border-brand-purple/50 bg-brand-purple/5 cursor-default'
-                                                : canAdd
-                                                    ? 'border-luxury-warm-grey/20 hover:border-brand-purple/30 hover:bg-luxury-warm-grey/5'
-                                                    : 'border-luxury-warm-grey/20 opacity-50 cursor-not-allowed'
-                                                }`}
-                                        >
-                                            <div className="flex items-start gap-3 h-full">
-                                                <div className="w-16 h-full rounded-lg overflow-hidden shrink-0 relative">
-                                                    <Image
-                                                        src={currentImage}
-                                                        alt={product.name}
-                                                        fill
-                                                        className="object-cover"
-                                                        sizes="64px"
-                                                    />
-                                                </div>
-                                                <div className="flex-1 min-w-0">
-                                                    <h4 className="font-extralight text-sm uppercase tracking-wide text-luxury-charcoal mb-1">
-                                                        {product.name}
-                                                    </h4>
-                                                    <p
-                                                        className="text-xs text-luxury-cool-grey font-extralight mb-2"
-                                                        style={{ display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}
-                                                        dangerouslySetInnerHTML={{ __html: product.description }}
-                                                    />
+                                        return (
+                                            <motion.div
+                                                key={product.id}
+                                                whileHover={{ scale: canAdd ? 1.02 : 1 }}
+                                                onClick={() => canAdd && handleItemClick()}
+                                                className={` h-36 sm:h-40 p-4 border rounded-lg transition-all duration-200 cursor-pointer ${isSelected
+                                                    ? 'border-brand-purple/50 bg-brand-purple/5 cursor-default'
+                                                    : canAdd
+                                                        ? 'border-luxury-warm-grey/20 hover:border-brand-purple/30 hover:bg-luxury-warm-grey/5'
+                                                        : 'border-luxury-warm-grey/20 opacity-50 cursor-not-allowed'
+                                                    }`}
+                                            >
+                                                <div className="flex items-start gap-3 h-full">
+                                                    <div className="w-16 h-full rounded-lg overflow-hidden shrink-0 relative">
+                                                        <Image
+                                                            src={currentImage}
+                                                            alt={product.name}
+                                                            fill
+                                                            className="object-cover"
+                                                            sizes="64px"
+                                                        />
+                                                    </div>
+                                                    <div className="flex-1 min-w-0">
+                                                        <h4 className="font-extralight text-sm uppercase tracking-wide text-luxury-charcoal mb-1">
+                                                            {product.name}
+                                                        </h4>
+                                                        <p
+                                                            className="text-xs text-luxury-cool-grey font-extralight mb-2"
+                                                            style={{ display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}
+                                                            dangerouslySetInnerHTML={{ __html: product.description }}
+                                                        />
 
-                                                    {/* Variant Selector */}
-                                                    {hasVariants && (
-                                                        <div className="mb-2">
-                                                            <label className="block text-xs font-extralight text-luxury-charcoal mb-1 uppercase">
-                                                                Variant
-                                                            </label>
-                                                            <div className="flex flex-wrap gap-2">
-                                                                {variants.map((variant, index) => (
-                                                                    <button
-                                                                        key={index}
-                                                                        onClick={(e) => handleVariantSelect(e, index)}
-                                                                        className={`px-2 py-1 text-xs rounded transition-all duration-200 font-extralight uppercase ${variantIndex === index
-                                                                            ? 'bg-brand-purple text-luxury-white'
-                                                                            : 'bg-luxury-warm-grey/10 text-luxury-charcoal hover:bg-luxury-warm-grey/20'
-                                                                            }`}
-                                                                    >
-                                                                        {variant.name}
-                                                                    </button>
-                                                                ))}
+                                                        {/* Variant Selector */}
+                                                        {hasVariants && (
+                                                            <div className="mb-2">
+                                                                <label className="block text-xs font-extralight text-luxury-charcoal mb-1 uppercase">
+                                                                    Variant
+                                                                </label>
+                                                                <div className="flex flex-wrap gap-2">
+                                                                    {variants.map((variant, index) => (
+                                                                        <button
+                                                                            key={index}
+                                                                            onClick={(e) => handleVariantSelect(e, index)}
+                                                                            className={`px-2 py-1 text-xs rounded transition-all duration-200 font-extralight uppercase ${variantIndex === index
+                                                                                ? 'bg-brand-purple text-luxury-white'
+                                                                                : 'bg-luxury-warm-grey/10 text-luxury-charcoal hover:bg-luxury-warm-grey/20'
+                                                                                }`}
+                                                                        >
+                                                                            {variant.name}
+                                                                        </button>
+                                                                    ))}
+                                                                </div>
                                                             </div>
-                                                        </div>
-                                                    )}
-
-                                                    <div className="flex items-center justify-between">
-                                                        <ProductPriceDisplay price={currentPrice} />
-                                                        {isSelected && (
-                                                            <span className="text-xs text-brand-purple font-extralight uppercase">
-                                                                Added
-                                                            </span>
                                                         )}
+
+                                                        <div className="flex items-center justify-between">
+                                                            <ProductPriceDisplay price={currentPrice} />
+                                                            {isSelected && (
+                                                                <span className="text-xs text-brand-purple font-extralight uppercase">
+                                                                    Added
+                                                                </span>
+                                                            )}
+                                                        </div>
                                                     </div>
                                                 </div>
-                                            </div>
-                                        </motion.div>
-                                    );
-                                })}
-                            </div>
+                                            </motion.div>
+                                        );
+                                    })}
+                                </div>
+                            )}
                         </div>
                     </div>
 

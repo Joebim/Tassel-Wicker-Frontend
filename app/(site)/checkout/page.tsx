@@ -14,6 +14,7 @@ import { usePaymentStore } from '@/store/paymentStore';
 import { usePrice, usePriceFormat } from '@/hooks/usePrice';
 import { useCurrencyStore } from '@/store/currencyStore';
 import CheckoutOptions from '@/components/checkout/CheckoutOptions';
+import { apiFetch } from '@/services/apiClient';
 
 // Initialize Stripe
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || '');
@@ -68,12 +69,11 @@ const PaymentForm: React.FC<{
             try {
                 const rates = await Promise.all(
                     STRIPE_SHIPPING_RATES.map(async (rateId) => {
-                        const response = await fetch('/api/get-shipping-rate', {
+                        const data = await apiFetch<any>('/api/get-shipping-rate', {
                             method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
+                            auth: false,
                             body: JSON.stringify({ rateId }),
                         });
-                        const data = await response.json();
                         return { id: rateId, amount: data.amount || 0, currency: data.currency || 'gbp', displayName: data.displayName || 'Shipping' };
                     })
                 );
@@ -126,9 +126,9 @@ const PaymentForm: React.FC<{
 
             // Update PaymentIntent amount
             try {
-                await fetch('/api/update-payment-intent', {
+                await apiFetch<any>('/api/update-payment-intent', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    auth: false,
                     body: JSON.stringify({
                         paymentIntentId,
                         amount: totalAmount,
@@ -558,14 +558,15 @@ export default function Checkout() {
             const createPaymentIntent = async () => {
                 console.log('[CHECKOUT] ========== CREATING PAYMENT INTENT ==========');
                 console.log('[CHECKOUT] Payment intent creation started at:', new Date().toISOString());
+                const userFullName = user ? `${user.firstName} ${user.lastName}`.trim() : '';
                 console.log('[CHECKOUT] Initial values:', {
                     itemsCount: items.length,
                     baseTotalPrice,
                     isLoadingFXQuote,
                     currency,
                     userEmail: user?.email?.substring(0, 3) + '***' || 'none',
-                    userName: user?.displayName || 'none',
-                    userId: user?.uid || 'guest',
+                    userName: userFullName || 'none',
+                    userId: user?.id || 'guest',
                 });
 
                 try {
@@ -632,11 +633,9 @@ export default function Checkout() {
 
                     console.log('[CHECKOUT] Making POST request to /api/create-payment-intent...');
                     const requestStartTime = Date.now();
-                    const response = await fetch('/api/create-payment-intent', {
+                    const data = await apiFetch<any>('/api/create-payment-intent', {
                         method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
+                        auth: false,
                         body: JSON.stringify({
                             amount: finalAmount,
                             currency: finalCurrency,
@@ -648,9 +647,9 @@ export default function Checkout() {
                                 price: item.price,
                             })),
                             metadata: {
-                                userId: user?.uid || 'guest',
+                                userId: user?.id || 'guest',
                                 customerEmail: user?.email || '',
-                                customerName: user?.displayName || '',
+                                customerName: userFullName || '',
                                 customerCurrency: currency,
                                 baseAmountGBP: baseTotalPrice.toString(),
                             },
@@ -659,12 +658,10 @@ export default function Checkout() {
                     const requestDuration = Date.now() - requestStartTime;
 
                     console.log('[CHECKOUT] Payment intent API response received:', {
-                        status: response.status,
-                        statusText: response.statusText,
+                        status: 200,
+                        statusText: 'OK',
                         duration: `${requestDuration}ms`,
                     });
-
-                    const data = await response.json();
                     console.log('[CHECKOUT] Payment intent API response data:', {
                         success: data.success || 'unknown',
                         hasClientSecret: !!data.clientSecret,
@@ -852,7 +849,7 @@ export default function Checkout() {
                                     >
                                         <PaymentForm
                                             userEmail={user?.email || ''}
-                                            userName={user?.displayName || ''}
+                                            userName={user ? `${user.firstName} ${user.lastName}`.trim() : ''}
                                             isGuest={checkoutOption === 'guest'}
                                             onSuccess={handlePaymentSuccess}
                                             onError={handlePaymentError}

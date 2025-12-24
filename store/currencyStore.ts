@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { createClientStorage } from "@/utils/storage";
+import { apiFetch } from "@/services/apiClient";
 
 // Supported currencies
 export type CurrencyCode =
@@ -263,17 +264,19 @@ export const useCurrencyStore = create<CurrencyStore>()(
             : "hour";
 
           // Fetch new FX quote from Stripe
-          const response = await fetch("/api/fx-quote", {
+          const data = await apiFetch<{
+            success: boolean;
+            fxQuote?: StripeFXQuote;
+            error?: string;
+          }>("/api/fx-quote", {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
+            auth: false,
             body: JSON.stringify({
               toCurrency: "gbp", // Settlement currency
               fromCurrencies: [fromCurrency.toLowerCase()],
               lockDuration: lockDuration, // Use appropriate duration for currency
             }),
           });
-
-          const data = await response.json();
           if (data.success && data.fxQuote) {
             set({ fxQuote: data.fxQuote });
           } else {

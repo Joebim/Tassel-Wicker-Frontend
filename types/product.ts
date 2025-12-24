@@ -5,11 +5,22 @@ export interface Product {
   price: number;
   originalPrice?: number;
   images: string[];
+  coverImage?: string;
+  categoryId?: string;
   category: string;
+  productType?: "basket" | "custom" | "single";
+  productRole?: "main" | "sub";
+  parentProductId?: string | null;
+  linkedProductIds?: string[];
   tags: string[];
   inStock: boolean;
   stockQuantity: number;
   featured: boolean;
+  isNew?: boolean;
+  isCustom?: boolean;
+  variants?: Array<{ name: string; image: string; price: number }>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  details?: any;
   createdAt: string;
   updatedAt: string;
   dimensions?: {

@@ -8,10 +8,13 @@ import { LuArrowLeft, LuArrowRight, LuChevronLeft, LuChevronRight } from 'react-
 import { useInView, motion } from 'framer-motion';
 import ScrollTextAnimation from '@/components/common/ScrollTextAnimation';
 import { useCartStore } from '@/store/cartStore';
-import type { ProductDataItem, ProductDetails, ShopProduct, ShopProductItem } from '@/types/productData';
+import type { ProductDataItem, ProductDetails, ShopProductItem } from '@/types/productData';
 import { getDefaultVariant, getDefaultImage } from '@/utils/productHelpers';
-import { shopProducts, getAllSubProducts } from '@/utils/productData';
 import { usePrice } from '@/hooks/usePrice';
+import { backendProducts } from '@/services/backend';
+import { toProductDataItem } from '@/utils/backendProductMapper';
+import { useToastStore } from '@/store/toastStore';
+import { ProductDetailSkeleton } from '@/components/common/SkeletonLoader';
 
 type DetailValue = string | string[] | { [key: string]: string } | undefined;
 
@@ -120,10 +123,46 @@ export default function ProductDetail() {
     const productId = params.id as string;
     const { addItem } = useCartStore();
 
-    // Find product by ID
-    const product = useMemo(() => {
-        const allProducts = [...shopProducts, ...getAllSubProducts()];
-        return allProducts.find(p => p.id === productId) as (ShopProduct | ProductDataItem) | undefined;
+    const [product, setProduct] = useState<ProductDataItem | null>(null);
+    const [linkedItems, setLinkedItems] = useState<ShopProductItem[]>([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        let alive = true;
+        const load = async () => {
+            try {
+                setLoading(true);
+                const res = await backendProducts.getProduct(productId, true);
+                if (!alive) return;
+                setProduct(toProductDataItem(res.item));
+                const linked = (res.linkedProducts || []).map((lp) => {
+                    const ui = toProductDataItem(lp);
+                    const v = getDefaultVariant(ui);
+                    return {
+                        id: ui.id,
+                        name: ui.name,
+                        description: ui.description,
+                        image: v.image,
+                        category: ui.category,
+                        variants: ui.variants || [v],
+                        details: (ui as any).details,
+                    } as ShopProductItem;
+                });
+                setLinkedItems(linked);
+            } catch (e) {
+                useToastStore.getState().addToast({
+                    type: 'error',
+                    title: 'Failed to load product',
+                    message: e instanceof Error ? e.message : 'Could not load product.',
+                });
+                setProduct(null);
+                setLinkedItems([]);
+            } finally {
+                if (alive) setLoading(false);
+            }
+        };
+        load();
+        return () => { alive = false; };
     }, [productId]);
 
     const [selectedVariantIndex, setSelectedVariantIndex] = useState(0);
@@ -379,8 +418,8 @@ export default function ProductDetail() {
         const variantSlug = hasVariants
             ? currentVariant.name.toLowerCase().replace(/\s+/g, '-')
             : '';
-        const basketItems = 'items' in product && product.items && product.items.length > 0
-            ? (product.items as ShopProductItem[]).map((item) => ({
+        const basketItems = linkedItems.length > 0
+            ? linkedItems.map((item) => ({
                 name: item.name,
                 image: item.image,
                 category: item.category
@@ -403,6 +442,10 @@ export default function ProductDetail() {
             basketItems
         });
     };
+
+    if (loading) {
+        return <ProductDetailSkeleton />;
+    }
 
     if (!product) {
         return (
@@ -628,25 +671,23 @@ export default function ProductDetail() {
                 </section>
             )}
 
-            {/* Basket Contents Section */}
-            {/* Note: items property is only on ProductWithItems, not ProductDataItem */}
-            {/* This section is for basket products that contain items */}
-            {('items' in product && Array.isArray(product.items) && product.items.length > 0) && (
+            {/* Basket / linked contents Section */}
+            {linkedItems.length > 0 && (
                 <div className="bg-white py-24">
                     <div className="flex flex-col max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                         <div className="flex justify-center px-10 border-b border-brand-purple self-center ">
                             <h2 className="text-2xl font-extralight text-brand-purple uppercase mb-5">
-                                In the Basket
+                                Included Items
                             </h2>
                         </div>
 
 
                         <div className="space-y-12 sm:space-y-24">
-                            {(product.items as Array<ShopProductItem>).map((item, index: number) => {
+                            {linkedItems.map((item, index: number) => {
                                 const currentVariant = getDefaultVariant(product);
                                 return (
                                     <BasketItem
-                                        key={index}
+                                        key={item.id || index}
                                         item={item}
                                         product={{
                                             name: product.name,

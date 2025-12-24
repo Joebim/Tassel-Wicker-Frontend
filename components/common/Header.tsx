@@ -61,6 +61,8 @@ const Header: React.FC<HeaderProps> = ({ showHeader = true }) => {
         router.push('/');
     };
 
+    const userDisplayName = user ? `${user.firstName} ${user.lastName}`.trim() || user.email : '';
+
     return (
         <header className={`bg-transparent absolute top-0 left-0 right-0 z-50 transition-opacity duration-1000 ease-out ${showHeader ? 'opacity-100' : 'opacity-0 pointer-events-none'
             }`}>
@@ -122,10 +124,33 @@ const Header: React.FC<HeaderProps> = ({ showHeader = true }) => {
                                     {user ? (
                                         <>
                                             <div className="px-4 py-2 border-b border-luxury-white/20">
-                                                <p className="text-sm font-extralight text-luxury-black">{user.displayName || 'User'}</p>
+                                                <p className="text-sm font-extralight text-luxury-black">{userDisplayName}</p>
                                                 <p className="text-xs text-luxury-cool-grey">{user.email}</p>
                                             </div>
-                                            
+
+                                            <Link
+                                                href="/profile"
+                                                onClick={() => setIsAccountDropdownOpen(false)}
+                                                className="block px-4 py-2 text-sm text-luxury-black hover:bg-luxury-warm-grey/10 font-extralight uppercase transition-colors duration-200"
+                                            >
+                                                Profile
+                                            </Link>
+                                            <Link
+                                                href="/dashboard"
+                                                onClick={() => setIsAccountDropdownOpen(false)}
+                                                className="block px-4 py-2 text-sm text-luxury-black hover:bg-luxury-warm-grey/10 font-extralight uppercase transition-colors duration-200"
+                                            >
+                                                Orders
+                                            </Link>
+                                            {(user.role === 'admin' || user.role === 'moderator') && (
+                                                <Link
+                                                    href="/admin"
+                                                    onClick={() => setIsAccountDropdownOpen(false)}
+                                                    className="block px-4 py-2 text-sm text-luxury-black hover:bg-luxury-warm-grey/10 font-extralight uppercase transition-colors duration-200"
+                                                >
+                                                    Admin
+                                                </Link>
+                                            )}
                                             <button
                                                 onClick={handleLogout}
                                                 className="block w-full text-left px-4 py-2 text-sm text-luxury-black hover:bg-luxury-warm-grey/10 font-extralight uppercase"
