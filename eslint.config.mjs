@@ -12,7 +12,15 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Exclude script files from linting
+    "scripts/**",
   ]),
+  {
+    rules: {
+      // Disable react-refresh rule for context files that export hooks
+      "react-refresh/only-export-components": "off",
+    },
+  },
 ]);
 
 export default eslintConfig;

@@ -9,30 +9,28 @@ const COOKIE_CONSENT_KEY = 'tassel-wicker-cookie-consent';
 
 const CookieConsent: React.FC = () => {
   const [isVisible, setIsVisible] = useState(false);
-  const [isMounted, setIsMounted] = useState(false);
+  const isMounted = typeof window !== 'undefined';
 
   useEffect(() => {
-    setIsMounted(true);
+    if (!isMounted) return;
     
     // Check if user has already accepted cookies
-    if (typeof window !== 'undefined') {
-      const hasAccepted = localStorage.getItem(COOKIE_CONSENT_KEY);
-      
-      // Check if consent cookie exists
-      const hasConsentCookie = document.cookie
-        .split(';')
-        .some(cookie => cookie.trim().startsWith('cookieConsent='));
-      
-      // Only show if user hasn't accepted in localStorage AND no consent cookie exists
-      if (!hasAccepted && !hasConsentCookie) {
-        // Small delay to ensure smooth animation
-        const timer = setTimeout(() => {
-          setIsVisible(true);
-        }, 500);
-        return () => clearTimeout(timer);
-      }
+    const hasAccepted = localStorage.getItem(COOKIE_CONSENT_KEY);
+    
+    // Check if consent cookie exists
+    const hasConsentCookie = document.cookie
+      .split(';')
+      .some(cookie => cookie.trim().startsWith('cookieConsent='));
+    
+    // Only show if user hasn't accepted in localStorage AND no consent cookie exists
+    if (!hasAccepted && !hasConsentCookie) {
+      // Small delay to ensure smooth animation
+      const timer = setTimeout(() => {
+        setIsVisible(true);
+      }, 500);
+      return () => clearTimeout(timer);
     }
-  }, []);
+  }, [isMounted]);
 
   const handleAccept = () => {
     if (typeof window !== 'undefined') {

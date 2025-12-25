@@ -29,16 +29,14 @@ export default function RichTextEditor({
   // Always start with empty state to prevent hydration mismatch
   // Content will be loaded in useEffect after mount
   const [editorState, setEditorState] = useState<EditorState>(() => EditorState.createEmpty());
-  const [isMounted, setIsMounted] = useState(false);
-
-  // Set mounted flag on client side only
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
+  const [isMounted, setIsMounted] = useState(() => typeof window !== 'undefined');
 
   // Load content after mount to prevent hydration mismatch
   useEffect(() => {
-    if (!isMounted) return;
+    if (!isMounted) {
+      setIsMounted(true);
+      return;
+    }
 
     if (value) {
       try {

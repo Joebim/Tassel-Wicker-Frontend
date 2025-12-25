@@ -131,32 +131,32 @@ export function ProductForm({
 
         const p = data.item;
         setInput({
-          externalId: (p as any).externalId,
+          externalId: 'externalId' in p ? (p as Product & { externalId?: string }).externalId : undefined,
           name: p.name || '',
           description: p.description || '',
           price: Number(p.price || 0),
           originalPrice: p.originalPrice ? Number(p.originalPrice) : undefined,
           images: Array.isArray(p.images) ? p.images : [],
-          coverImage: (p as any).coverImage,
-          categoryId: (p as any).categoryId,
+          coverImage: p.coverImage,
+          categoryId: p.categoryId,
           category: p.category,
-          productType: ((p as any).productType || 'single') as ProductType,
-          productRole: ((p as any).productRole || 'main') as ProductRole,
-          parentProductId: ((p as any).parentProductId || undefined) as any,
-          linkedProductIds: Array.isArray((p as any).linkedProductIds) ? ((p as any).linkedProductIds as string[]) : [],
+          productType: (p.productType || 'single') as ProductType,
+          productRole: (p.productRole || 'main') as ProductRole,
+          parentProductId: p.parentProductId || undefined,
+          linkedProductIds: Array.isArray(p.linkedProductIds) ? p.linkedProductIds : [],
           tags: Array.isArray(p.tags) ? p.tags : [],
           inStock: !!p.inStock,
           stockQuantity: Number(p.stockQuantity || 0),
           featured: !!p.featured,
-          isNew: !!(p as any).isNew,
-          isCustom: !!(p as any).isCustom,
+          isNew: !!p.isNew,
+          isCustom: !!p.isCustom,
         });
 
         const linked = (data.linkedProducts || []).map((lp) => ({
           id: lp.id,
           name: lp.name,
-          productType: lp.productType as any,
-          productRole: lp.productRole as any,
+          productType: lp.productType as ProductType | undefined,
+          productRole: lp.productRole as ProductRole | undefined,
         }));
         setLinkedProducts(linked);
       } catch (e) {
@@ -197,8 +197,8 @@ export function ProductForm({
             (data.items || []).map((p) => ({
               id: p.id,
               name: p.name,
-              productType: p.productType as any,
-              productRole: p.productRole as any,
+              productType: p.productType as ProductType | undefined,
+              productRole: p.productRole as ProductRole | undefined,
             }))
           );
         } catch {
@@ -237,8 +237,8 @@ export function ProductForm({
             (data.items || []).map((p) => ({
               id: p.id,
               name: p.name,
-              productType: p.productType as any,
-              productRole: p.productRole as any,
+              productType: p.productType as ProductType | undefined,
+              productRole: p.productRole as ProductRole | undefined,
             }))
           );
         } catch {

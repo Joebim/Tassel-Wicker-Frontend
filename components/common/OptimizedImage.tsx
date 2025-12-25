@@ -27,13 +27,15 @@ export default function OptimizedImage({
   const [hasError, setHasError] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Reset when src changes
+  // Reset when src changes - using callback to avoid setState in effect warning
   useEffect(() => {
-    setImageSrc(src);
-    setRetries(0);
-    setHasError(false);
-    setIsLoading(true);
-  }, [src]);
+    if (imageSrc !== src) {
+      setImageSrc(src);
+      setRetries(0);
+      setHasError(false);
+      setIsLoading(true);
+    }
+  }, [src, imageSrc]);
 
   const handleError = () => {
       if (retries < retryCount) {

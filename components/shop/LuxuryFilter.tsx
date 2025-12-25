@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { LuX, LuFilter } from 'react-icons/lu';
 
 interface FilterState {
@@ -21,15 +21,21 @@ const LuxuryFilter: React.FC<LuxuryFilterProps> = ({
     categories = ['All'],
     currentFilters = {}
 }) => {
-    const [selectedCategory, setSelectedCategory] = useState<string>(currentFilters.category || 'All');
-    const [selectedPrice, setSelectedPrice] = useState<string>(currentFilters.price || 'All');
+    const [selectedCategory, setSelectedCategory] = useState<string>(() => currentFilters.category || 'All');
+    const [selectedPrice, setSelectedPrice] = useState<string>(() => currentFilters.price || 'All');
 
     const priceRanges = ['All', 'Free', 'Under $200', '$200 - $500', 'Over $500'];
 
-    // Update local state when currentFilters change
+    // Update local state when currentFilters change - using ref to track previous values
+    const prevFiltersRef = useRef(currentFilters);
     useEffect(() => {
-        setSelectedCategory(currentFilters.category || 'All');
-        setSelectedPrice(currentFilters.price || 'All');
+        if (prevFiltersRef.current.category !== currentFilters.category) {
+            setSelectedCategory(currentFilters.category || 'All');
+        }
+        if (prevFiltersRef.current.price !== currentFilters.price) {
+            setSelectedPrice(currentFilters.price || 'All');
+        }
+        prevFiltersRef.current = currentFilters;
     }, [currentFilters]);
 
     const handleCategorySelect = (category: string) => {
