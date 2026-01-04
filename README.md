@@ -30,39 +30,16 @@ npm install
 
 2. Create a `.env.local` file with the following variables:
 
+```env
+# Stripe (Public Key - Safe for Frontend)
+NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_test_...
+
+# API Base URL (Optional - defaults to same-origin if not set)
+# In development, defaults to http://localhost:4000
+# NEXT_PUBLIC_API_BASE_URL=http://localhost:4000
 ```
-NEXT_PUBLIC_FIREBASE_API_KEY=your_key
-NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your_domain
-NEXT_PUBLIC_FIREBASE_PROJECT_ID=your_project_id
-NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=your_bucket
-NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=your_sender_id
-NEXT_PUBLIC_FIREBASE_APP_ID=your_app_id
-NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID=your_measurement_id
 
-NEXT_PUBLIC_EMAILJS_SERVICE_ID=your_service_id
-NEXT_PUBLIC_EMAILJS_TEMPLATE_ID=your_template_id
-NEXT_PUBLIC_EMAILJS_PUBLIC_KEY=your_public_key
-
-NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=your_stripe_key
-STRIPE_SECRET_KEY=your_stripe_secret
-
-CURRENCY_API_KEY=your_currency_api_key
-
-# Google SMTP Configuration (for sending emails)
-SMTP_HOST=smtp.gmail.com
-SMTP_PORT=587
-SMTP_USER=your-email@gmail.com
-SMTP_PASSWORD=your-app-password
-SMTP_FROM=your-email@gmail.com
-SMTP_FROM_NAME=Tassel & Wicker
-CONTACT_FORM_RECIPIENT=recipient@example.com
-ADMIN_EMAIL=admin@example.com
-
-# Stripe Webhook
-STRIPE_WEBHOOK_SECRET=your_webhook_secret
-
-SYSTEME_API_KEY=your_systeme_api_key
-```
+**Note:** Most functionality has been moved to the backend. All server-side configuration (MongoDB, JWT secrets, Cloudinary, Stripe secrets, Resend API, SMTP, etc.) is now handled by the backend. See `ENV_CLEANUP.md` for details on removed variables.
 
 3. Run the development server:
 
@@ -80,51 +57,24 @@ npm run dev
 - Environment variables use `NEXT_PUBLIC_` prefix for client-side access
 - All pages are now in the `app/(site)` directory using Next.js routing
 - API routes are in `app/api` directory
+- Most functionality has been moved to a separate backend API
+- Authentication, database, and server-side operations are handled by the backend
 
 ## Features
 
 - Product catalog and shopping
-- User authentication (Firebase)
+- User authentication (Backend API)
 - Shopping cart
 - Checkout with Stripe integration
 - Blog system
 - Contact forms
 - Custom basket builder
-- Email notifications via Google SMTP (order confirmations, payment confirmations, contact form submissions)
+- Email notifications (handled by backend via Resend)
 
-## Email Setup (Google SMTP)
+## Backend Integration
 
-The application uses Google SMTP to send transactional emails. To set up:
+This frontend application communicates with a separate backend API. All server-side operations (authentication, database, email, file uploads, etc.) are handled by the backend.
 
-1. **Enable 2-Step Verification** on your Google account
-2. **Generate an App Password**:
+**Backend Configuration:** See the backend repository for environment variable setup (MongoDB, JWT secrets, Cloudinary, Stripe secrets, Resend API, etc.)
 
-   - Go to your Google Account settings
-   - Navigate to Security → 2-Step Verification → App passwords
-   - Generate a new app password for "Mail"
-   - Copy the 16-character password
-
-3. **Configure Environment Variables**:
-
-   ```
-   SMTP_HOST=smtp.gmail.com
-   SMTP_PORT=587
-   SMTP_USER=your-email@gmail.com
-   SMTP_PASSWORD=your-16-character-app-password
-   SMTP_FROM=your-email@gmail.com
-   SMTP_FROM_NAME=Tassel & Wicker
-   CONTACT_FORM_RECIPIENT=recipient@example.com  # Where contact form submissions are sent
-   ADMIN_EMAIL=admin@example.com  # Where order notifications are sent
-   ```
-
-4. **Stripe Webhook Setup**:
-   - Set up a webhook endpoint in your Stripe dashboard
-   - Point it to: `https://yourdomain.com/api/webhooks/stripe`
-   - Copy the webhook signing secret to `STRIPE_WEBHOOK_SECRET`
-
-**Note**: The app sends emails for:
-
-- Contact form submissions
-- Order confirmations (after successful payment)
-- Payment confirmations
-- Admin notifications for new orders
+**Frontend Configuration:** Only requires the Stripe publishable key for payment processing.

@@ -5,11 +5,15 @@ import Image from 'next/image';
 import { LuChevronDown } from 'react-icons/lu';
 import ScrollTextAnimation from '@/components/common/ScrollTextAnimation';
 import CircularText from '@/components/common/CircularText';
-import { renderTextWithEmailLinks } from '@/utils/textUtils';
+import RichTextRenderer from '@/components/common/RichTextRenderer';
+import { useContent } from '@/hooks/useContent';
 import { useWindowWidth } from '@/hooks/useWindowsWidth';
 
 export default function TermsOfService() {
     const { isDesktop } = useWindowWidth();
+    const { data: contentData, isLoading, error } = useContent('terms-of-service');
+    const content = contentData?.content || '';
+    const documentUrl = contentData?.documentUrl || null;
 
     useEffect(() => {
         if (typeof window !== 'undefined') {
@@ -155,31 +159,46 @@ export default function TermsOfService() {
             {/* Content */}
             <section id="terms-content" className="py-16">
                 <div className="max-w-4xl mx-auto px-6 sm:px-8 lg:px-12">
-                    <div className="mb-8">
-                        <p className="text-base text-luxury-black font-extralight mb-8">
-                            Feel free to look through our Terms of Service{' '}
-                            <a
-                                href="/document-viewer/terms-of-service"
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="underline hover:text-brand-purple transition-colors"
-                            >
-                                here
-                            </a>.
-                        </p>
-                    </div>
-                    <div className="prose prose-lg max-w-none text-luxury-black leading-relaxed space-y-8">
-                        {sections.map((section) => (
-                            <div key={section.title} className="mb-8">
-                                <h2 className="text-xl font-extralight uppercase text-luxury-black mb-4 mt-8">
-                                    {section.title}
-                                </h2>
-                                <div className="text-base text-luxury-black font-extralight leading-relaxed whitespace-pre-line mb-6">
-                                    {renderTextWithEmailLinks(section.content)}
+                    {isLoading ? (
+                        <div className="text-center py-12">
+                            <p className="text-luxury-black font-extralight">Loading...</p>
+                        </div>
+                    ) : (
+                        <>
+                            {documentUrl && (
+                                <div className="mb-8">
+                                    <p className="text-base text-luxury-black font-extralight mb-8">
+                                        Feel free to look through our Terms of Service{' '}
+                                        <a
+                                            href={documentUrl}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="underline hover:text-brand-purple transition-colors"
+                                        >
+                                            here
+                                        </a>.
+                                    </p>
                                 </div>
-                            </div>
-                        ))}
-                    </div>
+                            )}
+                            {content ? (
+                                <RichTextRenderer content={content} />
+                            ) : (
+                                // Fallback to original content structure if API fails
+                                <div className="prose prose-lg max-w-none text-luxury-black leading-relaxed space-y-8">
+                                    {sections.map((section) => (
+                                        <div key={section.title} className="mb-8">
+                                            <h2 className="text-xl font-extralight uppercase text-luxury-black mb-4 mt-8">
+                                                {section.title}
+                                            </h2>
+                                            <div className="text-base text-luxury-black font-extralight leading-relaxed whitespace-pre-line mb-6">
+                                                {section.content}
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </>
+                    )}
                 </div>
             </section>
         </div>

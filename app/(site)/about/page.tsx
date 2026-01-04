@@ -18,6 +18,7 @@ import {
   CarouselNext,
 } from "@/components/ui/carousel";
 import VideoCard from '@/components/about/VideoCard';
+import { useAboutContent } from '@/hooks/useContent';
 
 // Google Font for signature
 const greatVibes = Great_Vibes({
@@ -30,6 +31,13 @@ const greatVibes = Great_Vibes({
 export default function About() {
   // Client-side mount state to prevent hydration mismatches
   const [isMounted, setIsMounted] = useState(false);
+
+  // Fetch content using TanStack Query
+  const { aboutContent, isLoading } = useAboutContent({
+    enabled: isMounted, // Only fetch after component is mounted
+  });
+
+  const heroImage = aboutContent?.heroImage || '/images/headers/about-header-alt.jpg';
 
   // ---------------------------------------------------------------
   // Animation variants (unchanged)
@@ -117,7 +125,45 @@ export default function About() {
         <div className="relative h-screen w-full overflow-hidden bg-black">
           <div className="absolute inset-0 z-0">
             <Image
-              src="/images/headers/about-header-alt.jpg"
+              src={heroImage}
+              alt="About Header"
+              fill
+              className="object-cover"
+              priority
+              sizes="100vw"
+            />
+            <div className="absolute inset-0 bg-black opacity-40" />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Fallback content if API fails or is loading
+  const content = aboutContent || {
+    heroImage: '/images/headers/about-header-alt.jpg',
+    myWhyTitle: 'MY WHY',
+    myWhyText1: 'Tassel & Wicker was created from a love for the little things that make life feel elevated and intentional. Think soft woven throw blankets, polished crystals, marble coasters, tin cookies, incense cones, tassel key chains, linen notepads, duck feather cushions…little tokens of comfort that slow us down, center us and help transform an ordinary space into a sanctuary of calm and creativity.',
+    myWhyText2: 'My vision is for Tassel & Wicker to stand as a symbol of thoughtfulness; a reminder to celebrate everyday moments and surround ourselves with quality pieces that bring joy and meaning. Through every product and experience, I hope to inspire a way of living that feels elevated, joyful and deeply considered.',
+    myWhyImage: '/images/about/my-why.jpg',
+    ourStoryTitle: 'OUR STORY',
+    ourStoryText1: 'Our story starts with a collection of signature celebration baskets, the first step toward our envisioned line of home and lifestyle pieces. Through our celebration baskets, I invite you to reimagine how you express appreciation; not as a routine gesture, but as a chance to connect, honor individuality and create beautiful memories.',
+    ourStoryText2: 'Here\'s to celebrating the little things and moments that make life feel special.',
+    ourStoryImage: '/images/about/stacked-baskets.jpg',
+    signature: 'Dee',
+    signatureTitle: 'Founder, Tassel & Wicker',
+    builtForTitle: 'IT\'S THE THOUGHT GIFT THAT COUNTS',
+    builtForVideos: ['/videos/VIDEO 1.mp4', '/videos/VIDEO 2.mp4', '/videos/VIDEO 3.mp4', '/videos/VIDEO 4.mp4'],
+  };
+
+  // Show loading state
+  if (isLoading && !aboutContent) {
+    return (
+      <div className="bg-white">
+        <div className="relative h-screen w-full overflow-hidden bg-black">
+          <div className="absolute inset-0 z-0">
+            <Image
+              src={heroImage}
               alt="About Header"
               fill
               className="object-cover"
@@ -137,7 +183,7 @@ export default function About() {
       <div className="relative h-screen w-full overflow-hidden bg-black">
         <div className="absolute inset-0 z-0">
           <Image
-            src="/images/headers/about-header-alt.jpg"
+            src={content.heroImage}
             alt="About Header"
             fill
             className="object-cover"
@@ -241,7 +287,7 @@ export default function About() {
                       variants={headingVariants}
                     >
                       <ScrollTextAnimation delay={0.3} duration={0.8}>
-                        MY WHY
+                        {content.myWhyTitle}
                       </ScrollTextAnimation>
                     </motion.h2>
                   </motion.div>
@@ -254,14 +300,14 @@ export default function About() {
                         className="text-lg sm:block hidden text-gray-600 mb-6 leading-relaxed font-extralight"
                         variants={itemVariants}
                       >
-                        Tassel & Wicker was created from a love for the little things that make life feel elevated and intentional. Think soft woven throw blankets, polished crystals, marble coasters, tin cookies, incense cones, tassel key chains, linen notepads, duck feather cushions…little tokens of comfort that slow us down, center us and help transform an ordinary space into a sanctuary of calm and creativity.
+                        {content.myWhyText1}
                       </motion.p>
 
                       <motion.p
                         className="text-lg sm:block hidden text-gray-600 leading-relaxed font-extralight"
                         variants={itemVariants}
                       >
-                        My vision is for Tassel & Wicker to stand as a symbol of thoughtfulness; a reminder to celebrate everyday moments and surround ourselves with quality pieces that bring joy and meaning. Through every product and experience, I hope to inspire a way of living that feels elevated, joyful and deeply considered.
+                        {content.myWhyText2}
                       </motion.p>
                     </motion.div>
                   </div>
@@ -274,7 +320,7 @@ export default function About() {
                     className="relative w-full h-[600px] order-2"
                   >
                     <Image
-                      src="/images/about/my-why.jpg"
+                      src={content.myWhyImage}
                       alt="My Why"
                       fill
                       className="object-cover"
@@ -285,14 +331,14 @@ export default function About() {
                       className="text-lg sm:hidden block text-gray-600 mb-6 leading-relaxed font-extralight"
                       variants={itemVariants}
                     >
-                      Tassel & Wicker was created from a love for the little things that make life feel elevated and intentional. Think soft woven throw blankets, polished crystals, marble coasters, tin cookies, incense cones, tassel key chains, linen notepads, duck feather cushions…little tokens of comfort that slow us down, center us and help transform an ordinary space into a sanctuary of calm and creativity.
+                      {content.myWhyText1}
                     </motion.p>
 
                     <motion.p
                       className="text-lg sm:hidden block text-gray-600 leading-relaxed font-extralight"
                       variants={itemVariants}
                     >
-                      My vision is for Tassel & Wicker to stand as a symbol of thoughtfulness; a reminder to celebrate everyday moments and surround ourselves with quality pieces that bring joy and meaning. Through every product and experience, I hope to inspire a way of living that feels elevated, joyful and deeply considered.
+                      {content.myWhyText2}
                     </motion.p>
                   </motion.div>
 
@@ -311,8 +357,8 @@ export default function About() {
                   className="lg:order-1 order-4 relative w-full h-[600px]"
                 >
                   <Image
-                    src="/images/about/stacked-baskets.jpg"
-                    alt="Signature Celebration Basket"
+                    src={content.ourStoryImage}
+                    alt="Our Story"
                     fill
                     className="object-cover"
                   />
@@ -322,18 +368,26 @@ export default function About() {
                 <motion.div className="lg:order-2 order-5" variants={itemVariants}>
 
                   <motion.div className="mb-6" variants={itemVariants}>
+                    <motion.h2
+                      className="text-5xl font-extralight text-gray-900 leading-tight mb-6"
+                      variants={headingVariants}
+                    >
+                      <ScrollTextAnimation delay={0.3} duration={0.8}>
+                        {content.ourStoryTitle}
+                      </ScrollTextAnimation>
+                    </motion.h2>
                     <motion.p
                       className="text-lg text-gray-600 mb-6 leading-relaxed font-extralight"
                       variants={itemVariants}
                     >
-                      Our story starts with a collection of signature celebration baskets, the first step toward our envisioned line of home and lifestyle pieces. Through our celebration baskets, I invite you to reimagine how you express appreciation; not as a routine gesture, but as a chance to connect, honor individuality and create beautiful memories.
+                      {content.ourStoryText1}
                     </motion.p>
 
                     <motion.p
                       className="text-lg text-gray-600 leading-relaxed font-extralight"
                       variants={itemVariants}
                     >
-                      Here&apos;s to celebrating the little things and moments that make life feel special.
+                      {content.ourStoryText2}
                     </motion.p>
                   </motion.div>
 
@@ -343,11 +397,11 @@ export default function About() {
                     </p>
                     <div className={`mb-2 ${greatVibes.variable}`}>
                       <p className={`text-4xl md:text-5xl text-gray-700 leading-relaxed tracking-wide transform rotate-[-0.5deg] ${greatVibes.className}`}>
-                        Dee
+                        {content.signature}
                       </p>
                     </div>
                     <p className="text-lg text-gray-500 leading-relaxed font-extralight italic mt-2">
-                      Founder, Tassel & Wicker
+                      {content.signatureTitle}
                     </p>
                   </motion.div>
                 </motion.div>
@@ -371,11 +425,7 @@ export default function About() {
                 variants={headingVariants}
               >
                 <ScrollTextAnimation delay={0.2} duration={0.8} className='text-[18px] sm:text-[39px]'>
-                  IT&apos;S THE{' '}
-                  <span className="line-through decoration-1 sm:decoration-5 decoration-white">
-                    THOUGHT
-                  </span>{' '}
-                  GIFT THAT COUNTS
+                  {content.builtForTitle}
                 </ScrollTextAnimation>
               </motion.h2>
             </motion.div>
@@ -390,22 +440,19 @@ export default function About() {
                 className="w-full"
                 setApi={(api) => {
                   // Start at the middle set (position 4) for seamless infinite scroll
-                  if (api) {
+                  if (api && content.builtForVideos.length > 0) {
                     setTimeout(() => {
-                      api.scrollTo(4, false); // false = no animation, jump directly
+                      api.scrollTo(content.builtForVideos.length, false); // false = no animation, jump directly
                     }, 0);
                   }
                 }}
               >
                 <CarouselContent className="ml-0 md:-ml-4">
                   {(() => {
-                    // Duplicate videos for proper infinite scroll on desktop
-                    const videos = [
-                      '/videos/VIDEO 1.mp4',
-                      '/videos/VIDEO 2.mp4',
-                      '/videos/VIDEO 3.mp4',
-                      '/videos/VIDEO 4.mp4',
-                    ];
+                    // Use videos from API content
+                    const videos = content.builtForVideos.length > 0
+                      ? content.builtForVideos
+                      : ['/videos/VIDEO 1.mp4', '/videos/VIDEO 2.mp4', '/videos/VIDEO 3.mp4', '/videos/VIDEO 4.mp4'];
                     // Create 3 sets for seamless infinite scroll
                     const duplicatedVideos = [...videos, ...videos, ...videos];
                     return duplicatedVideos.map((video, index) => (

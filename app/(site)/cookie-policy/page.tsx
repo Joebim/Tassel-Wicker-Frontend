@@ -5,14 +5,21 @@ import Image from 'next/image';
 import { LuChevronDown } from 'react-icons/lu';
 import ScrollTextAnimation from '@/components/common/ScrollTextAnimation';
 import CircularText from '@/components/common/CircularText';
+import RichTextRenderer from '@/components/common/RichTextRenderer';
+import { useContent } from '@/hooks/useContent';
 
 export default function CookiePolicy() {
+    const { data: contentData, isLoading, error } = useContent('cookie-policy');
+    const content = contentData?.content || '';
+    const documentUrl = contentData?.documentUrl || null;
+
     useEffect(() => {
         if (typeof window !== 'undefined') {
             window.scrollTo(0, 0);
         }
     }, []);
 
+    // Fallback sections if API fails
     const sections = [
         {
             title: '1. General Introduction About Cookies',
@@ -147,79 +154,88 @@ export default function CookiePolicy() {
             {/* Content */}
             <section id="cookie-content" className="py-16">
                 <div className="max-w-4xl mx-auto px-6 sm:px-8 lg:px-12">
-                    <div className="mb-8">
-                        <p className="text-base text-luxury-black font-extralight mb-4">
-                            Tassel and Wicker (hereinafter referred to as the &quot;Company,&quot; or &quot;we&quot;), shall undertake to ensure the security of personal information and the protection of rights of the visitors of the website (hereinafter referred to as the &quot;Visitors&quot;) while you use Tassel and Wickers website including but not limited to  www.tasselandwicker.com, (hereinafter referred to as the &quot;Website&quot;) and the content of it.
-                        </p>
-                        <p className="text-base text-luxury-black font-extralight mb-4">
-                            First and foremost, we DO NOT sell your personal information. However, when you visit or interact with our sites, services, applications, tools or messaging, we or our authorized service providers may use cookies, web beacons, and other similar technologies to make your experience better, faster and safer, for advertising purposes and to allow us to continuously improve our sites, services, applications and tools.
-                        </p>
-                        <p className="text-base text-luxury-black font-extralight mb-8">
-                            Read through our cookie policy{' '}
-                            <a
-                                href="/document-viewer/cookie-policy"
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="underline hover:text-brand-purple transition-colors"
-                            >
-                                here
-                            </a>.
-                        </p>
-                    </div>
-                    <div className="prose prose-lg max-w-none text-luxury-black leading-relaxed space-y-8">
-                        {sections.map((section) => (
-                            <div key={section.title} className="mb-8">
-                                <h2 className="text-xl font-extralight uppercase text-luxury-black mb-4 mt-8">
-                                    {section.title}
-                                </h2>
-                                {section.content && (
-                                    <div className="text-base text-luxury-black font-extralight leading-relaxed whitespace-pre-line mb-6">
-                                        {section.content}
-                                    </div>
-                                )}
-                                {section.subsections && section.subsections.map((subsection: { title: string; content?: string; hasTable?: boolean; tableData?: Array<{ cookieName: string; provider: string; purpose: string; type: string; expiry: string; category: string }> }, subIndex: number) => (
-                                    <div key={subIndex} className="mb-6">
-                                        <h3 className="text-lg font-extralight uppercase text-luxury-black mb-3 mt-6">
-                                            {subsection.title}
-                                        </h3>
-                                        {subsection.content && (
-                                            <div className="text-base text-luxury-black font-extralight leading-relaxed whitespace-pre-line mb-4">
-                                                {subsection.content}
-                                            </div>
-                                        )}
-                                        {subsection.hasTable && subsection.tableData && (
-                                            <div className="mt-6 mb-8 overflow-x-auto">
-                                                <table className="w-full border-collapse border border-gray-300 mt-4 text-sm">
-                                                    <thead>
-                                                        <tr className="bg-gray-100">
-                                                            <th className="border border-gray-300 px-4 py-3 text-left font-extralight uppercase text-luxury-black">Cookie Name</th>
-                                                            <th className="border border-gray-300 px-4 py-3 text-left font-extralight uppercase text-luxury-black">Provider</th>
-                                                            <th className="border border-gray-300 px-4 py-3 text-left font-extralight uppercase text-luxury-black">Purpose</th>
-                                                            <th className="border border-gray-300 px-4 py-3 text-left font-extralight uppercase text-luxury-black">Type</th>
-                                                            <th className="border border-gray-300 px-4 py-3 text-left font-extralight uppercase text-luxury-black">Expiry</th>
-                                                            <th className="border border-gray-300 px-4 py-3 text-left font-extralight uppercase text-luxury-black">Category</th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody>
-                                                        {subsection.tableData?.map((row, rowIndex: number) => (
-                                                            <tr key={rowIndex}>
-                                                                <td className="border border-gray-300 px-4 py-3 font-extralight">{row.cookieName}</td>
-                                                                <td className="border border-gray-300 px-4 py-3 font-extralight">{row.provider}</td>
-                                                                <td className="border border-gray-300 px-4 py-3 font-extralight">{row.purpose}</td>
-                                                                <td className="border border-gray-300 px-4 py-3 font-extralight">{row.type}</td>
-                                                                <td className="border border-gray-300 px-4 py-3 font-extralight">{row.expiry}</td>
-                                                                <td className="border border-gray-300 px-4 py-3 font-extralight">{row.category}</td>
-                                                            </tr>
-                                                        ))}
-                                                    </tbody>
-                                                </table>
-                                            </div>
-                                        )}
-                                    </div>
-                                ))}
-                            </div>
-                        ))}
-                    </div>
+                    {isLoading ? (
+                        <div className="text-center py-12">
+                            <p className="text-luxury-black font-extralight">Loading...</p>
+                        </div>
+                    ) : (
+                        <>
+                            {documentUrl && (
+                                <div className="mb-8">
+                                    <p className="text-base text-luxury-black font-extralight mb-4">
+                                        Read through our cookie policy{' '}
+                                        <a
+                                            href={documentUrl}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="underline hover:text-brand-purple transition-colors"
+                                        >
+                                            here
+                                        </a>.
+                                    </p>
+                                </div>
+                            )}
+                            {content ? (
+                                <RichTextRenderer content={content} />
+                            ) : (
+                                // Fallback to original content structure if API fails
+                                <div className="prose prose-lg max-w-none text-luxury-black leading-relaxed space-y-8">
+                                    {sections.map((section) => (
+                                        <div key={section.title} className="mb-8">
+                                            <h2 className="text-xl font-extralight uppercase text-luxury-black mb-4 mt-8">
+                                                {section.title}
+                                            </h2>
+                                            {section.content && (
+                                                <div className="text-base text-luxury-black font-extralight leading-relaxed whitespace-pre-line mb-6">
+                                                    {section.content}
+                                                </div>
+                                            )}
+                                            {section.subsections && section.subsections.map((subsection: { title: string; content?: string; hasTable?: boolean; tableData?: Array<{ cookieName: string; provider: string; purpose: string; type: string; expiry: string; category: string }> }, subIndex: number) => (
+                                                <div key={subIndex} className="mb-6">
+                                                    <h3 className="text-lg font-extralight uppercase text-luxury-black mb-3 mt-6">
+                                                        {subsection.title}
+                                                    </h3>
+                                                    {subsection.content && (
+                                                        <div className="text-base text-luxury-black font-extralight leading-relaxed whitespace-pre-line mb-4">
+                                                            {subsection.content}
+                                                        </div>
+                                                    )}
+                                                    {subsection.hasTable && subsection.tableData && (
+                                                        <div className="mt-6 mb-8 overflow-x-auto">
+                                                            <table className="w-full border-collapse border border-gray-300 mt-4 text-sm">
+                                                                <thead>
+                                                                    <tr className="bg-gray-100">
+                                                                        <th className="border border-gray-300 px-4 py-3 text-left font-extralight uppercase text-luxury-black">Cookie Name</th>
+                                                                        <th className="border border-gray-300 px-4 py-3 text-left font-extralight uppercase text-luxury-black">Provider</th>
+                                                                        <th className="border border-gray-300 px-4 py-3 text-left font-extralight uppercase text-luxury-black">Purpose</th>
+                                                                        <th className="border border-gray-300 px-4 py-3 text-left font-extralight uppercase text-luxury-black">Type</th>
+                                                                        <th className="border border-gray-300 px-4 py-3 text-left font-extralight uppercase text-luxury-black">Expiry</th>
+                                                                        <th className="border border-gray-300 px-4 py-3 text-left font-extralight uppercase text-luxury-black">Category</th>
+                                                                    </tr>
+                                                                </thead>
+                                                                <tbody>
+                                                                    {subsection.tableData?.map((row, rowIndex: number) => (
+                                                                        <tr key={rowIndex}>
+                                                                            <td className="border border-gray-300 px-4 py-3 font-extralight">{row.cookieName}</td>
+                                                                            <td className="border border-gray-300 px-4 py-3 font-extralight">{row.provider}</td>
+                                                                            <td className="border border-gray-300 px-4 py-3 font-extralight">{row.purpose}</td>
+                                                                            <td className="border border-gray-300 px-4 py-3 font-extralight">{row.type}</td>
+                                                                            <td className="border border-gray-300 px-4 py-3 font-extralight">{row.expiry}</td>
+                                                                            <td className="border border-gray-300 px-4 py-3 font-extralight">{row.category}</td>
+                                                                        </tr>
+                                                                    ))}
+                                                                </tbody>
+                                                            </table>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            ))}
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </>
+                    )}
                 </div>
             </section>
         </div>

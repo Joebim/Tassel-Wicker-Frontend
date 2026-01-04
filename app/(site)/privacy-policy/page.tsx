@@ -5,15 +5,21 @@ import Image from 'next/image';
 import { LuChevronDown } from 'react-icons/lu';
 import ScrollTextAnimation from '@/components/common/ScrollTextAnimation';
 import CircularText from '@/components/common/CircularText';
-import { renderTextWithEmailLinks } from '@/utils/textUtils';
+import RichTextRenderer from '@/components/common/RichTextRenderer';
+import { useContent } from '@/hooks/useContent';
 
 export default function PrivacyPolicy() {
+    const { data: contentData, isLoading, error } = useContent('privacy-policy');
+    const content = contentData?.content || '';
+    const documentUrl = contentData?.documentUrl || null;
+
     useEffect(() => {
         if (typeof window !== 'undefined') {
             window.scrollTo(0, 0);
         }
     }, []);
 
+    // Fallback sections if API fails
     const sections = [
         {
             title: '1. Introduction',
@@ -169,80 +175,92 @@ export default function PrivacyPolicy() {
             {/* Content */}
             <section id="privacy-content" className="py-16">
                 <div className="max-w-4xl mx-auto px-6 sm:px-8 lg:px-12">
-                    <div className="mb-8">
-                        <p className="text-base text-luxury-black font-extralight mb-4">
-                            <strong className="font-extralight">Effective Date: November 19, 2025</strong>
-                        </p>
-                        <p className="text-base text-luxury-black font-extralight mb-8">
-                            Learn more about how we care for your information{' '}
-                            <a
-                                href="/document-viewer/privacy-policy"
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="underline hover:text-brand-purple transition-colors"
-                            >
-                                here
-                            </a>.
-                        </p>
-                    </div>
-                    <div className="prose prose-lg max-w-none text-luxury-black leading-relaxed space-y-8">
-                        {sections.map((section) => (
-                            <div key={section.title} className="mb-8">
-                                <h2 className="text-xl font-extralight uppercase text-luxury-black mb-4 mt-8">
-                                    {section.title}
-                                </h2>
-                                <div className="text-base text-luxury-black font-extralight leading-relaxed whitespace-pre-line mb-6">
-                                    {renderTextWithEmailLinks(section.content)}
+                    {isLoading ? (
+                        <div className="text-center py-12">
+                            <p className="text-luxury-black font-extralight">Loading...</p>
+                        </div>
+                    ) : (
+                        <>
+                            {documentUrl && (
+                                <div className="mb-8">
+                                    <p className="text-base text-luxury-black font-extralight mb-8">
+                                        Learn more about how we care for your information{' '}
+                                        <a
+                                            href={documentUrl}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="underline hover:text-brand-purple transition-colors"
+                                        >
+                                            here
+                                        </a>.
+                                    </p>
                                 </div>
-                                {section.hasTable && section.tableData && (
-                                    <div className="mt-6 mb-8 overflow-x-auto">
-                                        <table className="w-full border-collapse border border-gray-300 mt-4 text-sm">
-                                            <thead>
-                                                <tr className="bg-gray-100">
-                                                    {section.title === '5. Why We Collect and Use Your Data (Our Lawful Basis)' ? (
-                                                        <>
-                                                            <th className="border border-gray-300 px-4 py-3 text-left font-extralight uppercase text-luxury-black">Purpose of Collection</th>
-                                                            <th className="border border-gray-300 px-4 py-3 text-left font-extralight uppercase text-luxury-black">Lawful Basis</th>
-                                                        </>
-                                                    ) : (
-                                                        <>
-                                                            <th className="border border-gray-300 px-4 py-3 text-left font-extralight uppercase text-luxury-black">Cookie Name</th>
-                                                            <th className="border border-gray-300 px-4 py-3 text-left font-extralight uppercase text-luxury-black">Provider</th>
-                                                            <th className="border border-gray-300 px-4 py-3 text-left font-extralight uppercase text-luxury-black">Purpose</th>
-                                                            <th className="border border-gray-300 px-4 py-3 text-left font-extralight uppercase text-luxury-black">Type</th>
-                                                            <th className="border border-gray-300 px-4 py-3 text-left font-extralight uppercase text-luxury-black">Expiry</th>
-                                                            <th className="border border-gray-300 px-4 py-3 text-left font-extralight uppercase text-luxury-black">Category</th>
-                                                        </>
-                                                    )}
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                {section.tableData.map((row: { purpose?: string; basis?: string; cookieName?: string; provider?: string; type?: string; expiry?: string; category?: string }, rowIndex: number) => (
-                                                    <tr key={rowIndex}>
-                                                        {section.title === '5. Why We Collect and Use Your Data (Our Lawful Basis)' ? (
-                                                            <>
-                                                                <td className="border border-gray-300 px-4 py-3 font-extralight">{row.purpose}</td>
-                                                                <td className="border border-gray-300 px-4 py-3 font-extralight">{row.basis}</td>
-                                                            </>
-                                                        ) : (
-                                                            <>
-                                                                <td className="border border-gray-300 px-4 py-3 font-extralight">{row.cookieName}</td>
-                                                                <td className="border border-gray-300 px-4 py-3 font-extralight">{row.provider}</td>
-                                                                <td className="border border-gray-300 px-4 py-3 font-extralight">{row.purpose}</td>
-                                                                <td className="border border-gray-300 px-4 py-3 font-extralight">{row.type}</td>
-                                                                <td className="border border-gray-300 px-4 py-3 font-extralight">{row.expiry}</td>
-                                                                <td className="border border-gray-300 px-4 py-3 font-extralight">{row.category}</td>
-                                                            </>
-                                                        )}
-                                                    </tr>
-                                                ))}
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                )}
-                            </div>
-                        ))}
-                    </div>
+                            )}
+                            {content ? (
+                                <RichTextRenderer content={content} />
+                            ) : (
+                                // Fallback to original content structure if API fails
+                                <div className="prose prose-lg max-w-none text-luxury-black leading-relaxed space-y-8">
+                                    {sections.map((section) => (
+                                        <div key={section.title} className="mb-8">
+                                            <h2 className="text-xl font-extralight uppercase text-luxury-black mb-4 mt-8">
+                                                {section.title}
+                                            </h2>
+                                            <div className="text-base text-luxury-black font-extralight leading-relaxed whitespace-pre-line mb-6">
+                                                {section.content}
+                                            </div>
+                                            {section.hasTable && section.tableData && (
+                                                <div className="mt-6 mb-8 overflow-x-auto">
+                                                    <table className="w-full border-collapse border border-gray-300 mt-4 text-sm">
+                                                        <thead>
+                                                            <tr className="bg-gray-100">
+                                                                {section.title === '5. Why We Collect and Use Your Data (Our Lawful Basis)' ? (
+                                                                    <>
+                                                                        <th className="border border-gray-300 px-4 py-3 text-left font-extralight uppercase text-luxury-black">Purpose of Collection</th>
+                                                                        <th className="border border-gray-300 px-4 py-3 text-left font-extralight uppercase text-luxury-black">Lawful Basis</th>
+                                                                    </>
+                                                                ) : (
+                                                                    <>
+                                                                        <th className="border border-gray-300 px-4 py-3 text-left font-extralight uppercase text-luxury-black">Cookie Name</th>
+                                                                        <th className="border border-gray-300 px-4 py-3 text-left font-extralight uppercase text-luxury-black">Provider</th>
+                                                                        <th className="border border-gray-300 px-4 py-3 text-left font-extralight uppercase text-luxury-black">Purpose</th>
+                                                                        <th className="border border-gray-300 px-4 py-3 text-left font-extralight uppercase text-luxury-black">Type</th>
+                                                                        <th className="border border-gray-300 px-4 py-3 text-left font-extralight uppercase text-luxury-black">Expiry</th>
+                                                                        <th className="border border-gray-300 px-4 py-3 text-left font-extralight uppercase text-luxury-black">Category</th>
+                                                                    </>
+                                                                )}
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            {section.tableData.map((row: { purpose?: string; basis?: string; cookieName?: string; provider?: string; type?: string; expiry?: string; category?: string }, rowIndex: number) => (
+                                                                <tr key={rowIndex}>
+                                                                    {section.title === '5. Why We Collect and Use Your Data (Our Lawful Basis)' ? (
+                                                                        <>
+                                                                            <td className="border border-gray-300 px-4 py-3 font-extralight">{row.purpose}</td>
+                                                                            <td className="border border-gray-300 px-4 py-3 font-extralight">{row.basis}</td>
+                                                                        </>
+                                                                    ) : (
+                                                                        <>
+                                                                            <td className="border border-gray-300 px-4 py-3 font-extralight">{row.cookieName}</td>
+                                                                            <td className="border border-gray-300 px-4 py-3 font-extralight">{row.provider}</td>
+                                                                            <td className="border border-gray-300 px-4 py-3 font-extralight">{row.purpose}</td>
+                                                                            <td className="border border-gray-300 px-4 py-3 font-extralight">{row.type}</td>
+                                                                            <td className="border border-gray-300 px-4 py-3 font-extralight">{row.expiry}</td>
+                                                                            <td className="border border-gray-300 px-4 py-3 font-extralight">{row.category}</td>
+                                                                        </>
+                                                                    )}
+                                                                </tr>
+                                                            ))}
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            )}
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </>
+                    )}
                 </div>
             </section>
         </div>
