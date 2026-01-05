@@ -226,8 +226,35 @@ export const useCartStore = create<CartStore>()(
           const localItems = get().items;
           const lastSyncedAt = get().lastSyncedAt;
 
+          // Map local items to ensure productId is always present
+          const mappedItems = localItems.map(item => ({
+            ...item,
+            productId: item.productId || (item.id.includes('-') ? item.id.split('-')[0] : item.id),
+          })) as Array<{
+            id: string;
+            productId: string;
+            name: string;
+            price: number;
+            image: string;
+            category: string;
+            description: string;
+            quantity: number;
+            variantName?: string;
+            customItems?: Array<{
+              id: string;
+              name: string;
+              image: string;
+              price: number;
+            }>;
+            basketItems?: Array<{
+              name: string;
+              image: string;
+              category: string;
+            }>;
+          }>;
+
           const response = await syncCart({
-            localCart: localItems,
+            localCart: mappedItems,
             lastSyncedAt,
             mergeStrategy: 'merge',
           });
@@ -260,8 +287,35 @@ export const useCartStore = create<CartStore>()(
             return;
           }
 
+          // Map local items to ensure productId is always present
+          const mappedItems = localItems.map(item => ({
+            ...item,
+            productId: item.productId || (item.id.includes('-') ? item.id.split('-')[0] : item.id),
+          })) as Array<{
+            id: string;
+            productId: string;
+            name: string;
+            price: number;
+            image: string;
+            category: string;
+            description: string;
+            quantity: number;
+            variantName?: string;
+            customItems?: Array<{
+              id: string;
+              name: string;
+              image: string;
+              price: number;
+            }>;
+            basketItems?: Array<{
+              name: string;
+              image: string;
+              category: string;
+            }>;
+          }>;
+
           // Merge guest cart with server cart
-          const response = await mergeGuestCart(localItems);
+          const response = await mergeGuestCart(mappedItems);
           set({ 
             items: response.cart.items,
             lastSyncedAt: new Date().toISOString(),
