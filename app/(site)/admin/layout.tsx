@@ -11,6 +11,7 @@ import {
   LuUsers,
   LuLogOut,
   LuFileText,
+  LuExternalLink,
 } from 'react-icons/lu';
 import { useAuthStore } from '@/store/authStore';
 import { useToastStore } from '@/store/toastStore';
@@ -153,9 +154,20 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                   Dashboard
                 </div>
               </div>
-              <div className="text-right">
-                <div className="text-sm font-extralight text-luxury-black">{user.email}</div>
-                <div className="text-xs font-extralight text-luxury-cool-grey">API: {process.env.NEXT_PUBLIC_API_BASE_URL ? 'external' : 'same-origin'}</div>
+              <div className="flex items-center gap-4">
+                <Link
+                  href="/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 px-4 py-2 border border-brand-purple text-brand-purple uppercase font-extralight hover:bg-brand-purple hover:text-luxury-white transition-colors duration-200 text-sm"
+                >
+                  <LuExternalLink size={14} />
+                  View Live Site
+                </Link>
+                <div className="text-right">
+                  <div className="text-sm font-extralight text-luxury-black">{user.email}</div>
+                  <div className="text-xs font-extralight text-luxury-cool-grey">API: {process.env.NEXT_PUBLIC_API_BASE_URL ? 'external' : 'same-origin'}</div>
+                </div>
               </div>
             </div>
           </header>

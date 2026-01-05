@@ -74,7 +74,7 @@ export const ProductGridSkeleton: React.FC<{ count?: number }> = ({ count = 6 })
 // Product Detail Skeleton
 export const ProductDetailSkeleton: React.FC = () => {
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-white pt-32">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
           {/* Image Gallery */}

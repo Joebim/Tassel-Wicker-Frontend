@@ -1,11 +1,13 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { LuFileText, LuShield, LuFileCheck, LuTruck, LuRotateCcw, LuInfo } from 'react-icons/lu';
+import { LuFileText, LuShield, LuFileCheck, LuTruck, LuRotateCcw, LuInfo, LuExternalLink, LuVideo } from 'react-icons/lu';
 import { apiFetch } from '@/services/apiClient';
 import { useToastStore } from '@/store/toastStore';
 import RichTextEditor from '@/components/admin/RichTextEditor';
+import FileUpload from '@/components/admin/FileUpload';
 
 type ContentPage = 'about' | 'cookie-policy' | 'privacy-policy' | 'terms-of-service' | 'returns' | 'shipping';
 
@@ -35,7 +37,6 @@ export default function ContentManagement() {
   const [documentUrl, setDocumentUrl] = useState<string>('');
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [uploading, setUploading] = useState(false);
 
   useEffect(() => {
     loadContent();
@@ -84,37 +85,6 @@ export default function ContentManagement() {
     }
   };
 
-  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    try {
-      setUploading(true);
-      const formData = new FormData();
-      formData.append('file', file);
-      formData.append('page', selectedPage);
-
-      const res = await apiFetch<{ url: string }>('/api/content/upload', {
-        method: 'POST',
-        body: formData,
-      });
-
-      setDocumentUrl(res.url);
-      useToastStore.getState().addToast({
-        type: 'success',
-        title: 'File Uploaded',
-        message: 'Document has been uploaded successfully.',
-      });
-    } catch (e) {
-      useToastStore.getState().addToast({
-        type: 'error',
-        title: 'Upload Failed',
-        message: e instanceof Error ? e.message : 'Could not upload file.',
-      });
-    } finally {
-      setUploading(false);
-    }
-  };
 
   const currentPage = contentPages.find((p) => p.id === selectedPage);
 
@@ -134,20 +104,32 @@ export default function ContentManagement() {
         {contentPages.map((page) => {
           const Icon = page.icon;
           const isSelected = selectedPage === page.id;
+          const viewUrl = page.id === 'about' ? '/about' : `/${page.id}`;
           return (
-            <button
-              key={page.id}
-              onClick={() => setSelectedPage(page.id)}
-              className={`p-4 border rounded-lg transition-colors text-left ${isSelected
-                ? 'border-brand-purple bg-brand-purple/10 text-brand-purple'
-                : 'border-luxury-warm-grey/20 hover:border-brand-purple/40 text-luxury-black'
-                }`}
-            >
-              <div className="mb-2">
-                <Icon size={24} />
-              </div>
-              <div className="font-extralight uppercase text-sm tracking-wide">{page.label}</div>
-            </button>
+            <div key={page.id} className="relative">
+              <button
+                onClick={() => setSelectedPage(page.id)}
+                className={`w-full p-4 border rounded-lg transition-colors text-left ${isSelected
+                  ? 'border-brand-purple bg-brand-purple/10 text-brand-purple'
+                  : 'border-luxury-warm-grey/20 hover:border-brand-purple/40 text-luxury-black'
+                  }`}
+              >
+                <div className="mb-2">
+                  <Icon size={24} />
+                </div>
+                <div className="font-extralight uppercase text-sm tracking-wide">{page.label}</div>
+              </button>
+              <Link
+                href={viewUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="absolute top-2 right-2 p-2 border border-luxury-warm-grey/20 text-luxury-black hover:bg-luxury-warm-grey/10 transition-colors rounded"
+                title="View on live site"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <LuExternalLink size={16} />
+              </Link>
+            </div>
           );
         })}
       </div>
@@ -182,31 +164,14 @@ export default function ContentManagement() {
 
             {/* Document Upload */}
             <div>
-              <label className="block text-sm font-extralight uppercase tracking-wide text-luxury-black mb-2">
-                Document (PDF)
-              </label>
-              <div className="space-y-2">
-                <input
-                  type="file"
-                  accept=".pdf"
-                  onChange={handleFileUpload}
-                  disabled={uploading}
-                  className="block w-full text-sm text-luxury-black file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-extralight file:bg-brand-purple file:text-luxury-white hover:file:bg-brand-purple-light cursor-pointer"
-                />
-                {documentUrl && (
-                  <div className="flex items-center gap-2 text-sm text-luxury-cool-grey">
-                    <span>Current document:</span>
-                    <a
-                      href={documentUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-brand-purple hover:text-brand-purple-light underline"
-                    >
-                      View Document
-                    </a>
-                  </div>
-                )}
-              </div>
+              <FileUpload
+                value={documentUrl}
+                onChange={setDocumentUrl}
+                type="file"
+                accept=".pdf,application/pdf"
+                label="Document (PDF)"
+                maxSizeMB={100}
+              />
             </div>
           </div>
         )}
@@ -282,13 +247,72 @@ function AboutPageEditor({
     onChange(JSON.stringify(updated));
   };
 
-  const handleVideoAdd = () => {
-    const url = prompt('Enter video URL:');
-    if (url && url.trim()) {
-      const updated = [...formData.builtForVideos, url.trim()];
-      setFormData({ ...formData, builtForVideos: updated });
-      onChange(JSON.stringify({ ...formData, builtForVideos: updated }));
-    }
+  const [uploadingVideo, setUploadingVideo] = useState(false);
+
+  const handleVideoAdd = async () => {
+    // Create a file input element
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'video/*';
+    input.onchange = async (e) => {
+      const file = (e.target as HTMLInputElement).files?.[0];
+      if (!file) return;
+
+      // Validate file size (max 100MB for videos per API documentation)
+      const fileSizeMB = file.size / (1024 * 1024);
+      if (fileSizeMB > 100) {
+        useToastStore.getState().addToast({
+          type: 'error',
+          title: 'File Too Large',
+          message: 'Video file size must be less than 100MB',
+        });
+        return;
+      }
+
+      try {
+        setUploadingVideo(true);
+        const uploadFormData = new FormData();
+        uploadFormData.append('file', file);
+        uploadFormData.append('type', 'video');
+        uploadFormData.append('folder', 'tassel-wicker/content/videos');
+
+        const response = await apiFetch<{ 
+          success: boolean;
+          url: string;
+          publicId?: string;
+          width?: number;
+          height?: number;
+          duration?: number;
+          format?: string;
+          bytes?: number;
+          resourceType?: string;
+        }>('/api/uploads/media', {
+          method: 'POST',
+          auth: true,
+          body: uploadFormData,
+        });
+
+        const updated = [...formData.builtForVideos, response.url];
+        const newFormData = { ...formData, builtForVideos: updated };
+        setFormData(newFormData);
+        onChange(JSON.stringify(newFormData));
+
+        useToastStore.getState().addToast({
+          type: 'success',
+          title: 'Video Uploaded',
+          message: 'Video has been uploaded successfully.',
+        });
+      } catch (error) {
+        useToastStore.getState().addToast({
+          type: 'error',
+          title: 'Upload Failed',
+          message: error instanceof Error ? error.message : 'Failed to upload video.',
+        });
+      } finally {
+        setUploadingVideo(false);
+      }
+    };
+    input.click();
   };
 
   const handleVideoRemove = (index: number) => {
@@ -302,18 +326,14 @@ function AboutPageEditor({
       {/* Hero Section */}
       <div className="border-l-4 border-brand-purple pl-4">
         <h4 className="text-lg font-extralight uppercase text-luxury-black mb-4">Hero Section</h4>
-        <div>
-          <label className="block text-sm font-extralight uppercase tracking-wide text-luxury-black mb-2">
-            Hero Image URL
-          </label>
-          <input
-            type="text"
-            value={formData.heroImage}
-            onChange={(e) => handleFieldChange('heroImage', e.target.value)}
-            placeholder="https://example.com/image.jpg"
-            className="w-full px-4 py-2 border border-luxury-warm-grey/20 rounded-lg focus:outline-none focus:border-brand-purple/50 font-extralight"
-          />
-        </div>
+        <FileUpload
+          value={formData.heroImage}
+          onChange={(url) => handleFieldChange('heroImage', url)}
+          type="image"
+          accept="image/*"
+          label="Hero Image"
+          maxSizeMB={8}
+        />
       </div>
 
       {/* My Why Section */}
@@ -353,18 +373,14 @@ function AboutPageEditor({
               className="w-full px-4 py-2 border border-luxury-warm-grey/20 rounded-lg focus:outline-none focus:border-brand-purple/50 font-extralight"
             />
           </div>
-          <div>
-            <label className="block text-sm font-extralight uppercase tracking-wide text-luxury-black mb-2">
-              My Why Image URL
-            </label>
-            <input
-              type="text"
-              value={formData.myWhyImage}
-              onChange={(e) => handleFieldChange('myWhyImage', e.target.value)}
-              placeholder="https://example.com/image.jpg"
-              className="w-full px-4 py-2 border border-luxury-warm-grey/20 rounded-lg focus:outline-none focus:border-brand-purple/50 font-extralight"
-            />
-          </div>
+          <FileUpload
+            value={formData.myWhyImage}
+            onChange={(url) => handleFieldChange('myWhyImage', url)}
+            type="image"
+            accept="image/*"
+            label="My Why Image"
+            maxSizeMB={8}
+          />
         </div>
       </div>
 
@@ -405,18 +421,14 @@ function AboutPageEditor({
               className="w-full px-4 py-2 border border-luxury-warm-grey/20 rounded-lg focus:outline-none focus:border-brand-purple/50 font-extralight"
             />
           </div>
-          <div>
-            <label className="block text-sm font-extralight uppercase tracking-wide text-luxury-black mb-2">
-              Our Story Image URL
-            </label>
-            <input
-              type="text"
-              value={formData.ourStoryImage}
-              onChange={(e) => handleFieldChange('ourStoryImage', e.target.value)}
-              placeholder="https://example.com/image.jpg"
-              className="w-full px-4 py-2 border border-luxury-warm-grey/20 rounded-lg focus:outline-none focus:border-brand-purple/50 font-extralight"
-            />
-          </div>
+          <FileUpload
+            value={formData.ourStoryImage}
+            onChange={(url) => handleFieldChange('ourStoryImage', url)}
+            type="image"
+            accept="image/*"
+            label="Our Story Image"
+            maxSizeMB={8}
+          />
         </div>
       </div>
 
@@ -495,9 +507,22 @@ function AboutPageEditor({
               <button
                 type="button"
                 onClick={handleVideoAdd}
-                className="w-full px-4 py-2 border border-brand-purple text-brand-purple uppercase font-extralight hover:bg-brand-purple hover:text-luxury-white transition-colors"
+                disabled={uploadingVideo}
+                className={`w-full px-4 py-2 border border-brand-purple text-brand-purple uppercase font-extralight hover:bg-brand-purple hover:text-luxury-white transition-colors flex items-center justify-center gap-2 ${
+                  uploadingVideo ? 'opacity-50 cursor-not-allowed' : ''
+                }`}
               >
-                Add Video
+                {uploadingVideo ? (
+                  <>
+                    <div className="w-4 h-4 border-2 border-brand-purple border-t-transparent rounded-full animate-spin" />
+                    <span>Uploading...</span>
+                  </>
+                ) : (
+                  <>
+                    <LuVideo size={16} />
+                    <span>Upload Video</span>
+                  </>
+                )}
               </button>
             </div>
           </div>

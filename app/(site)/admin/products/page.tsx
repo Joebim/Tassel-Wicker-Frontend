@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { LuPlus, LuSearch, LuTrash2, LuPencil } from 'react-icons/lu';
+import { LuPlus, LuSearch, LuTrash2, LuPencil, LuExternalLink } from 'react-icons/lu';
 import { apiFetch } from '@/services/apiClient';
 import { useToastStore } from '@/store/toastStore';
 import { useAuthStore } from '@/store/authStore';
@@ -265,6 +265,15 @@ export default function AdminProductsPage() {
                     </td>
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-2">
+                        <Link
+                          href={`/product/${p.id}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-2 px-3 py-2 border border-luxury-warm-grey/20 text-luxury-black uppercase font-extralight hover:bg-luxury-warm-grey/10 transition-colors"
+                          title="View on live site"
+                        >
+                          <LuExternalLink size={14} /> View
+                        </Link>
                         <Link
                           href={`/admin/products/${p.id}`}
                           className="inline-flex items-center gap-2 px-3 py-2 border border-brand-purple text-brand-purple uppercase font-extralight hover:bg-brand-purple hover:text-luxury-white transition-colors"

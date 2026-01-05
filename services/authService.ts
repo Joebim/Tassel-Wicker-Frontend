@@ -31,6 +31,15 @@ export const authService = {
       });
       setLoading(false);
 
+      // Merge guest cart with user cart after signup
+      try {
+        const { useCartStore } = await import("@/store/cartStore");
+        await useCartStore.getState().mergeGuestCart();
+      } catch (error) {
+        // Cart merge failure shouldn't block signup
+        console.error('Failed to merge cart on signup:', error);
+      }
+
       useToastStore.getState().addToast({
         type: "success",
         title: "Account Created",
@@ -72,6 +81,15 @@ export const authService = {
         refreshToken: data.refreshToken,
       });
       setLoading(false);
+
+      // Merge guest cart with user cart after login
+      try {
+        const { useCartStore } = await import("@/store/cartStore");
+        await useCartStore.getState().mergeGuestCart();
+      } catch (error) {
+        // Cart merge failure shouldn't block login
+        console.error('Failed to merge cart on login:', error);
+      }
 
       useToastStore.getState().addToast({
         type: "success",

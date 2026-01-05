@@ -2,9 +2,11 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { useToastStore } from "./toastStore";
 import { createClientStorage } from "@/utils/storage";
+import { useAuthStore } from "./authStore";
 
 export interface CartItem {
   id: string;
+  productId?: string; // Product ID for backend sync
   name: string;
   price: number;
   image: string;
@@ -27,10 +29,14 @@ export interface CartItem {
 
 interface CartStore {
   items: CartItem[];
-  addItem: (item: Omit<CartItem, "quantity">) => void;
-  removeItem: (id: string) => void;
-  updateQuantity: (id: string, quantity: number) => void;
-  clearCart: () => void;
+  lastSyncedAt?: string; // Last sync timestamp
+  addItem: (item: Omit<CartItem, "quantity">) => Promise<void>;
+  removeItem: (id: string) => Promise<void>;
+  updateQuantity: (id: string, quantity: number) => Promise<void>;
+  clearCart: () => Promise<void>;
+  setItems: (items: CartItem[]) => void;
+  syncWithServer: () => Promise<void>;
+  mergeGuestCart: () => Promise<void>;
   getTotalPrice: () => number;
   getTotalItems: () => number;
 }
@@ -39,41 +45,97 @@ export const useCartStore = create<CartStore>()(
   persist(
     (set, get) => ({
       items: [],
+      lastSyncedAt: undefined,
 
-      addItem: (item: Omit<CartItem, "quantity">) => {
+      addItem: async (item: Omit<CartItem, "quantity">) => {
+        const { user, token } = useAuthStore.getState();
+        const isAuthenticated = !!user && !!token;
         const items = get().items;
         const existingItem = items.find((i: CartItem) => i.id === item.id);
 
+        // Optimistically update local state
+        let newItems: CartItem[];
         if (existingItem) {
-          set({
-            items: items.map((i: CartItem) =>
-              i.id === item.id ? { ...i, quantity: i.quantity + 1 } : i
-            ),
-          });
-          useToastStore.getState().addToast({
-            type: "success",
-            title: "Item Updated",
-            message: `${item.name} quantity increased`,
-          });
+          newItems = items.map((i: CartItem) =>
+            i.id === item.id ? { ...i, quantity: i.quantity + 1 } : i
+          );
         } else {
-          set({
-            items: [...items, { ...item, quantity: 1 }],
-          });
-          useToastStore.getState().addToast({
-            type: "success",
-            title: "Added to Cart",
-            message: `${item.name} has been added to your cart`,
-          });
+          newItems = [...items, { ...item, quantity: 1 }];
         }
+        set({ items: newItems });
+
+        // If authenticated, sync with backend
+        if (isAuthenticated) {
+          try {
+            const { addCartItem } = await import('@/services/cartService');
+            // Extract productId from id if it's in format "productId-variantSlug", otherwise use id
+            const productId = item.productId || (item.id.includes('-') ? item.id.split('-')[0] : item.id);
+            const cartItem: any = {
+              id: item.id,
+              productId: productId,
+              name: item.name,
+              price: item.price,
+              image: item.image,
+              category: item.category,
+              description: item.description,
+              variantName: item.variantName,
+              customItems: item.customItems,
+              basketItems: item.basketItems,
+            };
+            // Pass quantity: 1 for new items, or existing quantity + 1 if item already exists
+            const quantityToAdd = existingItem ? existingItem.quantity + 1 : 1;
+            const response = await addCartItem(cartItem, quantityToAdd);
+            // Update with server response to ensure consistency
+            set({ items: response.cart.items });
+          } catch (error) {
+            // Revert on error
+            set({ items });
+            useToastStore.getState().addToast({
+              type: "error",
+              title: "Failed to Add Item",
+              message: error instanceof Error ? error.message : "Could not add item to cart",
+            });
+            return;
+          }
+        }
+
+        useToastStore.getState().addToast({
+          type: "success",
+          title: existingItem ? "Item Updated" : "Added to Cart",
+          message: existingItem 
+            ? `${item.name} quantity increased`
+            : `${item.name} has been added to your cart`,
+        });
       },
 
-      removeItem: (id: string) => {
+      removeItem: async (id: string) => {
+        const { user, token } = useAuthStore.getState();
+        const isAuthenticated = !!user && !!token;
         const items = get().items;
         const itemToRemove = items.find((item: CartItem) => item.id === id);
 
-        set({
-          items: items.filter((item: CartItem) => item.id !== id),
-        });
+        // Optimistically update local state
+        const newItems = items.filter((item: CartItem) => item.id !== id);
+        set({ items: newItems });
+
+        // If authenticated, sync with backend
+        if (isAuthenticated) {
+          try {
+            const { removeCartItem } = await import('@/services/cartService');
+            const response = await removeCartItem(id);
+            // Update with server response to ensure consistency
+            set({ items: response.cart.items });
+          } catch (error) {
+            // Revert on error
+            set({ items });
+            useToastStore.getState().addToast({
+              type: "error",
+              title: "Failed to Remove Item",
+              message: error instanceof Error ? error.message : "Could not remove item from cart",
+            });
+            return;
+          }
+        }
 
         if (itemToRemove) {
           useToastStore.getState().addToast({
@@ -84,26 +146,140 @@ export const useCartStore = create<CartStore>()(
         }
       },
 
-      updateQuantity: (id: string, quantity: number) => {
+      updateQuantity: async (id: string, quantity: number) => {
         if (quantity <= 0) {
-          get().removeItem(id);
+          await get().removeItem(id);
           return;
         }
 
-        set({
-          items: get().items.map((item: CartItem) =>
-            item.id === id ? { ...item, quantity } : item
-          ),
-        });
+        const { user, token } = useAuthStore.getState();
+        const isAuthenticated = !!user && !!token;
+        const items = get().items;
+
+        // Optimistically update local state
+        const newItems = items.map((item: CartItem) =>
+          item.id === id ? { ...item, quantity } : item
+        );
+        set({ items: newItems });
+
+        // If authenticated, sync with backend
+        if (isAuthenticated) {
+          try {
+            const { updateCartItemQuantity } = await import('@/services/cartService');
+            const response = await updateCartItemQuantity(id, quantity);
+            // Update with server response to ensure consistency
+            set({ items: response.cart.items });
+          } catch (error) {
+            // Revert on error
+            set({ items });
+            useToastStore.getState().addToast({
+              type: "error",
+              title: "Failed to Update Quantity",
+              message: error instanceof Error ? error.message : "Could not update item quantity",
+            });
+            return;
+          }
+        }
       },
 
-      clearCart: () => {
+      clearCart: async () => {
+        const { user, token } = useAuthStore.getState();
+        const isAuthenticated = !!user && !!token;
+
+        // Optimistically update local state
         set({ items: [] });
+
+        // If authenticated, sync with backend
+        if (isAuthenticated) {
+          try {
+            const { clearCart } = await import('@/services/cartService');
+            const response = await clearCart();
+            // Update with server response to ensure consistency
+            set({ items: response.cart.items });
+          } catch (error) {
+            useToastStore.getState().addToast({
+              type: "error",
+              title: "Failed to Clear Cart",
+              message: error instanceof Error ? error.message : "Could not clear cart",
+            });
+            return;
+          }
+        }
+
         useToastStore.getState().addToast({
           type: "info",
           title: "Cart Cleared",
           message: "All items have been removed from your cart",
         });
+      },
+
+      setItems: (items: CartItem[]) => {
+        set({ items });
+      },
+
+      syncWithServer: async () => {
+        const { user, token } = useAuthStore.getState();
+        if (!user || !token) return;
+
+        try {
+          const { syncCart } = await import('@/services/cartService');
+          const localItems = get().items;
+          const lastSyncedAt = get().lastSyncedAt;
+
+          const response = await syncCart({
+            localCart: localItems,
+            lastSyncedAt,
+            mergeStrategy: 'merge',
+          });
+
+          set({ 
+            items: response.cart.items,
+            lastSyncedAt: response.syncedAt,
+          });
+        } catch (error) {
+          console.error('Failed to sync cart:', error);
+        }
+      },
+
+      mergeGuestCart: async () => {
+        const { user, token } = useAuthStore.getState();
+        if (!user || !token) return;
+
+        try {
+          const { mergeGuestCart } = await import('@/services/cartService');
+          const localItems = get().items;
+
+          if (localItems.length === 0) {
+            // No local items, just fetch server cart
+            const { getCart } = await import('@/services/cartService');
+            const response = await getCart();
+            set({ 
+              items: response.cart.items,
+              lastSyncedAt: new Date().toISOString(),
+            });
+            return;
+          }
+
+          // Merge guest cart with server cart
+          const response = await mergeGuestCart(localItems);
+          set({ 
+            items: response.cart.items,
+            lastSyncedAt: new Date().toISOString(),
+          });
+        } catch (error) {
+          console.error('Failed to merge guest cart:', error);
+          // If merge fails, try to just fetch server cart
+          try {
+            const { getCart } = await import('@/services/cartService');
+            const response = await getCart();
+            set({ 
+              items: response.cart.items,
+              lastSyncedAt: new Date().toISOString(),
+            });
+          } catch (fetchError) {
+            console.error('Failed to fetch server cart:', fetchError);
+          }
+        }
       },
 
       getTotalPrice: () => {

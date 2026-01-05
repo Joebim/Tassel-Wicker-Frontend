@@ -587,7 +587,3 @@ Common error codes:
 
 - Cart operations: 100 requests per minute per user
 - Sync operations: 10 requests per minute per user
-
-
-
-
