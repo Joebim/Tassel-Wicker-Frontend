@@ -9,7 +9,8 @@
     "start": "next start",
     "lint": "eslint",
     "clear-cache": "powershell -ExecutionPolicy Bypass -File ./scripts/clear-cache.ps1",
-    "clean": "if exist .next rmdir /s /q .next && echo Cache cleared || echo No cache to clear"
+    "clean": "if exist .next rmdir /s /q .next && echo Cache cleared || echo No cache to clear",
+    "push:all": "git push origin main && git push private main && git push alt main"
   },
   "dependencies": {
     "@emailjs/browser": "^4.4.1",
