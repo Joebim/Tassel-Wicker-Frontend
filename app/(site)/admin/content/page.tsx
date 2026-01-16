@@ -324,6 +324,23 @@ function VideoPreview({ url }: { url: string }) {
 }
 
 // About Page Editor with structured form
+// About Page Editor with structured form
+interface AboutPageFormData {
+  heroImage: string;
+  myWhyTitle: string;
+  myWhyText1: string;
+  myWhyText2: string;
+  myWhyImage: string;
+  ourStoryTitle: string;
+  ourStoryText1: string;
+  ourStoryText2: string;
+  ourStoryImage: string;
+  signature: string;
+  signatureTitle: string;
+  builtForTitle: string;
+  builtForVideos: string[];
+}
+
 function AboutPageEditor({
   content,
   onChange,
@@ -334,7 +351,7 @@ function AboutPageEditor({
   onSelectMedia: (cb: (url: string) => void) => void;
 }) {
   // Parse content to get initial values
-  const initialFormData = useMemo(() => {
+  const initialFormData = useMemo<AboutPageFormData>(() => {
     if (content) {
       try {
         const parsed = JSON.parse(content);
@@ -370,7 +387,7 @@ function AboutPageEditor({
       signature: '',
       signatureTitle: '',
       builtForTitle: '',
-      builtForVideos: [] as string[],
+      builtForVideos: [],
     };
   }, [content]);
 
