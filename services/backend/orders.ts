@@ -1,4 +1,5 @@
 import { apiFetch } from "@/services/apiClient";
+import { useAuthStore } from "@/store/authStore";
 import type { Order } from "@/types/order";
 
 export type AdminOrdersResponse = {
@@ -46,11 +47,66 @@ export async function updateAdminOrder(
   });
 }
 
+export interface CreateOrderRequest {
+  items: Array<{
+    productId: string;
+    productName: string;
+    productImage: string;
+    price: number;
+    quantity: number;
+    total: number;
+  }>;
+  shipping: {
+    firstName: string;
+    lastName: string;
+    company?: string;
+    address1: string;
+    address2?: string;
+    city: string;
+    state: string;
+    postalCode: string;
+    country: string;
+    phone?: string;
+    method: string;
+    cost: number;
+    trackingNumber?: string;
+  };
+  billing: {
+    firstName: string;
+    lastName: string;
+    company?: string;
+    address1: string;
+    address2?: string;
+    city: string;
+    state: string;
+    postalCode: string;
+    country: string;
+    phone?: string;
+  };
+  payment: {
+    method: string;
+    status: "pending" | "paid" | "failed" | "refunded";
+    transactionId?: string;
+    stripePaymentIntentId?: string;
+    stripeCheckoutSessionId?: string;
+  };
+  totals: {
+    subtotal: number;
+    shipping: number;
+    tax: number;
+    discount: number;
+    total: number;
+  };
+  currency?: string;
+  customerName?: string;
+  notes?: string;
+}
 
-
-
-
-
-
-
-
+export async function createOrder(orderData: CreateOrderRequest) {
+  const token = useAuthStore.getState().token;
+  return apiFetch<{ item: Order }>("/api/orders", {
+    method: "POST",
+    auth: !!token,
+    body: JSON.stringify(orderData),
+  });
+}

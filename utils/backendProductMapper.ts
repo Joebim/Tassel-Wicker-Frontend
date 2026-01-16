@@ -1,15 +1,28 @@
-import type { Product } from "@/types/product";
+import type { Product, ProductImage } from "@/types/product";
 import type {
   ProductDataItem,
   ProductVariant,
   ShopProduct,
 } from "@/types/productData";
 
-function cover(p: Product) {
+function cover(p: Product): string {
   const anyP = p as any;
-  return (
-    (anyP.coverImage as string | undefined) || (p.images && p.images[0]) || ""
-  );
+  // Check for coverImage field (backward compatibility)
+  if (anyP.coverImage) return anyP.coverImage;
+  
+  // Handle new image format with isCover
+  if (Array.isArray(p.images) && p.images.length > 0) {
+    // Check if first element is ProductImage object
+    if (typeof p.images[0] === 'object' && p.images[0] !== null && 'url' in p.images[0]) {
+      const coverImage = (p.images as ProductImage[]).find(img => img.isCover);
+      if (coverImage) return coverImage.url;
+      return (p.images[0] as ProductImage).url;
+    }
+    // Old format: string[]
+    return (p.images[0] as string);
+  }
+  
+  return "";
 }
 
 function variants(p: Product): ProductVariant[] {

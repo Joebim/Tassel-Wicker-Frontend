@@ -7,7 +7,10 @@ import { LuImagePlus, LuTrash2, LuX, LuSearch, LuPlus, LuChevronLeft, LuChevronR
 import { apiFetch } from '@/services/apiClient';
 import { useToastStore } from '@/store/toastStore';
 import { useAuthStore } from '@/store/authStore';
-import type { Product, ProductCategory } from '@/types/product';
+import { useConfirmStore } from '@/store/confirmStore';
+import { MediaLibraryModal } from '@/components/admin/MediaLibraryModal';
+import type { UploadFile } from '@/types/upload';
+import type { Product, ProductCategory, ProductImage } from '@/types/product';
 
 type ProductType = 'basket' | 'custom' | 'single';
 type ProductRole = 'main' | 'sub';
@@ -22,8 +25,8 @@ type ProductInput = {
   description: string;
   price: number;
   originalPrice?: number;
-  images: string[];
-  coverImage?: string;
+  images: ProductImage[];
+  coverImage?: string; // Keep for backward compatibility, but use images[].isCover instead
   categoryId?: string;
   category?: string;
   productType: ProductType;
@@ -36,6 +39,17 @@ type ProductInput = {
   featured: boolean;
   isNew: boolean;
   isCustom: boolean;
+  variants: { name: string; image: string; price: number }[];
+  dimensions: { key: string; value: string }[];
+  materials: string[];
+  careInstructions: string;
+  details: {
+    key: string;
+    type: 'string' | 'array' | 'object';
+    valueString: string;
+    valueArray: string[];
+    valueObject: { key: string; value: string }[];
+  }[];
 };
 
 const defaultInput: ProductInput = {
@@ -52,6 +66,29 @@ const defaultInput: ProductInput = {
   featured: false,
   isNew: false,
   isCustom: false,
+  variants: [],
+  dimensions: [],
+  materials: [],
+  careInstructions: '',
+  details: [],
+};
+
+// Helper function to normalize images (handle both string[] and ProductImage[])
+
+const normalizeImages = (images: string[] | ProductImage[]): ProductImage[] => {
+  if (!Array.isArray(images)) return [];
+  if (images.length === 0) return [];
+  // Check if first element is a string (old format)
+  if (typeof images[0] === 'string') {
+    return (images as string[]).map((url, index) => ({ url, isCover: index === 0 }));
+  }
+  return images as ProductImage[];
+};
+
+// Helper function to get cover image URL
+const getCoverImageUrl = (images: ProductImage[]): string | undefined => {
+  const coverImage = images.find(img => img.isCover);
+  return coverImage?.url || images[0]?.url;
 };
 
 export function ProductForm({
@@ -70,6 +107,22 @@ export function ProductForm({
   const [loading, setLoading] = useState(mode === 'edit');
   const [saving, setSaving] = useState(false);
 
+  // Local state for inputs that need parsing (fixes comma separation issues)
+  const [tagsInput, setTagsInput] = useState('');
+  const [materialsInput, setMaterialsInput] = useState('');
+
+  // Visibility state for optional sections
+  const [visibleSections, setVisibleSections] = useState({
+    variants: false,
+    dimensions: false,
+    materials: false,
+    careInstructions: false,
+  });
+
+  const toggleSection = (section: keyof typeof visibleSections) => {
+    setVisibleSections((prev) => ({ ...prev, [section]: !prev[section] }));
+  };
+
   // Linked products display names (so we can render chips)
   const [linkedProducts, setLinkedProducts] = useState<LinkedProductLite[]>([]);
 
@@ -85,7 +138,24 @@ export function ProductForm({
 
   // Carousel state for images
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const [uploading, setUploading] = useState(false);
+  // const [uploading, setUploading] = useState(false); // No longer needed as modal handles uploading
+
+  // Media Library Modal State
+  const [mediaModalOpen, setMediaModalOpen] = useState(false);
+  const [mediaModalMultiple, setMediaModalMultiple] = useState(false);
+  const [mediaModalType, setMediaModalType] = useState<'media' | 'product-image'>('product-image');
+  const [onMediaSelect, setOnMediaSelect] = useState<(files: UploadFile[]) => void>(() => { });
+
+  const openMediaLibrary = (
+    multiple: boolean,
+    type: 'media' | 'product-image',
+    callback: (files: UploadFile[]) => void
+  ) => {
+    setMediaModalMultiple(multiple);
+    setMediaModalType(type);
+    setOnMediaSelect(() => callback);
+    setMediaModalOpen(true);
+  };
 
   // Reset carousel index when images change
   useEffect(() => {
@@ -130,14 +200,21 @@ export function ProductForm({
         if (!alive) return;
 
         const p = data.item;
+        // Normalize images to ProductImage[] format
+        const normalizedImages = normalizeImages(Array.isArray(p.images) ? p.images : []);
+        // Ensure only one cover image
+        const imagesWithCover = normalizedImages.map((img, index) => ({
+          ...img,
+          isCover: p.coverImage ? img.url === p.coverImage : (index === 0 && !normalizedImages.some(i => i.isCover)),
+        }));
         setInput({
           externalId: 'externalId' in p ? (p as Product & { externalId?: string }).externalId : undefined,
           name: p.name || '',
           description: p.description || '',
           price: Number(p.price || 0),
           originalPrice: p.originalPrice ? Number(p.originalPrice) : undefined,
-          images: Array.isArray(p.images) ? p.images : [],
-          coverImage: p.coverImage,
+          images: imagesWithCover,
+          coverImage: getCoverImageUrl(imagesWithCover),
           categoryId: p.categoryId,
           category: p.category,
           productType: (p.productType || 'single') as ProductType,
@@ -150,6 +227,38 @@ export function ProductForm({
           featured: !!p.featured,
           isNew: !!p.isNew,
           isCustom: !!p.isCustom,
+          variants: Array.isArray(p.variants) ? p.variants : [],
+          dimensions: p.dimensions ? Object.entries(p.dimensions).map(([key, value]) => ({ key, value: String(value) })) : [],
+          materials: Array.isArray(p.materials) ? p.materials : [],
+          careInstructions: p.careInstructions || '',
+          details: p.details ? Object.entries(p.details).map(([k, v]) => {
+            if (typeof v === 'string') {
+              return { key: k, type: 'string', valueString: v, valueArray: [], valueObject: [] };
+            } else if (Array.isArray(v)) {
+              return { key: k, type: 'array', valueString: '', valueArray: v, valueObject: [] };
+            } else if (typeof v === 'object' && v !== null) {
+              return {
+                key: k,
+                type: 'object',
+                valueString: '',
+                valueArray: [],
+                valueObject: Object.entries(v).map(([subK, subV]) => ({ key: subK, value: String(subV) }))
+              };
+            }
+            return { key: k, type: 'string', valueString: '', valueArray: [], valueObject: [] }; // Fallback
+          }) as any : [],
+        });
+
+        // Initialize local string inputs
+        setTagsInput(Array.isArray(p.tags) ? p.tags.join(', ') : '');
+        setMaterialsInput(Array.isArray(p.materials) ? p.materials.join(', ') : '');
+
+        // Initialize visibility
+        setVisibleSections({
+          variants: (p.variants && p.variants.length > 0) || false,
+          dimensions: (p.dimensions && Object.keys(p.dimensions).length > 0) || false,
+          materials: (p.materials && p.materials.length > 0) || false,
+          careInstructions: !!p.careInstructions,
         });
 
         const linked = (data.linkedProducts || []).map((lp) => ({
@@ -175,6 +284,49 @@ export function ProductForm({
       alive = false;
     };
   }, [mode, productId]);
+
+  // Auto-correction: if categoryId is missing/invalid but category name matches a loaded category, pick that ID.
+  useEffect(() => {
+    if (categories.length === 0) return;
+
+    const validId = input.categoryId && categories.some(c => c.id === input.categoryId);
+    if (!validId && input.category) {
+      const match = categories.find(c => c.name === input.category);
+      if (match) {
+        setInput(prev => ({ ...prev, categoryId: match.id }));
+      }
+    }
+  }, [categories, input.categoryId, input.category]);
+
+  // Auto-sync default variant for new single products
+  useEffect(() => {
+    if (mode !== 'create' || input.productType !== 'single') return;
+
+    // Determine the current cover image or first image
+    const coverUrl = input.images.find(img => img.isCover)?.url || input.images[0]?.url || '';
+
+    setInput(prev => {
+      // If no variants, add one
+      if (prev.variants.length === 0) {
+        return {
+          ...prev,
+          variants: [{ name: 'Default', price: Number(prev.price), image: coverUrl }]
+        };
+      }
+      // If there is exactly one variant and it's named "Default", update it
+      if (prev.variants.length === 1 && prev.variants[0].name === 'Default') {
+        // Only update if changed to avoid loop (though React state setter optimization handles simple equality)
+        const currentVar = prev.variants[0];
+        if (currentVar.price !== Number(prev.price) || currentVar.image !== coverUrl) {
+          return {
+            ...prev,
+            variants: [{ ...currentVar, price: Number(prev.price), image: coverUrl }]
+          };
+        }
+      }
+      return prev;
+    });
+  }, [mode, input.productType, input.price, input.images]);
 
   // Linking search
   useEffect(() => {
@@ -277,6 +429,9 @@ export function ProductForm({
     setLinkedProducts((prev) => prev.filter((x) => x.id !== id));
   };
 
+  /*
+   * Replaced by MediaLibraryModal logic below
+   *
   const uploadImage = async (file: File) => {
     try {
       setUploading(true);
@@ -288,8 +443,14 @@ export function ProductForm({
       );
 
       setInput((prev) => {
-        const nextImages = [...prev.images, res.url];
-        return { ...prev, images: nextImages, coverImage: prev.coverImage || res.url };
+        const isFirstImage = prev.images.length === 0;
+        const newImage: ProductImage = { url: res.url, isCover: isFirstImage };
+        const nextImages = [...prev.images, newImage];
+        return {
+          ...prev,
+          images: nextImages,
+          coverImage: isFirstImage ? res.url : getCoverImageUrl(nextImages)
+        };
       });
 
       // Set carousel to show the newly uploaded image
@@ -311,11 +472,75 @@ export function ProductForm({
     }
   };
 
-  const removeImage = (url: string) => {
+  const uploadVariantImage = async (file: File, variantIndex: number) => {
+    try {
+      // We can reuse the upload spinner or add a local one, for now just reuse uploading state if simple
+      // or just do it silently/with toast
+      const form = new FormData();
+      form.append('file', file);
+      const res = await apiFetch<{ success: boolean; url: string }>(
+        '/api/uploads/product-image',
+        { method: 'POST', body: form }
+      );
+
+      setInput(prev => {
+        const newVariants = [...prev.variants];
+        if (newVariants[variantIndex]) {
+          newVariants[variantIndex] = { ...newVariants[variantIndex], image: res.url };
+        }
+        return { ...prev, variants: newVariants };
+      });
+
+      useToastStore.getState().addToast({
+        type: 'success',
+        title: 'Variant image uploaded',
+        message: 'Image set for variant.',
+      });
+    } catch (e) {
+      useToastStore.getState().addToast({
+        type: 'error',
+        title: 'Upload failed',
+        message: e instanceof Error ? e.message : 'Failed to upload variant image.',
+      });
+    }
+  };
+  */
+
+  const removeImage = (index: number) => {
     setInput((prev) => {
-      const images = prev.images.filter((i) => i !== url);
-      const coverImage = prev.coverImage === url ? images[0] : prev.coverImage;
-      return { ...prev, images, coverImage };
+      const imageToRemove = prev.images[index];
+      const wasCover = imageToRemove?.isCover;
+      const nextImages = prev.images.filter((_, i) => i !== index);
+
+      // If we removed the cover image, set the first remaining image as cover
+      if (wasCover && nextImages.length > 0) {
+        nextImages[0].isCover = true;
+      }
+
+      return {
+        ...prev,
+        images: nextImages,
+        coverImage: getCoverImageUrl(nextImages)
+      };
+    });
+
+    // Adjust carousel index if needed
+    if (currentImageIndex >= input.images.length - 1 && currentImageIndex > 0) {
+      setCurrentImageIndex(currentImageIndex - 1);
+    }
+  };
+
+  const setCoverImage = (index: number) => {
+    setInput((prev) => {
+      const nextImages = prev.images.map((img, i) => ({
+        ...img,
+        isCover: i === index,
+      }));
+      return {
+        ...prev,
+        images: nextImages,
+        coverImage: getCoverImageUrl(nextImages)
+      };
     });
   };
 
@@ -328,20 +553,44 @@ export function ProductForm({
         description: input.description,
         price: Number(input.price),
         originalPrice: input.originalPrice ? Number(input.originalPrice) : undefined,
-        images: input.images,
-        coverImage: input.coverImage || undefined,
+        images: input.images.map(img => ({
+          url: img.url,
+          isCover: img.isCover || false,
+        })),
+        coverImage: input.coverImage || undefined, // Keep for backward compatibility
         categoryId: input.categoryId || undefined,
         category: categoryName || undefined,
         productType: input.productType,
         productRole: input.productRole,
         parentProductId: input.productRole === 'sub' ? (input.parentProductId || undefined) : undefined,
         linkedProductIds: input.linkedProductIds,
-        tags: input.tags,
+        tags: tagsInput.split(',').map(t => t.trim()).filter(Boolean),
         inStock: input.inStock,
         stockQuantity: Number(input.stockQuantity),
         featured: input.featured,
         isNew: input.isNew,
         isCustom: input.isCustom,
+        variants: (mode === 'create' && input.productType === 'single' && input.variants.length === 0)
+          ? [{
+            name: 'Default',
+            price: Number(input.price),
+            image: input.images.find(img => img.isCover)?.url || input.images[0]?.url || ''
+          }]
+          : input.variants,
+        dimensions: input.dimensions.filter(d => d.key.trim()).reduce((acc, curr) => ({ ...acc, [curr.key.trim()]: curr.value.trim() }), {}),
+        materials: materialsInput.split(',').map(m => m.trim()).filter(Boolean),
+        careInstructions: input.careInstructions,
+        details: input.details.filter(d => d.key.trim()).reduce((acc, curr) => {
+          if (curr.type === 'string') {
+            return { ...acc, [curr.key.trim()]: curr.valueString };
+          } else if (curr.type === 'array') {
+            return { ...acc, [curr.key.trim()]: curr.valueArray.filter(x => x.trim()) };
+          } else if (curr.type === 'object') {
+            const obj = curr.valueObject.filter(x => x.key.trim()).reduce((subAcc, sub) => ({ ...subAcc, [sub.key.trim()]: sub.value }), {});
+            return { ...acc, [curr.key.trim()]: obj };
+          }
+          return acc;
+        }, {}),
       };
 
       if (mode === 'create') {
@@ -369,6 +618,19 @@ export function ProductForm({
         message: updated.item?.name || 'Changes saved successfully.',
       });
     } catch (e) {
+      // Auto-show sections if they have errors
+      const errData = (e as any).data;
+      if (errData && errData.details && errData.details.fieldErrors) {
+        const errors = errData.details.fieldErrors;
+        setVisibleSections(prev => ({
+          ...prev,
+          variants: prev.variants || !!errors.variants,
+          dimensions: prev.dimensions || !!errors.dimensions,
+          materials: prev.materials || !!errors.materials,
+          careInstructions: prev.careInstructions || !!errors.careInstructions,
+        }));
+      }
+
       useToastStore.getState().addToast({
         type: 'error',
         title: 'Save failed',
@@ -381,7 +643,13 @@ export function ProductForm({
 
   const deleteProduct = async () => {
     if (!canDelete || !productId) return;
-    const ok = window.confirm('Delete this product? This cannot be undone.');
+    const ok = await useConfirmStore.getState().confirm({
+      title: 'Delete Product',
+      message: 'Delete this product? This cannot be undone.',
+      confirmText: 'Delete',
+      cancelText: 'Cancel',
+      confirmVariant: 'danger',
+    });
     if (!ok) return;
 
     try {
@@ -480,7 +748,11 @@ export function ProductForm({
                 </label>
                 <select
                   value={input.categoryId || ''}
-                  onChange={(e) => setInput({ ...input, categoryId: e.target.value || undefined })}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    const cat = categories.find(c => c.id === val);
+                    setInput({ ...input, categoryId: val || undefined, category: cat?.name });
+                  }}
                   className="w-full px-4 py-3 border border-luxury-cool-grey bg-white text-luxury-black focus:outline-none focus:ring-2 focus:ring-brand-purple focus:border-transparent font-extralight"
                 >
                   <option value="">No category</option>
@@ -601,19 +873,280 @@ export function ProductForm({
                   Tags (comma separated)
                 </label>
                 <input
-                  value={input.tags.join(', ')}
-                  onChange={(e) =>
-                    setInput({
-                      ...input,
-                      tags: e.target.value
-                        .split(',')
-                        .map((t) => t.trim())
-                        .filter(Boolean),
-                    })
-                  }
+                  value={tagsInput}
+                  onChange={(e) => setTagsInput(e.target.value)}
                   className="w-full px-4 py-3 border border-luxury-cool-grey bg-white text-luxury-black placeholder-luxury-cool-grey focus:outline-none focus:ring-2 focus:ring-brand-purple focus:border-transparent font-extralight"
                   placeholder="luxury, gift, limited…"
                 />
+              </div>
+
+              {/* Dynamic Dimensions */}
+              {visibleSections.dimensions && (
+                <div className="md:col-span-2 border border-luxury-warm-grey/20 rounded-lg p-4 bg-luxury-warm-grey/5">
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="text-xs uppercase tracking-[0.2em] text-luxury-cool-grey font-extralight">
+                      Dimensions
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setInput({ ...input, dimensions: [...input.dimensions, { key: '', value: '' }] })}
+                      className="flex items-center gap-1 text-brand-purple text-xs uppercase font-extralight hover:underline"
+                    >
+                      <LuPlus size={12} /> Add Dimension
+                    </button>
+                  </div>
+                  {input.dimensions.length === 0 && (
+                    <div className="text-sm font-extralight text-luxury-cool-grey italic">No dimensions added.</div>
+                  )}
+                  <div className="space-y-2">
+                    {input.dimensions.map((dim, idx) => (
+                      <div key={idx} className="flex items-center gap-2">
+                        <input
+                          value={dim.key}
+                          onChange={(e) => {
+                            const next = [...input.dimensions];
+                            next[idx].key = e.target.value;
+                            setInput({ ...input, dimensions: next });
+                          }}
+                          className="flex-1 px-3 py-2 border border-luxury-cool-grey bg-white text-luxury-black focus:outline-none focus:ring-1 focus:ring-brand-purple font-extralight text-sm"
+                          placeholder="Length, Width..."
+                        />
+                        <input
+                          value={dim.value}
+                          onChange={(e) => {
+                            const next = [...input.dimensions];
+                            next[idx].value = e.target.value;
+                            setInput({ ...input, dimensions: next });
+                          }}
+                          className="flex-1 px-3 py-2 border border-luxury-cool-grey bg-white text-luxury-black focus:outline-none focus:ring-1 focus:ring-brand-purple font-extralight text-sm"
+                          placeholder="30cm, 5kg..."
+                        />
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const next = input.dimensions.filter((_, i) => i !== idx);
+                            setInput({ ...input, dimensions: next });
+                          }}
+                          className="p-2 text-red-500 hover:bg-red-50 rounded"
+                          title="Remove dimension"
+                        >
+                          <LuTrash2 size={14} />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Materials */}
+              {visibleSections.materials && (
+                <div className="md:col-span-2">
+                  <div className="flex items-center justify-between mb-2">
+                    <label className="block text-sm font-extralight text-luxury-black uppercase">
+                      Materials
+                    </label>
+                  </div>
+                  <input
+                    value={materialsInput}
+                    onChange={(e) => setMaterialsInput(e.target.value)}
+                    className="w-full px-4 py-3 border border-luxury-cool-grey bg-white text-luxury-black placeholder-luxury-cool-grey focus:outline-none focus:ring-2 focus:ring-brand-purple focus:border-transparent font-extralight"
+                    placeholder="Wicker, Cotton, Leather (comma separated)…"
+                  />
+                </div>
+              )}
+
+              {/* Care Instructions */}
+              {visibleSections.careInstructions && (
+                <div className="md:col-span-2">
+                  <div className="flex items-center justify-between mb-2">
+                    <label className="block text-sm font-extralight text-luxury-black uppercase">
+                      Care Instructions
+                    </label>
+                  </div>
+                  <textarea
+                    value={input.careInstructions}
+                    onChange={(e) => setInput({ ...input, careInstructions: e.target.value })}
+                    rows={3}
+                    className="w-full px-4 py-3 border border-luxury-cool-grey bg-white text-luxury-black placeholder-luxury-cool-grey focus:outline-none focus:ring-2 focus:ring-brand-purple focus:border-transparent font-extralight"
+                    placeholder="Wipe clean with a damp cloth…"
+                  />
+                </div>
+              )}
+
+              {/* Dynamic Details (e.g. Ingredients) */}
+              <div className="md:col-span-2 mt-4 space-y-4">
+                <div className="flex items-center justify-between border-b border-luxury-warm-grey/20 pb-2">
+                  <div className="text-xs uppercase tracking-[0.2em] text-luxury-cool-grey font-extralight">
+                    Additional Details
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setInput({
+                      ...input,
+                      details: [...input.details, { key: '', type: 'string', valueString: '', valueArray: [], valueObject: [] }]
+                    })}
+                    className="flex items-center gap-1 text-brand-purple text-xs uppercase font-extralight hover:underline"
+                  >
+                    <LuPlus size={12} /> Add Detail Item
+                  </button>
+                </div>
+
+                {input.details.length === 0 && (
+                  <div className="text-sm font-extralight text-luxury-cool-grey italic">
+                    No additional details (like Ingredients, Specifications, etc.).
+                  </div>
+                )}
+
+                {input.details.map((detail, idx) => (
+                  <div key={idx} className="border border-luxury-warm-grey/20 rounded-lg p-4 bg-luxury-warm-grey/5">
+                    <div className="flex flex-col md:flex-row gap-2 mb-3 items-start md:items-center">
+                      <input
+                        value={detail.key}
+                        onChange={(e) => {
+                          const next = [...input.details];
+                          next[idx].key = e.target.value;
+                          setInput({ ...input, details: next });
+                        }}
+                        className="flex-1 px-3 py-2 border border-luxury-cool-grey bg-white text-luxury-black font-semibold text-sm focus:outline-none focus:ring-1 focus:ring-brand-purple w-full md:w-auto"
+                        placeholder="Name (e.g. Volume, Contents)"
+                      />
+                      <select
+                        value={detail.type}
+                        onChange={(e) => {
+                          const next = [...input.details];
+                          next[idx].type = e.target.value as any;
+                          setInput({ ...input, details: next });
+                        }}
+                        className="px-3 py-2 border border-luxury-cool-grey bg-white text-luxury-black text-xs font-extralight focus:outline-none focus:ring-1 focus:ring-brand-purple w-full md:w-auto"
+                      >
+                        <option value="string">Single Text (e.g. Volume)</option>
+                        <option value="array">List of Items (e.g. Contents)</option>
+                        <option value="object">Structured Data (e.g. Notes)</option>
+                      </select>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const next = input.details.filter((_, i) => i !== idx);
+                          setInput({ ...input, details: next });
+                        }}
+                        className="text-red-500 p-2 hover:bg-red-50 rounded self-end md:self-center"
+                        title="Remove Detail"
+                      >
+                        <LuTrash2 size={14} />
+                      </button>
+                    </div>
+
+                    <div className="pl-0 md:pl-4 border-l-0 md:border-l-2 border-luxury-cool-grey/20">
+                      {/* String Type UI */}
+                      {detail.type === 'string' && (
+                        <input
+                          value={detail.valueString}
+                          onChange={(e) => {
+                            const next = [...input.details];
+                            next[idx].valueString = e.target.value;
+                            setInput({ ...input, details: next });
+                          }}
+                          className="w-full px-3 py-2 border border-luxury-cool-grey bg-white text-luxury-black text-sm font-extralight focus:outline-none focus:ring-1 focus:ring-brand-purple"
+                          placeholder="Value (e.g. 750ml)..."
+                        />
+                      )}
+
+                      {/* Array Type UI */}
+                      {detail.type === 'array' && (
+                        <div className="space-y-2">
+                          {detail.valueArray.map((item, itemIdx) => (
+                            <div key={itemIdx} className="flex items-center gap-2">
+                              <input
+                                value={item}
+                                onChange={(e) => {
+                                  const next = [...input.details];
+                                  next[idx].valueArray[itemIdx] = e.target.value;
+                                  setInput({ ...input, details: next });
+                                }}
+                                className="flex-1 px-3 py-2 border border-luxury-cool-grey bg-white text-luxury-black text-sm font-extralight focus:outline-none focus:ring-1 focus:ring-brand-purple"
+                                placeholder="Item..."
+                              />
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  const next = [...input.details];
+                                  next[idx].valueArray = next[idx].valueArray.filter((_, i) => i !== itemIdx);
+                                  setInput({ ...input, details: next });
+                                }}
+                                className="text-luxury-cool-grey hover:text-red-500 transition-colors"
+                              >
+                                <LuX size={14} />
+                              </button>
+                            </div>
+                          ))}
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const next = [...input.details];
+                              next[idx].valueArray.push('');
+                              setInput({ ...input, details: next });
+                            }}
+                            className="text-xs text-brand-purple uppercase tracking-wider font-extralight hover:underline mt-2 flex items-center gap-1"
+                          >
+                            <LuPlus size={12} /> Add Item
+                          </button>
+                        </div>
+                      )}
+
+                      {/* Object Type UI */}
+                      {detail.type === 'object' && (
+                        <div className="space-y-2">
+                          {detail.valueObject.map((objItem, objIdx) => (
+                            <div key={objIdx} className="flex items-center gap-2">
+                              <input
+                                value={objItem.key}
+                                onChange={(e) => {
+                                  const next = [...input.details];
+                                  next[idx].valueObject[objIdx].key = e.target.value;
+                                  setInput({ ...input, details: next });
+                                }}
+                                className="flex-1 px-3 py-2 border border-luxury-cool-grey bg-white text-luxury-black text-sm font-semibold focus:outline-none focus:ring-1 focus:ring-brand-purple"
+                                placeholder="Key (e.g. Top)..."
+                              />
+                              <input
+                                value={objItem.value}
+                                onChange={(e) => {
+                                  const next = [...input.details];
+                                  next[idx].valueObject[objIdx].value = e.target.value;
+                                  setInput({ ...input, details: next });
+                                }}
+                                className="flex-1 px-3 py-2 border border-luxury-cool-grey bg-white text-luxury-black text-sm font-extralight focus:outline-none focus:ring-1 focus:ring-brand-purple"
+                                placeholder="Value..."
+                              />
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  const next = [...input.details];
+                                  next[idx].valueObject = next[idx].valueObject.filter((_, i) => i !== objIdx);
+                                  setInput({ ...input, details: next });
+                                }}
+                                className="text-luxury-cool-grey hover:text-red-500 transition-colors"
+                              >
+                                <LuX size={14} />
+                              </button>
+                            </div>
+                          ))}
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const next = [...input.details];
+                              next[idx].valueObject.push({ key: '', value: '' });
+                              setInput({ ...input, details: next });
+                            }}
+                            className="text-xs text-brand-purple uppercase tracking-wider font-extralight hover:underline mt-2 flex items-center gap-1"
+                          >
+                            <LuPlus size={12} /> Add Key-Value Pair
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
           </div>
@@ -754,35 +1287,148 @@ export function ProductForm({
               )}
             </div>
           </div>
+
+          {/* Variants */}
+          {visibleSections.variants && (
+            <div className="border border-luxury-warm-grey/20 rounded-lg bg-white p-6">
+              <div className="flex items-center justify-between gap-4">
+                <div className="text-xs uppercase tracking-[0.2em] text-luxury-cool-grey font-extralight">
+                  Variants
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setInput({
+                    ...input,
+                    variants: [...input.variants, { name: '', price: 0, image: '' }]
+                  })}
+                  className="inline-flex items-center gap-2 px-3 py-2 border border-brand-purple text-brand-purple uppercase font-extralight hover:bg-brand-purple hover:text-luxury-white transition-colors text-xs"
+                >
+                  <LuPlus size={14} /> Add Variant
+                </button>
+              </div>
+
+              <div className="mt-4 space-y-4">
+                {input.variants.length === 0 && (
+                  <div className="text-sm font-extralight text-luxury-cool-grey">No variants added.</div>
+                )}
+                {input.variants.map((variant, idx) => (
+                  <div key={idx} className="border border-luxury-warm-grey/20 rounded-lg p-4 bg-luxury-warm-grey/5">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-xs font-extralight text-luxury-cool-grey uppercase mb-1">Name</label>
+                        <input
+                          value={variant.name}
+                          onChange={(e) => {
+                            const next = [...input.variants];
+                            next[idx].name = e.target.value;
+                            setInput({ ...input, variants: next });
+                          }}
+                          className="w-full px-3 py-2 border border-luxury-cool-grey bg-white text-luxury-black focus:outline-none focus:ring-1 focus:ring-brand-purple font-extralight text-sm"
+                          placeholder="Small, Large..."
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-extralight text-luxury-cool-grey uppercase mb-1">Price</label>
+                        <input
+                          type="number"
+                          value={variant.price}
+                          onChange={(e) => {
+                            const next = [...input.variants];
+                            next[idx].price = Number(e.target.value);
+                            setInput({ ...input, variants: next });
+                          }}
+                          className="w-full px-3 py-2 border border-luxury-cool-grey bg-white text-luxury-black focus:outline-none focus:ring-1 focus:ring-brand-purple font-extralight text-sm"
+                        />
+                      </div>
+                      <div className="md:col-span-2">
+                        <label className="block text-xs font-extralight text-luxury-cool-grey uppercase mb-1">Image URL</label>
+                        <div className="flex gap-2">
+                          <input
+                            value={variant.image}
+                            onChange={(e) => {
+                              const next = [...input.variants];
+                              next[idx].image = e.target.value;
+                              setInput({ ...input, variants: next });
+                            }}
+                            className="flex-1 px-3 py-2 border border-luxury-cool-grey bg-white text-luxury-black focus:outline-none focus:ring-1 focus:ring-brand-purple font-extralight text-sm"
+                            placeholder="https://..."
+                          />
+                          <button
+                            type="button"
+                            onClick={() => openMediaLibrary(false, 'product-image', (files) => {
+                              if (files.length > 0) {
+                                const next = [...input.variants];
+                                next[idx].image = files[0].secure_url;
+                                setInput({ ...input, variants: next });
+                              }
+                            })}
+                            className="flex-none flex items-center justify-center px-3 py-2 border border-brand-purple text-brand-purple hover:bg-brand-purple hover:text-white cursor-pointer transition-colors"
+                          >
+                            <LuImagePlus size={16} />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="mt-2 flex justify-end">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const next = input.variants.filter((_, i) => i !== idx);
+                          setInput({ ...input, variants: next });
+                        }}
+                        className="text-red-500 text-xs uppercase font-extralight hover:underline"
+                      >
+                        Remove
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Right column */}
         <div className="space-y-6">
           <div className="border border-luxury-warm-grey/20 rounded-lg bg-white p-6">
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between mb-4">
               <div className="text-xs uppercase tracking-[0.2em] text-luxury-cool-grey font-extralight">
                 Images
               </div>
-              <label className="inline-flex items-center gap-2 px-3 py-2 border border-brand-purple text-brand-purple uppercase font-extralight hover:bg-brand-purple hover:text-luxury-white transition-colors cursor-pointer">
+              <button
+                type="button"
+                onClick={() => openMediaLibrary(true, 'product-image', (files) => {
+                  if (files.length > 0) {
+                    setInput((prev) => {
+                      const existingCount = prev.images.length;
+                      const newImages: ProductImage[] = files.map((f, i) => ({
+                        url: f.secure_url,
+                        isCover: existingCount === 0 && i === 0 // Make first one cover if initially empty
+                      }));
+                      return {
+                        ...prev,
+                        images: [...prev.images, ...newImages],
+                        coverImage: existingCount === 0 ? newImages[0].url : prev.coverImage
+                      };
+                    });
+                    useToastStore.getState().addToast({
+                      type: 'success',
+                      title: 'Images uploaded',
+                      message: `${files.length} image(s) added to product.`,
+                    });
+                  }
+                })}
+                className="inline-flex items-center gap-2 px-3 py-2 border border-brand-purple text-brand-purple uppercase font-extralight hover:bg-brand-purple hover:text-luxury-white transition-colors cursor-pointer"
+              >
                 <LuImagePlus size={16} />
                 Upload
-                <input
-                  type="file"
-                  accept="image/*"
-                  className="hidden"
-                  onChange={(e) => {
-                    const file = e.target.files?.[0];
-                    if (file) uploadImage(file);
-                    e.currentTarget.value = '';
-                  }}
-                />
-              </label>
+              </button>
             </div>
 
             {input.images.length === 0 ? (
               <div className="mt-4 relative border border-luxury-warm-grey/20 rounded-lg overflow-hidden bg-white">
                 {/* Upload indicator */}
-                {uploading && (
+                {/* {uploading && (
                   <div className="absolute top-0 left-0 right-0 z-50 bg-brand-purple/90 text-luxury-white">
                     <div className="px-4 py-2 flex items-center gap-2">
                       <div className="w-4 h-4 border-2 border-luxury-white border-t-transparent rounded-full animate-spin"></div>
@@ -792,7 +1438,7 @@ export function ProductForm({
                       <div className="h-full bg-luxury-white animate-pulse" style={{ width: '100%' }}></div>
                     </div>
                   </div>
-                )}
+                )} */}
                 <div className="p-4 text-sm font-extralight text-luxury-cool-grey">
                   No images yet.
                 </div>
@@ -802,7 +1448,7 @@ export function ProductForm({
                 {/* Carousel */}
                 <div className="relative border border-luxury-warm-grey/20 rounded-lg overflow-hidden bg-white">
                   {/* Upload indicator */}
-                  {uploading && (
+                  {/* {uploading && (
                     <div className="absolute top-0 left-0 right-0 z-50 bg-brand-purple/90 text-luxury-white">
                       <div className="px-4 py-2 flex items-center gap-2">
                         <div className="w-4 h-4 border-2 border-luxury-white border-t-transparent rounded-full animate-spin"></div>
@@ -812,18 +1458,18 @@ export function ProductForm({
                         <div className="h-full bg-luxury-white animate-pulse" style={{ width: '100%' }}></div>
                       </div>
                     </div>
-                  )}
+                  )} */}
                   <div className="relative w-full h-60 bg-luxury-warm-grey/10">
                     {input.images[currentImageIndex] && (
                       <>
                         <Image
-                          src={input.images[currentImageIndex]}
+                          src={input.images[currentImageIndex].url}
                           alt={`Product image ${currentImageIndex + 1}`}
                           fill
                           className="object-contain"
                           sizes="100vw"
                         />
-                        {input.coverImage === input.images[currentImageIndex] && (
+                        {input.images[currentImageIndex].isCover && (
                           <div className="absolute top-2 left-2 px-2 py-1 bg-brand-purple text-luxury-white text-xs font-extralight uppercase tracking-[0.2em]">
                             Cover
                           </div>
@@ -857,13 +1503,13 @@ export function ProductForm({
                   {/* Image info and actions */}
                   <div className="p-3 space-y-2">
                     <div className="text-xs font-extralight text-luxury-black truncate">
-                      {input.images[currentImageIndex]}
+                      {input.images[currentImageIndex]?.url}
                     </div>
                     <div className="flex items-center gap-2">
-                      {input.coverImage !== input.images[currentImageIndex] && (
+                      {!input.images[currentImageIndex]?.isCover && (
                         <button
                           type="button"
-                          onClick={() => setInput({ ...input, coverImage: input.images[currentImageIndex] })}
+                          onClick={() => setCoverImage(currentImageIndex)}
                           className="flex-1 px-3 py-2 border border-brand-purple text-brand-purple uppercase font-extralight hover:bg-brand-purple hover:text-luxury-white transition-colors text-xs"
                         >
                           Set cover
@@ -871,15 +1517,7 @@ export function ProductForm({
                       )}
                       <button
                         type="button"
-                        onClick={() => {
-                          const urlToRemove = input.images[currentImageIndex];
-                          removeImage(urlToRemove);
-                          if (currentImageIndex > 0) {
-                            setCurrentImageIndex(currentImageIndex - 1);
-                          } else if (input.images.length > 1) {
-                            setCurrentImageIndex(0);
-                          }
-                        }}
+                        onClick={() => removeImage(currentImageIndex)}
                         className="px-3 py-2 border border-red-500 text-red-500 uppercase font-extralight hover:bg-red-500 hover:text-luxury-white transition-colors text-xs"
                         aria-label="Remove image"
                       >
@@ -912,6 +1550,22 @@ export function ProductForm({
 
           <div className="border border-luxury-warm-grey/20 rounded-lg bg-white p-6">
             <div className="flex flex-col gap-3">
+              {/* Optional Section Toggles */}
+              <div className="space-y-2 mb-2 pb-2 border-b border-luxury-warm-grey/20">
+                {!visibleSections.variants && (
+                  <button type="button" onClick={() => toggleSection('variants')} className="w-full text-left text-xs uppercase font-extralight tracking-[0.2em] text-brand-purple hover:underline">+ Add Variants</button>
+                )}
+                {!visibleSections.dimensions && (
+                  <button type="button" onClick={() => toggleSection('dimensions')} className="w-full text-left text-xs uppercase font-extralight tracking-[0.2em] text-brand-purple hover:underline">+ Add Dimensions</button>
+                )}
+                {!visibleSections.materials && (
+                  <button type="button" onClick={() => toggleSection('materials')} className="w-full text-left text-xs uppercase font-extralight tracking-[0.2em] text-brand-purple hover:underline">+ Add Materials</button>
+                )}
+                {!visibleSections.careInstructions && (
+                  <button type="button" onClick={() => toggleSection('careInstructions')} className="w-full text-left text-xs uppercase font-extralight tracking-[0.2em] text-brand-purple hover:underline">+ Add Care Instructions</button>
+                )}
+              </div>
+
               <button
                 type="button"
                 onClick={submit}
@@ -963,6 +1617,13 @@ export function ProductForm({
           </div>
         </div>
       </div>
+      <MediaLibraryModal
+        isOpen={mediaModalOpen}
+        onClose={() => setMediaModalOpen(false)}
+        onSelect={onMediaSelect}
+        multiple={mediaModalMultiple}
+        uploadType={mediaModalType}
+      />
     </div>
   );
 }

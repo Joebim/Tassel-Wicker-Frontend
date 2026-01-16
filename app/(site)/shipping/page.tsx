@@ -6,6 +6,7 @@ import { LuChevronDown } from 'react-icons/lu';
 import ScrollTextAnimation from '@/components/common/ScrollTextAnimation';
 import CircularText from '@/components/common/CircularText';
 import RichTextRenderer from '@/components/common/RichTextRenderer';
+import DocumentViewerLink from '@/components/common/DocumentViewer';
 import { useContent } from '@/hooks/useContent';
 
 export default function Shipping() {
@@ -130,19 +131,7 @@ export default function Shipping() {
                     ) : (
                         <>
                             {documentUrl && (
-                                <div className="mb-8">
-                                    <p className="text-base text-luxury-black font-extralight mb-8">
-                                        Read our Shipping Information{' '}
-                                        <a
-                                            href={documentUrl}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            className="underline hover:text-brand-purple transition-colors"
-                                        >
-                                            here
-                                        </a>.
-                                    </p>
-                                </div>
+                                <DocumentViewerLink title="Shipping Information Document" pageSlug="shipping" />
                             )}
                             {content ? (
                                 <RichTextRenderer content={content} />

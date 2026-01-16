@@ -7,6 +7,7 @@ import { LuPlus, LuSearch, LuTrash2, LuPencil, LuExternalLink } from 'react-icon
 import { apiFetch } from '@/services/apiClient';
 import { useToastStore } from '@/store/toastStore';
 import { useAuthStore } from '@/store/authStore';
+import { useConfirmStore } from '@/store/confirmStore';
 import type { Product } from '@/types/product';
 
 type ProductType = 'basket' | 'custom' | 'single' | '';
@@ -76,7 +77,13 @@ export default function AdminProductsPage() {
       return;
     }
 
-    const ok = window.confirm('Delete this product? This cannot be undone.');
+    const ok = await useConfirmStore.getState().confirm({
+      title: 'Delete Product',
+      message: 'Delete this product? This cannot be undone.',
+      confirmText: 'Delete',
+      cancelText: 'Cancel',
+      confirmVariant: 'danger',
+    });
     if (!ok) return;
 
     try {
@@ -206,7 +213,17 @@ export default function AdminProductsPage() {
             </thead>
             <tbody>
               {(data?.items || []).map((p) => {
-                const productImage = p.coverImage || (p.images && p.images.length > 0 ? p.images[0] : null);
+                // Handle both old format (string[]) and new format (ProductImage[])
+                const getImageUrl = (images: any): string | null => {
+                  if (!images || images.length === 0) return null;
+                  const firstImage = images[0];
+                  if (typeof firstImage === 'string') return firstImage;
+                  if (firstImage && typeof firstImage === 'object' && 'url' in firstImage) {
+                    return firstImage.url;
+                  }
+                  return null;
+                };
+                const productImage = p.coverImage || getImageUrl(p.images) || null;
                 return (
                   <tr key={p.id} className="border-t border-luxury-warm-grey/10">
                     <td className="px-6 py-4">
@@ -241,10 +258,12 @@ export default function AdminProductsPage() {
                       </div>
                     </td>
                     <td className="px-6 py-4">
-                      <div className="text-sm font-extralight text-luxury-black">{p.price}</div>
+                      <div className="text-sm font-extralight text-luxury-black">
+                        £{(p.price ?? 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                      </div>
                       {p.originalPrice ? (
                         <div className="text-xs font-extralight text-luxury-cool-grey line-through">
-                          {p.originalPrice}
+                          £{(p.originalPrice ?? 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                         </div>
                       ) : null}
                     </td>

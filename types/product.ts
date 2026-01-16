@@ -1,11 +1,16 @@
+export interface ProductImage {
+  url: string;
+  isCover?: boolean;
+}
+
 export interface Product {
   id: string;
   name: string;
   description: string;
   price: number;
   originalPrice?: number;
-  images: string[];
-  coverImage?: string;
+  images: ProductImage[] | string[]; // Support both formats for backward compatibility
+  coverImage?: string; // Deprecated: kept for backward compatibility, derived from image with isCover: true
   categoryId?: string;
   category: string;
   productType?: "basket" | "custom" | "single";
@@ -19,15 +24,10 @@ export interface Product {
   isNew?: boolean;
   isCustom?: boolean;
   variants?: Array<{ name: string; image: string; price: number }>;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  details?: any;
+  details?: Record<string, string | string[] | Record<string, string>>;
   createdAt: string;
   updatedAt: string;
-  dimensions?: {
-    length: number;
-    width: number;
-    height: number;
-  };
+  dimensions?: Record<string, string | number>;
   materials?: string[];
   careInstructions?: string;
 }

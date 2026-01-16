@@ -67,9 +67,11 @@ export const useCartStore = create<CartStore>()(
         // If authenticated, sync with backend
         if (isAuthenticated) {
           try {
-            const { addCartItem } = await import('@/services/cartService');
+            const { addCartItem } = await import("@/services/cartService");
             // Extract productId from id if it's in format "productId-variantSlug", otherwise use id
-            const productId = item.productId || (item.id.includes('-') ? item.id.split('-')[0] : item.id);
+            const productId =
+              item.productId ||
+              (item.id.includes("-") ? item.id.split("-")[0] : item.id);
             const cartItem: any = {
               id: item.id,
               productId: productId,
@@ -93,7 +95,10 @@ export const useCartStore = create<CartStore>()(
             useToastStore.getState().addToast({
               type: "error",
               title: "Failed to Add Item",
-              message: error instanceof Error ? error.message : "Could not add item to cart",
+              message:
+                error instanceof Error
+                  ? error.message
+                  : "Could not add item to cart",
             });
             return;
           }
@@ -102,7 +107,7 @@ export const useCartStore = create<CartStore>()(
         useToastStore.getState().addToast({
           type: "success",
           title: existingItem ? "Item Updated" : "Added to Cart",
-          message: existingItem 
+          message: existingItem
             ? `${item.name} quantity increased`
             : `${item.name} has been added to your cart`,
         });
@@ -121,7 +126,7 @@ export const useCartStore = create<CartStore>()(
         // If authenticated, sync with backend
         if (isAuthenticated) {
           try {
-            const { removeCartItem } = await import('@/services/cartService');
+            const { removeCartItem } = await import("@/services/cartService");
             const response = await removeCartItem(id);
             // Update with server response to ensure consistency
             set({ items: response.cart.items });
@@ -131,7 +136,10 @@ export const useCartStore = create<CartStore>()(
             useToastStore.getState().addToast({
               type: "error",
               title: "Failed to Remove Item",
-              message: error instanceof Error ? error.message : "Could not remove item from cart",
+              message:
+                error instanceof Error
+                  ? error.message
+                  : "Could not remove item from cart",
             });
             return;
           }
@@ -165,7 +173,9 @@ export const useCartStore = create<CartStore>()(
         // If authenticated, sync with backend
         if (isAuthenticated) {
           try {
-            const { updateCartItemQuantity } = await import('@/services/cartService');
+            const { updateCartItemQuantity } = await import(
+              "@/services/cartService"
+            );
             const response = await updateCartItemQuantity(id, quantity);
             // Update with server response to ensure consistency
             set({ items: response.cart.items });
@@ -175,7 +185,10 @@ export const useCartStore = create<CartStore>()(
             useToastStore.getState().addToast({
               type: "error",
               title: "Failed to Update Quantity",
-              message: error instanceof Error ? error.message : "Could not update item quantity",
+              message:
+                error instanceof Error
+                  ? error.message
+                  : "Could not update item quantity",
             });
             return;
           }
@@ -192,7 +205,7 @@ export const useCartStore = create<CartStore>()(
         // If authenticated, sync with backend
         if (isAuthenticated) {
           try {
-            const { clearCart } = await import('@/services/cartService');
+            const { clearCart } = await import("@/services/cartService");
             const response = await clearCart();
             // Update with server response to ensure consistency
             set({ items: response.cart.items });
@@ -200,7 +213,8 @@ export const useCartStore = create<CartStore>()(
             useToastStore.getState().addToast({
               type: "error",
               title: "Failed to Clear Cart",
-              message: error instanceof Error ? error.message : "Could not clear cart",
+              message:
+                error instanceof Error ? error.message : "Could not clear cart",
             });
             return;
           }
@@ -222,14 +236,16 @@ export const useCartStore = create<CartStore>()(
         if (!user || !token) return;
 
         try {
-          const { syncCart } = await import('@/services/cartService');
+          const { syncCart } = await import("@/services/cartService");
           const localItems = get().items;
           const lastSyncedAt = get().lastSyncedAt;
 
           // Map local items to ensure productId is always present
-          const mappedItems = localItems.map(item => ({
+          const mappedItems = localItems.map((item) => ({
             ...item,
-            productId: item.productId || (item.id.includes('-') ? item.id.split('-')[0] : item.id),
+            productId:
+              item.productId ||
+              (item.id.includes("-") ? item.id.split("-")[0] : item.id),
           })) as Array<{
             id: string;
             productId: string;
@@ -256,15 +272,15 @@ export const useCartStore = create<CartStore>()(
           const response = await syncCart({
             localCart: mappedItems,
             lastSyncedAt,
-            mergeStrategy: 'merge',
+            mergeStrategy: "merge",
           });
 
-          set({ 
+          set({
             items: response.cart.items,
             lastSyncedAt: response.syncedAt,
           });
         } catch (error) {
-          console.error('Failed to sync cart:', error);
+          console.error("Failed to sync cart:", error);
         }
       },
 
@@ -273,14 +289,14 @@ export const useCartStore = create<CartStore>()(
         if (!user || !token) return;
 
         try {
-          const { mergeGuestCart } = await import('@/services/cartService');
+          const { mergeGuestCart } = await import("@/services/cartService");
           const localItems = get().items;
 
           if (localItems.length === 0) {
             // No local items, just fetch server cart
-            const { getCart } = await import('@/services/cartService');
+            const { getCart } = await import("@/services/cartService");
             const response = await getCart();
-            set({ 
+            set({
               items: response.cart.items,
               lastSyncedAt: new Date().toISOString(),
             });
@@ -288,9 +304,11 @@ export const useCartStore = create<CartStore>()(
           }
 
           // Map local items to ensure productId is always present
-          const mappedItems = localItems.map(item => ({
+          const mappedItems = localItems.map((item) => ({
             ...item,
-            productId: item.productId || (item.id.includes('-') ? item.id.split('-')[0] : item.id),
+            productId:
+              item.productId ||
+              (item.id.includes("-") ? item.id.split("-")[0] : item.id),
           })) as Array<{
             id: string;
             productId: string;
@@ -316,22 +334,22 @@ export const useCartStore = create<CartStore>()(
 
           // Merge guest cart with server cart
           const response = await mergeGuestCart(mappedItems);
-          set({ 
+          set({
             items: response.cart.items,
             lastSyncedAt: new Date().toISOString(),
           });
         } catch (error) {
-          console.error('Failed to merge guest cart:', error);
+          console.error("Failed to merge guest cart:", error);
           // If merge fails, try to just fetch server cart
           try {
-            const { getCart } = await import('@/services/cartService');
+            const { getCart } = await import("@/services/cartService");
             const response = await getCart();
-            set({ 
+            set({
               items: response.cart.items,
               lastSyncedAt: new Date().toISOString(),
             });
           } catch (fetchError) {
-            console.error('Failed to fetch server cart:', fetchError);
+            console.error("Failed to fetch server cart:", fetchError);
           }
         }
       },

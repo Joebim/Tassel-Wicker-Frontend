@@ -2,12 +2,14 @@ export interface Order {
   id: string;
   orderNumber: string;
   userId: string;
+  customerName?: string;
   status: OrderStatus;
   items: OrderItem[];
   shipping: ShippingInfo;
   billing: BillingInfo;
   payment: PaymentInfo;
   totals: OrderTotals;
+  currency: string;
   notes?: string;
   createdAt: string;
   updatedAt: string;

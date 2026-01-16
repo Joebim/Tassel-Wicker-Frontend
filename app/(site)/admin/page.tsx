@@ -163,6 +163,19 @@ function ActivityLogsSection() {
     return LuClock;
   };
 
+  const getCurrencySymbol = (currency?: string): string => {
+    const symbols: Record<string, string> = {
+      GBP: "£",
+      USD: "$",
+      EUR: "€",
+      NGN: "₦",
+      CAD: "CA$",
+      AUD: "A$",
+    };
+    const code = currency?.toUpperCase() || "GBP";
+    return symbols[code] || code;
+  };
+
   const getActivityLabel = (type: ActivityType) => {
     const labels: Record<string, string> = {
       'user.registered': 'User Registered',
@@ -238,7 +251,8 @@ function ActivityLogsSection() {
 
     if (type.startsWith('order.')) {
       if (metadata?.orderNumber) {
-        return `${userName} - Order ${metadata.orderNumber}${metadata.total ? ` - $${metadata.total.toFixed(2)}` : ''}`;
+        const symbol = getCurrencySymbol(metadata.currency);
+        return `${userName} - Order ${metadata.orderNumber}${metadata.total ? ` - ${symbol}${metadata.total.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : ''}`;
       }
       return `${userName} - ${metadata?.orderId || 'Order activity'}`;
     }

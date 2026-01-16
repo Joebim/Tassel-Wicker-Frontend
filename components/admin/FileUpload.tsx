@@ -311,8 +311,8 @@ export default function FileUpload({
               e.stopPropagation();
             }}
             className={`flex items-center justify-center gap-2 px-4 py-3 border rounded-lg cursor-pointer transition-colors ${uploading
-                ? 'border-luxury-warm-grey/20 bg-luxury-warm-grey/10 cursor-not-allowed'
-                : 'border-brand-purple text-brand-purple hover:bg-brand-purple hover:text-luxury-white'
+              ? 'border-luxury-warm-grey/20 bg-luxury-warm-grey/10 cursor-not-allowed'
+              : 'border-brand-purple text-brand-purple hover:bg-brand-purple hover:text-luxury-white'
               } font-extralight uppercase text-sm`}
           >
             {uploading ? (

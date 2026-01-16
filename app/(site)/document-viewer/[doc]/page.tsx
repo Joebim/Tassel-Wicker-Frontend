@@ -21,7 +21,7 @@ function DocumentViewerContent() {
   const params = useParams();
   const docName = params.doc as string;
 
-  return <PDFViewer docName={docName} />;
+  return (<div className="pt-20"><PDFViewer docName={docName} /></div>);
 }
 
 export default function DocumentViewer() {

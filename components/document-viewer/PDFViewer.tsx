@@ -23,19 +23,10 @@ export default function PDFViewer({ docName }: PDFViewerProps) {
   const [isMobile, setIsMobile] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Initialize default layout plugin
+  // Initialize default layout plugin with no toolbar
   const defaultLayoutPluginInstance = defaultLayoutPlugin({
-    sidebarTabs: (defaultTabs) => [],
-    toolbarPlugin: {
-      fullScreenPlugin: {
-        onEnterFullScreen: (zoom) => {
-          zoom(1.5);
-        },
-        onExitFullScreen: (zoom) => {
-          zoom(1);
-        },
-      },
-    },
+    sidebarTabs: () => [],
+    renderToolbar: () => <></>, // Remove all toolbar items
   });
 
   // Detect mobile device
@@ -43,10 +34,10 @@ export default function PDFViewer({ docName }: PDFViewerProps) {
     const checkMobile = () => {
       setIsMobile(window.innerWidth < 768);
     };
-    
+
     checkMobile();
     window.addEventListener('resize', checkMobile);
-    
+
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
@@ -106,7 +97,7 @@ export default function PDFViewer({ docName }: PDFViewerProps) {
       document.removeEventListener('keydown', handleKeyDown);
       document.removeEventListener('selectstart', handleSelectStart);
       document.removeEventListener('dragstart', handleDragStart);
-      
+
       // Restore default viewport on unmount
       if (viewport) {
         viewport.setAttribute('content', 'width=device-width, initial-scale=1');
@@ -130,7 +121,7 @@ export default function PDFViewer({ docName }: PDFViewerProps) {
   }
 
   if (error) {
-  return (
+    return (
       <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="text-center">
           <h1 className="text-2xl font-extralight text-luxury-black mb-4">
@@ -138,9 +129,9 @@ export default function PDFViewer({ docName }: PDFViewerProps) {
           </h1>
           <p className="text-luxury-cool-grey font-extralight">
             {error}
-            </p>
-          </div>
+          </p>
         </div>
+      </div>
     );
   }
 
@@ -158,8 +149,8 @@ export default function PDFViewer({ docName }: PDFViewerProps) {
                   console.log('PDF loaded:', e.doc.numPages, 'pages');
                   setError(null);
                 }}
-          />
-        </div>
+              />
+            </div>
           </Worker>
         ) : (
           <div className="min-h-screen bg-white flex items-center justify-center">

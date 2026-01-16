@@ -628,11 +628,11 @@ export default function ProductDetail() {
                                 {renderRichText(product.description)}
                             </p>
                             {/* Pre-order note for celebration baskets */}
-                            {product.category === 'Baskets' && product.name !== 'Branded Tote Bag' && (
+                            {/* {product.category === 'Baskets' && product.name !== 'Branded Tote Bag' && (
                                 <p className="text-luxury-cool-grey leading-relaxed font-extralight italic mt-4">
                                     PRE-ORDER NOTE: This celebration basket is available for pre-order. Orders placed on or after our launch date, December 15th, will begin shipping from January 15th, 2026. Thank you for your patience.
                                 </p>
-                            )}
+                            )} */}
                         </div>
                         <button
                             onClick={handleAddToCart}
@@ -648,12 +648,6 @@ export default function ProductDetail() {
             {detailSections.length > 0 && (
                 <section className="bg-white pb-24 pt-12">
                     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12">
-                        <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-12">
-                            <h2 className="text-3xl font-extralight text-luxury-black uppercase tracking-[0.35em]">
-                                Detailed Information
-                            </h2>
-                            <div className="mt-4 md:mt-0 w-16 h-1 bg-brand-purple" />
-                        </div>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
                             {detailSections.map(({ title, content }) => (
                                 <div

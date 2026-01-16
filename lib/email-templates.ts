@@ -29,6 +29,22 @@ interface OrderDetails {
 }
 
 /**
+ * Helper to get currency symbol
+ */
+function getCurrencySymbol(currency: string): string {
+  const symbols: Record<string, string> = {
+    GBP: "£",
+    USD: "$",
+    EUR: "€",
+    NGN: "₦",
+    CAD: "CA$",
+    AUD: "A$",
+  };
+  const code = currency?.toUpperCase() || "GBP";
+  return symbols[code] || code;
+}
+
+/**
  * Base email template wrapper
  */
 function getBaseEmailTemplate(content: string, title?: string): string {
@@ -144,10 +160,13 @@ export function createContactFormEmailTemplate(formData: {
 export function createOrderConfirmationEmailTemplate(
   order: OrderDetails
 ): string {
-  // Always format prices in GBP - Stripe handles conversion during checkout
+  // Format price based on order currency
   const formatPrice = (amount: number): string => {
-    // Always use GBP symbol regardless of currency parameter
-    return `£${amount.toFixed(2)}`;
+    const symbol = getCurrencySymbol(order.currency || "GBP");
+    return `${symbol}${amount.toLocaleString(undefined, {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    })}`;
   };
 
   // Capitalize first letter of customer name
@@ -277,10 +296,13 @@ export function createOrderConfirmationEmailTemplate(
 export function createPaymentConfirmationEmailTemplate(
   order: OrderDetails
 ): string {
-  // Always format prices in GBP - Stripe handles conversion during checkout
+  // Format price based on order currency
   const formatPrice = (amount: number): string => {
-    // Always use GBP symbol regardless of currency parameter
-    return `£${amount.toFixed(2)}`;
+    const symbol = getCurrencySymbol(order.currency || "GBP");
+    return `${symbol}${amount.toLocaleString(undefined, {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    })}`;
   };
 
   // Capitalize first letter of customer name

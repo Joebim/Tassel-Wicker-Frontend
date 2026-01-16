@@ -25,7 +25,9 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, viewMode }) => {
                 <div className="flex">
                     <div className="w-48 h-48 shrink-0 relative">
                         <Image
-                            src={product.images[0]}
+                            src={typeof product.images[0] === 'string' 
+                              ? product.images[0] 
+                              : (product.images[0] as any)?.url || product.coverImage || ''}
                             alt={product.name}
                             fill
                             className="object-cover"
@@ -86,7 +88,9 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, viewMode }) => {
         <div className="group bg-white rounded-lg shadow-sm hover:shadow-lg transition-all duration-300 overflow-hidden">
             <div className="relative overflow-hidden h-64">
                 <Image
-                    src={product.images[0]}
+                    src={typeof product.images[0] === 'string' 
+                      ? product.images[0] 
+                      : (product.images[0] as any)?.url || product.coverImage || ''}
                     alt={product.name}
                     fill
                     className="object-cover group-hover:scale-105 transition-transform duration-300"

@@ -24,6 +24,19 @@ const statuses: OrderStatus[] = [
   'refunded',
 ];
 
+const getCurrencySymbol = (currency?: string): string => {
+  const symbols: Record<string, string> = {
+    GBP: "£",
+    USD: "$",
+    EUR: "€",
+    NGN: "₦",
+    CAD: "CA$",
+    AUD: "A$",
+  };
+  const code = currency?.toUpperCase() || "GBP";
+  return symbols[code] || code;
+};
+
 export default function AdminOrdersPage() {
   const [page, setPage] = useState(1);
   const [limit] = useState(20);
@@ -143,7 +156,7 @@ export default function AdminOrdersPage() {
             </thead>
             <tbody>
               {(data?.items || []).map((o) => {
-                const customerName = `${o.shipping?.firstName || ''} ${o.shipping?.lastName || ''}`.trim();
+                const customerName = o.customerName || `${o.shipping?.firstName || ''} ${o.shipping?.lastName || ''}`.trim();
                 return (
                   <tr key={o.id} className="border-t border-luxury-warm-grey/10">
                     <td className="px-6 py-4">
@@ -159,7 +172,9 @@ export default function AdminOrdersPage() {
                       </div>
                     </td>
                     <td className="px-6 py-4">
-                      <div className="text-sm font-extralight text-luxury-black">{o.totals?.total ?? 0}</div>
+                      <div className="text-sm font-extralight text-luxury-black">
+                        {getCurrencySymbol(o.currency)}{(o.totals?.total ?? 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                      </div>
                       <div className="text-xs font-extralight text-luxury-cool-grey">
                         Payment: {o.payment?.status || 'pending'}
                       </div>

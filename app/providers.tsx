@@ -13,6 +13,7 @@ import { useCurrencyStore } from '@/store/currencyStore';
 import { usePaymentStore } from '@/store/paymentStore';
 import { authService } from '@/services/authService';
 import CookieConsent from '@/components/common/CookieConsent';
+import ConfirmModal from '@/components/common/ConfirmModal';
 import CartSync from '@/components/cart/CartSync';
 
 export default function Providers({ children }: { children: React.ReactNode }) {
@@ -66,6 +67,7 @@ export default function Providers({ children }: { children: React.ReactNode }) {
               <CartSync />
               {children}
               <CookieConsent />
+              <ConfirmModal />
             </AnimationProvider>
           </CartProvider>
         </CurrencyProvider>

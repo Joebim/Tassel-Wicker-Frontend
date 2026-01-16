@@ -15,6 +15,7 @@ import { usePrice, usePriceFormat } from '@/hooks/usePrice';
 import { useCurrencyStore } from '@/store/currencyStore';
 import CheckoutOptions from '@/components/checkout/CheckoutOptions';
 import { apiFetch } from '@/services/apiClient';
+import { createOrderFromPayment } from '@/services/checkoutService';
 
 // Initialize Stripe
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || '');
@@ -113,6 +114,12 @@ const PaymentForm: React.FC<{
             setShippingCostGBP(shippingAmountGBP);
             // Pass both converted amount and GBP amount to parent
             onShippingChange(shippingAmount, shippingAmountGBP);
+
+            // Store shipping info in localStorage for order creation
+            if (typeof window !== 'undefined') {
+                localStorage.setItem('checkout_shipping_cost_gbp', shippingAmountGBP.toString());
+                localStorage.setItem('checkout_shipping_method', rate.displayName || 'standard');
+            }
 
             // Calculate total amount in customer currency
             let totalAmount = totalPrice + shippingAmount;
@@ -300,6 +307,46 @@ const PaymentForm: React.FC<{
                     usePaymentStore.getState().setPaymentIntent(paymentIntentId, clientSecret);
                     usePaymentStore.getState().setCustomerInfo(emailToUse, userName);
                     console.log('[CHECKOUT] ✅ Payment data stored in Zustand store');
+
+                    // CRITICAL: Create order immediately after payment succeeds
+                    // This ensures order is saved even if user closes browser or redirect fails
+                    console.log('[CHECKOUT] ========== CREATING ORDER FROM PAYMENT ==========');
+                    try {
+                        // Get cart items from store
+                        const cartItems = useCartStore.getState().items;
+
+                        // Get shipping info from localStorage (stored during checkout)
+                        const shippingCostGBP = parseFloat(localStorage.getItem('checkout_shipping_cost_gbp') || '0');
+                        const shippingMethod = localStorage.getItem('checkout_shipping_method') || 'standard';
+
+                        console.log('[CHECKOUT] Creating order with:', {
+                            paymentIntentId: paymentIntentId.substring(0, 15) + '...',
+                            itemsCount: cartItems.length,
+                            shippingCostGBP,
+                            shippingMethod,
+                        });
+
+                        // Create order via API
+                        const orderResponse = await createOrderFromPayment({
+                            paymentIntent: result.paymentIntent,
+                            cartItems,
+                            shippingCostGBP,
+                            shippingMethod,
+                        });
+
+                        console.log('[CHECKOUT] ✅ Order created successfully:', {
+                            orderId: orderResponse.item.id || 'unknown',
+                            orderNumber: orderResponse.item.orderNumber || 'unknown',
+                        });
+
+                        // Mark order as created in sessionStorage to prevent duplicates
+                        if (typeof window !== 'undefined') {
+                            sessionStorage.setItem(`order_created_${paymentIntentId}`, 'true');
+                        }
+                    } catch (orderError) {
+                        // Log error but don't block redirect - payment-success page will retry
+                        console.error('[CHECKOUT] ❌ Failed to create order (will retry on success page):', orderError);
+                    }
 
                     // Email will be sent from payment-success page to avoid duplicates
                     // Redirect without sensitive information in URL

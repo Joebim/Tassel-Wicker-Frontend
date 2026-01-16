@@ -6,6 +6,7 @@ import { LuChevronDown } from 'react-icons/lu';
 import ScrollTextAnimation from '@/components/common/ScrollTextAnimation';
 import CircularText from '@/components/common/CircularText';
 import RichTextRenderer from '@/components/common/RichTextRenderer';
+import DocumentViewerLink from '@/components/common/DocumentViewer';
 import { useContent } from '@/hooks/useContent';
 
 export default function CookiePolicy() {
@@ -97,12 +98,12 @@ export default function CookiePolicy() {
                         priority
                         sizes="100vw"
                         onError={(e) => {
-                          const target = e.target as HTMLImageElement;
-                          if (target.src && !target.src.includes('retry')) {
-                            setTimeout(() => {
-                              target.src = `${target.src}${target.src.includes('?') ? '&' : '?'}retry=${Date.now()}`;
-                            }, 1000);
-                          }
+                            const target = e.target as HTMLImageElement;
+                            if (target.src && !target.src.includes('retry')) {
+                                setTimeout(() => {
+                                    target.src = `${target.src}${target.src.includes('?') ? '&' : '?'}retry=${Date.now()}`;
+                                }, 1000);
+                            }
                         }}
                     />
                     <div className="absolute inset-0 bg-black opacity-40" />
@@ -161,19 +162,7 @@ export default function CookiePolicy() {
                     ) : (
                         <>
                             {documentUrl && (
-                                <div className="mb-8">
-                                    <p className="text-base text-luxury-black font-extralight mb-4">
-                                        Read through our cookie policy{' '}
-                                        <a
-                                            href={documentUrl}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            className="underline hover:text-brand-purple transition-colors"
-                                        >
-                                            here
-                                        </a>.
-                                    </p>
-                                </div>
+                                <DocumentViewerLink title="Cookie Policy Document" pageSlug="cookie-policy" />
                             )}
                             {content ? (
                                 <RichTextRenderer content={content} />

@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import {
@@ -12,6 +12,8 @@ import {
   LuLogOut,
   LuFileText,
   LuExternalLink,
+  LuMenu,
+  LuChevronLeft,
 } from 'react-icons/lu';
 import { useAuthStore } from '@/store/authStore';
 import { useToastStore } from '@/store/toastStore';
@@ -30,6 +32,20 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const router = useRouter();
   const pathname = usePathname();
   const { user, hasHydrated, isLoading } = useAuthStore();
+  const [isCollapsed, setIsCollapsed] = useState(false);
+
+  // Initialize collapse state based on screen size
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth < 1024) {
+        setIsCollapsed(true);
+      }
+    };
+
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const canAccess = useMemo(() => {
     if (!user) return false;
@@ -79,28 +95,41 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const userDisplayName = `${user.firstName} ${user.lastName}`.trim() || user.email;
 
   return (
-    <div className="min-h-screen bg-white text-luxury-black">
-      <div className="flex min-h-screen">
+    <div className="min-h-screen bg-white text-luxury-black flex flex-col">
+      <div className="flex flex-1 min-h-screen">
         {/* Sidebar */}
-        <aside className="w-72 border-r border-luxury-warm-grey/20 bg-white">
-          <div className="px-6 py-6 border-b border-luxury-warm-grey/20">
-            <div className="text-xs uppercase tracking-[0.2em] text-luxury-cool-grey font-extralight">
-              Tassel & Wicker
-            </div>
-            <div className="text-2xl uppercase tracking-wider font-extralight text-luxury-black">
-              Admin
-            </div>
+        <aside
+          className={`
+            ${isCollapsed ? 'w-20' : 'w-72'} 
+            transition-all duration-300 ease-in-out
+            border-r border-luxury-warm-grey/20 bg-white flex flex-col
+            fixed lg:static h-full z-20
+            ${isCollapsed ? '-translate-x-full lg:translate-x-0' : 'translate-x-0'}
+          `}
+        >
+          <div className="px-6 py-6 border-b border-luxury-warm-grey/20 h-24 flex flex-col justify-center overflow-hidden">
+            {!isCollapsed ? (
+              <>
+                <div className="text-xs uppercase tracking-[0.2em] text-luxury-cool-grey font-extralight whitespace-nowrap">
+                  Tassel & Wicker
+                </div>
+                <div className="text-2xl uppercase tracking-wider font-extralight text-luxury-black whitespace-nowrap">
+                  Admin
+                </div>
+              </>
+            ) : (
+              <div className="text-xl font-light tracking-tighter text-luxury-black text-center">
+                T&W
+              </div>
+            )}
           </div>
 
-          <nav className="p-4 space-y-1">
+          <nav className="p-4 space-y-2 flex-1">
             {navItems.map((item) => {
               const Icon = item.icon;
-              // Normalize pathname (remove trailing slash, query params)
               const normalizedPath = pathname?.split('?')[0].replace(/\/$/, '') || '';
               const normalizedHref = item.href.replace(/\/$/, '');
 
-              // For Overview (/admin), only match exact path
-              // For other items, match exact path or paths starting with item.href + '/'
               const active = normalizedHref === '/admin'
                 ? normalizedPath === normalizedHref
                 : normalizedPath === normalizedHref || normalizedPath?.startsWith(normalizedHref + '/');
@@ -108,48 +137,74 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 <Link
                   key={item.href}
                   href={item.href}
+                  title={isCollapsed ? item.label : ''}
                   className={
-                    `flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ` +
+                    `flex items-center ${isCollapsed ? 'justify-center' : 'gap-3 px-4'} py-3 rounded-lg transition-all duration-200 ` +
                     (active
                       ? 'bg-brand-purple text-luxury-white'
                       : 'text-luxury-black hover:bg-luxury-warm-grey/10')
                   }
                 >
-                  <Icon size={18} />
-                  <span className="font-extralight uppercase text-sm tracking-wide">
-                    {item.label}
-                  </span>
+                  <Icon size={20} className="shrink-0" />
+                  {!isCollapsed && (
+                    <span className="font-extralight uppercase text-sm tracking-wide whitespace-nowrap">
+                      {item.label}
+                    </span>
+                  )}
                 </Link>
               );
             })}
           </nav>
 
-          <div className="mt-auto p-4 border-t border-luxury-warm-grey/20">
-            <div className="px-2 py-2">
-              <div className="text-sm font-extralight text-luxury-black">{userDisplayName}</div>
-              <div className="text-xs font-extralight text-luxury-cool-grey uppercase tracking-wide">
-                {user.role}
+          <div className="mt-auto p-4 border-t border-luxury-warm-grey/20 overflow-hidden">
+            {!isCollapsed && (
+              <div className="px-2 py-2 mb-2">
+                <div className="text-sm font-extralight text-luxury-black truncate">{userDisplayName}</div>
+                <div className="text-xs font-extralight text-luxury-cool-grey uppercase tracking-wide truncate">
+                  {user.role}
+                </div>
               </div>
-            </div>
+            )}
             <button
               type="button"
               onClick={async () => {
                 await authService.logout();
                 router.replace('/');
               }}
-              className="w-full mt-2 flex items-center justify-center gap-2 px-4 py-3 border border-brand-purple text-brand-purple uppercase font-extralight hover:bg-brand-purple hover:text-luxury-white transition-colors duration-200"
+              className={`
+                w-full flex items-center justify-center gap-2 border border-brand-purple text-brand-purple 
+                uppercase font-extralight hover:bg-brand-purple hover:text-luxury-white 
+                transition-colors duration-200
+                ${isCollapsed ? 'aspect-square p-0' : 'px-4 py-3'}
+              `}
+              title={isCollapsed ? "Sign out" : ""}
             >
               <LuLogOut size={16} />
-              Sign out
+              {!isCollapsed && <span>Sign out</span>}
             </button>
           </div>
         </aside>
+
+        {/* Mobile Overlay */}
+        {!isCollapsed && (
+          <div
+            className="fixed inset-0 bg-black/20 backdrop-blur-sm z-10 lg:hidden"
+            onClick={() => setIsCollapsed(true)}
+          />
+        )}
 
         {/* Main */}
         <div className="flex-1 min-w-0">
           <header className="sticky top-0 z-10 bg-white/80 backdrop-blur-md border-b border-luxury-warm-grey/20">
             <div className="px-8 py-6 flex items-center justify-between">
-              <div>
+              <div className="flex items-center gap-4">
+                <button
+                  onClick={() => setIsCollapsed(!isCollapsed)}
+                  className="p-2 -ml-2 hover:bg-luxury-warm-grey/10 rounded-lg transition-colors text-luxury-black"
+                  aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+                >
+                  {isCollapsed ? <LuMenu size={24} /> : <LuChevronLeft size={24} />}
+                </button>
                 <div className="text-xs uppercase tracking-[0.2em] text-luxury-cool-grey font-extralight">
                   Dashboard
                 </div>

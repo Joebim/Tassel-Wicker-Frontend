@@ -6,6 +6,7 @@ import { LuChevronDown } from 'react-icons/lu';
 import ScrollTextAnimation from '@/components/common/ScrollTextAnimation';
 import CircularText from '@/components/common/CircularText';
 import RichTextRenderer from '@/components/common/RichTextRenderer';
+import DocumentViewerLink from '@/components/common/DocumentViewer';
 import { useContent } from '@/hooks/useContent';
 import { useWindowWidth } from '@/hooks/useWindowsWidth';
 
@@ -166,19 +167,7 @@ export default function TermsOfService() {
                     ) : (
                         <>
                             {documentUrl && (
-                                <div className="mb-8">
-                                    <p className="text-base text-luxury-black font-extralight mb-8">
-                                        Feel free to look through our Terms of Service{' '}
-                                        <a
-                                            href={documentUrl}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            className="underline hover:text-brand-purple transition-colors"
-                                        >
-                                            here
-                                        </a>.
-                                    </p>
-                                </div>
+                                <DocumentViewerLink title="Terms of Service Document" pageSlug="terms-of-service" />
                             )}
                             {content ? (
                                 <RichTextRenderer content={content} />

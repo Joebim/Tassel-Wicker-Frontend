@@ -1,10 +1,14 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import { LuPlus, LuPencil, LuTrash2 } from 'react-icons/lu';
+import Image from 'next/image';
+import { LuPlus, LuPencil, LuTrash2, LuImagePlus, LuX } from 'react-icons/lu';
 import { apiFetch } from '@/services/apiClient';
 import { useToastStore } from '@/store/toastStore';
 import { useAuthStore } from '@/store/authStore';
+import { useConfirmStore } from '@/store/confirmStore';
+import { MediaLibraryModal } from '@/components/admin/MediaLibraryModal';
+import type { UploadFile } from '@/types/upload';
 import type { ProductCategory } from '@/types/product';
 
 type CategoryInput = {
@@ -25,6 +29,7 @@ export default function AdminCategoriesPage() {
   const [saving, setSaving] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState<CategoryInput>(empty);
+  const [mediaModalOpen, setMediaModalOpen] = useState(false);
 
   const isEditing = !!editingId;
 
@@ -117,7 +122,13 @@ export default function AdminCategoriesPage() {
       return;
     }
 
-    const ok = window.confirm('Delete this category? This cannot be undone.');
+    const ok = await useConfirmStore.getState().confirm({
+      title: 'Delete Category',
+      message: 'Delete this category? This cannot be undone.',
+      confirmText: 'Delete',
+      cancelText: 'Cancel',
+      confirmVariant: 'danger',
+    });
     if (!ok) return;
 
     try {
@@ -269,12 +280,39 @@ export default function AdminCategoriesPage() {
 
             <div>
               <label className="block text-sm font-extralight text-luxury-black uppercase mb-2">Image URL (optional)</label>
-              <input
-                value={form.image}
-                onChange={(e) => setForm({ ...form, image: e.target.value })}
-                className="w-full px-4 py-3 border border-luxury-cool-grey bg-white text-luxury-black placeholder-luxury-cool-grey focus:outline-none focus:ring-2 focus:ring-brand-purple focus:border-transparent font-extralight"
-                placeholder="https://..."
-              />
+              <div className="flex gap-2">
+                <input
+                  value={form.image}
+                  onChange={(e) => setForm({ ...form, image: e.target.value })}
+                  className="flex-1 px-4 py-3 border border-luxury-cool-grey bg-white text-luxury-black placeholder-luxury-cool-grey focus:outline-none focus:ring-2 focus:ring-brand-purple focus:border-transparent font-extralight"
+                  placeholder="https://..."
+                />
+                <button
+                  type="button"
+                  onClick={() => setMediaModalOpen(true)}
+                  className="flex-none flex items-center justify-center px-4 py-3 border border-brand-purple text-brand-purple hover:bg-brand-purple hover:text-white transition-colors"
+                  title="Open Media Library"
+                >
+                  <LuImagePlus size={20} />
+                </button>
+              </div>
+              {form.image && (
+                <div className="mt-2 relative w-full h-32 border border-luxury-warm-grey/20 rounded-lg overflow-hidden bg-luxury-warm-grey/5">
+                  <Image
+                    src={form.image}
+                    alt="Category Preview"
+                    fill
+                    className="object-contain"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setForm({ ...form, image: '' })}
+                    className="absolute top-1 right-1 p-1 bg-white/80 hover:bg-white rounded-full text-red-500 shadow-sm transition-colors"
+                  >
+                    <LuX size={14} />
+                  </button>
+                </div>
+              )}
             </div>
 
             <div className="flex flex-col gap-3 pt-2">
@@ -302,6 +340,17 @@ export default function AdminCategoriesPage() {
           </div>
         </div>
       </div>
+      <MediaLibraryModal
+        isOpen={mediaModalOpen}
+        onClose={() => setMediaModalOpen(false)}
+        onSelect={(files) => {
+          if (files.length > 0) {
+            setForm((prev) => ({ ...prev, image: files[0].secure_url }));
+          }
+        }}
+        multiple={false}
+        uploadType="media"
+      />
     </div>
   );
 }

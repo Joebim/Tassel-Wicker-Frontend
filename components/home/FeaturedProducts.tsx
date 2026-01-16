@@ -95,7 +95,9 @@ const FeaturedProducts: React.FC = () => {
                         >
                             <div className="relative overflow-hidden">
                                 <img
-                                    src={product.images[0]}
+                                    src={typeof product.images[0] === 'string' 
+                                      ? product.images[0] 
+                                      : (product.images[0] as any)?.url || product.coverImage || ''}
                                     alt={product.name}
                                     className="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-300"
                                 />

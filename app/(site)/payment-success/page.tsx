@@ -11,13 +11,18 @@ import { LuCheck, LuArrowRight, LuShoppingBag } from 'react-icons/lu';
 import { useCartStore } from '@/store/cartStore';
 import { useToastStore } from '@/store/toastStore';
 import { usePaymentStore } from '@/store/paymentStore';
+import { useCurrencyStore } from '@/store/currencyStore';
 import { apiFetch } from '@/services/apiClient';
+import { loadStripe } from '@stripe/stripe-js';
+import { createOrderFromPayment } from '@/services/checkoutService';
+
+const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || '');
 
 
 function PaymentSuccessContent() {
     const searchParams = useSearchParams();
     const router = useRouter();
-    const { clearCart } = useCartStore();
+    const { clearCart, items: cartItems } = useCartStore();
     const {
         paymentIntentId,
         paymentIntentClientSecret,
@@ -26,8 +31,10 @@ function PaymentSuccessContent() {
         setPaymentIntent,
         clearPaymentIntent
     } = usePaymentStore();
+    const { currency } = useCurrencyStore();
     const [hasClearedCart, setHasClearedCart] = useState(false);
     const [emailSent, setEmailSent] = useState(false);
+    const [orderCreated, setOrderCreated] = useState(false);
     const [paymentIntent, setPaymentIntentState] = useState<string | null>(null);
     const [isStoreHydrated, setIsStoreHydrated] = useState(false);
     const [isProcessingEmail, setIsProcessingEmail] = useState(false);
@@ -244,7 +251,7 @@ function PaymentSuccessContent() {
             // Don't clear the ref - keep it set to prevent duplicate sends
             // The sessionStorage check will prevent duplicates on page refresh
         }
-    }, [paymentIntent, emailSent, hasClearedCart, clearCart, isProcessingEmail, storeCustomerEmail]);
+    }, [paymentIntent, emailSent, hasClearedCart, clearCart, isProcessingEmail, storeCustomerEmail, storeCustomerName]); // Added storeCustomerName to dependencies
 
     // Scroll to top when component mounts
     useEffect(() => {
@@ -253,19 +260,110 @@ function PaymentSuccessContent() {
         }
     }, []);
 
-    // Clear cart immediately when payment intent is confirmed (payment succeeded)
+    // Store cart items and create order before clearing cart
+    // ONLY if order wasn't already created in checkout page
     useEffect(() => {
-        if (!isStoreHydrated || !paymentIntent) {
+        if (!isStoreHydrated || !paymentIntent || orderCreated || hasClearedCart) {
             return;
         }
 
-        // Always clear cart when payment intent is present (payment succeeded)
-        if (!hasClearedCart) {
-            clearCart();
-            setHasClearedCart(true);
-            const cartState = useCartStore.getState();
+        const createOrder = async () => {
+            try {
+                // Check if order was already created in checkout page
+                const alreadyCreated = typeof window !== 'undefined'
+                    ? sessionStorage.getItem(`order_created_${paymentIntent}`) === 'true'
+                    : false;
+
+                if (alreadyCreated) {
+                    console.log('[PAYMENT-SUCCESS] Order already created in checkout page, skipping...');
+                    setOrderCreated(true);
+                    // Clean up shipping info from localStorage
+                    localStorage.removeItem('checkout_shipping_cost_gbp');
+                    localStorage.removeItem('checkout_shipping_method');
+                    return;
+                }
+
+                // Store cart items before clearing
+                const items = cartItems.length > 0 ? cartItems : useCartStore.getState().items;
+                if (items.length === 0) {
+                    console.log('[PAYMENT-SUCCESS] No cart items to create order');
+                    return;
+                }
+
+                // Get shipping info from localStorage (stored during checkout)
+                const shippingCostGBP = parseFloat(localStorage.getItem('checkout_shipping_cost_gbp') || '0');
+                const shippingMethod = localStorage.getItem('checkout_shipping_method') || 'standard';
+
+                console.log('[PAYMENT-SUCCESS] Creating order from payment intent (fallback)...', {
+                    paymentIntentId: paymentIntent.substring(0, 15) + '...',
+                    itemsCount: items.length,
+                    shippingCostGBP,
+                    shippingMethod,
+                });
+
+                if (!paymentIntentClientSecret) {
+                    console.log('[PAYMENT-SUCCESS] No client secret available to retrieve payment details');
+                    return;
+                }
+
+                const stripe = await stripePromise;
+                if (!stripe) return;
+
+                const { paymentIntent: pi } = await stripe.retrievePaymentIntent(paymentIntentClientSecret);
+
+                if (!pi) {
+                    console.error('[PAYMENT-SUCCESS] Failed to retrieve payment intent from Stripe');
+                    return;
+                }
+
+                // Create order via Service
+                const response = await createOrderFromPayment({
+                    paymentIntent: pi,
+                    cartItems: items,
+                    shippingCostGBP,
+                    shippingMethod,
+                });
+
+                console.log('[PAYMENT-SUCCESS] ✅ Order created successfully (fallback):', {
+                    orderId: response.item.id || 'unknown',
+                    orderNumber: response.item.orderNumber || 'unknown',
+                });
+
+                setOrderCreated(true);
+
+                // Mark order as created in sessionStorage
+                if (typeof window !== 'undefined') {
+                    sessionStorage.setItem(`order_created_${paymentIntent}`, 'true');
+                }
+
+                // Clean up shipping info from localStorage
+                localStorage.removeItem('checkout_shipping_cost_gbp');
+                localStorage.removeItem('checkout_shipping_method');
+            } catch (error) {
+                console.error('[PAYMENT-SUCCESS] ❌ Failed to create order:', error);
+                // Don't block cart clearing - order creation can be retried
+            }
+        };
+
+        createOrder();
+    }, [paymentIntent, isStoreHydrated, orderCreated, hasClearedCart, cartItems, currency, paymentIntentClientSecret]);
+
+    // Clear cart after order is created (or if order creation was skipped)
+    useEffect(() => {
+        if (!isStoreHydrated || !paymentIntent || hasClearedCart) {
+            return;
         }
-    }, [paymentIntent, isStoreHydrated, hasClearedCart, clearCart]);
+
+        // Wait a bit to ensure order creation has a chance to complete
+        const timer = setTimeout(() => {
+            if (!hasClearedCart) {
+                clearCart();
+                setHasClearedCart(true);
+            }
+        }, 1000);
+
+        return () => clearTimeout(timer);
+    }, [paymentIntent, isStoreHydrated, hasClearedCart, clearCart, orderCreated]);
 
     // Send order confirmation email when payment intent is available
     useEffect(() => {
