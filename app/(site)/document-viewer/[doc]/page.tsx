@@ -23,6 +23,7 @@ function DocumentViewerContent() {
 
   return (<div className="pt-20"><PDFViewer docName={docName} /></div>);
 }
+
 export default function DocumentViewer() {
   return (
     <Suspense
