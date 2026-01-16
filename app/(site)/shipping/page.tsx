@@ -10,7 +10,7 @@ import DocumentViewerLink from '@/components/common/DocumentViewer';
 import { useContent } from '@/hooks/useContent';
 
 export default function Shipping() {
-    const { data: contentData, isLoading, error } = useContent('shipping');
+    const { data: contentData, isLoading } = useContent('shipping');
     const content = contentData?.content || '';
     const documentUrl = contentData?.documentUrl || null;
 

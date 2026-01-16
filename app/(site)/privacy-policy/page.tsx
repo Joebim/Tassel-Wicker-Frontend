@@ -10,7 +10,7 @@ import DocumentViewerLink from '@/components/common/DocumentViewer';
 import { useContent } from '@/hooks/useContent';
 
 export default function PrivacyPolicy() {
-    const { data: contentData, isLoading, error } = useContent('privacy-policy');
+    const { data: contentData, isLoading } = useContent('privacy-policy');
     const content = contentData?.content || '';
     const documentUrl = contentData?.documentUrl || null;
 

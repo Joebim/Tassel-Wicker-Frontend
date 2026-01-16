@@ -10,7 +10,7 @@ import DocumentViewerLink from '@/components/common/DocumentViewer';
 import { useContent } from '@/hooks/useContent';
 
 export default function CookiePolicy() {
-    const { data: contentData, isLoading, error } = useContent('cookie-policy');
+    const { data: contentData, isLoading } = useContent('cookie-policy');
     const content = contentData?.content || '';
     const documentUrl = contentData?.documentUrl || null;
 

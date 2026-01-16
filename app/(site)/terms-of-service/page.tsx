@@ -12,7 +12,7 @@ import { useWindowWidth } from '@/hooks/useWindowsWidth';
 
 export default function TermsOfService() {
     const { isDesktop } = useWindowWidth();
-    const { data: contentData, isLoading, error } = useContent('terms-of-service');
+    const { data: contentData, isLoading } = useContent('terms-of-service');
     const content = contentData?.content || '';
     const documentUrl = contentData?.documentUrl || null;
 

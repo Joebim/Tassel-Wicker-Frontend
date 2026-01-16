@@ -10,7 +10,7 @@ import DocumentViewerLink from '@/components/common/DocumentViewer';
 import { useContent } from '@/hooks/useContent';
 
 export default function ReturnsExchanges() {
-    const { data: contentData, isLoading, error } = useContent('returns');
+    const { data: contentData, isLoading } = useContent('returns');
     const content = contentData?.content || '';
     const documentUrl = contentData?.documentUrl || null;
 

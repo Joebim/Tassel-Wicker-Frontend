@@ -49,11 +49,11 @@ export default function ContentManagement() {
       const res = await apiFetch<ContentData>(`/api/content/${selectedPage}`, { method: 'GET' });
       setContent(res.content || '');
       setDocumentUrl(res.documentUrl || '');
-    } catch (e) {
+    } catch (_e) {
       useToastStore.getState().addToast({
         type: 'error',
         title: 'Failed to load content',
-        message: e instanceof Error ? e.message : 'Could not load content.',
+        message: 'Could not load content.',
       });
     } finally {
       setLoading(false);
