@@ -448,9 +448,9 @@ export default function BuildYourBasket() {
                         <p className="text-xs uppercase tracking-[0.35em] text-brand-purple mb-6">
                             N:B Our wicker baskets are available exclusively as part of a personalised set and are not available for individual purchase.
                         </p>
-                        <p className="text-luxury-cool-grey font-extralight italic mb-10 max-w-2xl mx-auto">
+                        {/* <p className="text-luxury-cool-grey font-extralight italic mb-10 max-w-2xl mx-auto">
                             PRE-ORDER NOTE: Custom celebration baskets are available for pre-order. Orders placed on or after our launch date, December 15th, will begin shipping from January 15th, 2026. Thank you for your patience.
-                        </p>
+                        </p> */}
 
                         <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
                             {/* Natural Wicker Basket */}

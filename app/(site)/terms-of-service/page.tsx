@@ -13,7 +13,40 @@ import { useWindowWidth } from '@/hooks/useWindowsWidth';
 export default function TermsOfService() {
     const { isDesktop } = useWindowWidth();
     const { data: contentData, isLoading } = useContent('terms-of-service');
-    const content = contentData?.content || '';
+
+    // Parse content
+    const pageContent = (() => {
+        const defaultContent = {
+            headerImageDesktop: '/images/headers/terms-header-desktop.jpg',
+            headerImageMobile: '/images/headers/terms-header-mobile.jpg',
+            title1: 'TERMS',
+            title2: 'OF SERVICE',
+            body: ''
+        };
+
+        if (contentData?.content) {
+            try {
+                const parsed = JSON.parse(contentData.content);
+                // Check if it's our new structured format
+                if (typeof parsed === 'object' && parsed !== null) {
+                    return {
+                        headerImageDesktop: parsed.headerImageDesktop || defaultContent.headerImageDesktop,
+                        headerImageMobile: parsed.headerImageMobile || defaultContent.headerImageMobile,
+                        title1: parsed.title1 || defaultContent.title1,
+                        title2: parsed.title2 || defaultContent.title2,
+                        body: parsed.body || contentData.content
+                    };
+                }
+            } catch {
+                return {
+                    ...defaultContent,
+                    body: contentData.content
+                };
+            }
+        }
+        return defaultContent;
+    })();
+
     const documentUrl = contentData?.documentUrl || null;
 
     useEffect(() => {
@@ -24,8 +57,8 @@ export default function TermsOfService() {
 
     // Set image source based on screen size
     const heroImageSrc = isDesktop
-        ? '/images/headers/terms-header-desktop.jpg'
-        : '/images/headers/terms-header-mobile.jpg';
+        ? pageContent.headerImageDesktop
+        : pageContent.headerImageMobile;
 
     const sections = [
         {
@@ -121,14 +154,14 @@ export default function TermsOfService() {
                                 delay={0.2}
                                 duration={1.2}
                             >
-                                TERMS
+                                {pageContent.title1}
                             </ScrollTextAnimation>
                             <ScrollTextAnimation
                                 className="text-[39px] sm:text-5xl lg:text-[100px] font-extralight tracking-wide uppercase leading-none"
                                 delay={0.2}
                                 duration={1.2}
                             >
-                                OF SERVICE
+                                {pageContent.title2}
                             </ScrollTextAnimation>
                         </div>
                         <div className="relative flex justify-center lg:justify-end">
@@ -169,8 +202,8 @@ export default function TermsOfService() {
                             {documentUrl && (
                                 <DocumentViewerLink title="Terms of Service Document" pageSlug="terms-of-service" />
                             )}
-                            {content ? (
-                                <RichTextRenderer content={content} />
+                            {pageContent.body ? (
+                                <RichTextRenderer content={pageContent.body} />
                             ) : (
                                 // Fallback to original content structure if API fails
                                 <div className="prose prose-lg max-w-none text-luxury-black leading-relaxed space-y-8">

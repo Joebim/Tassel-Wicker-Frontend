@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import { LuFilter, LuGrip, LuList, LuChevronDown } from 'react-icons/lu';
 import LuxuryFilter from '@/components/shop/LuxuryFilter';
@@ -11,10 +11,13 @@ import ScrollTextAnimation from '@/components/common/ScrollTextAnimation';
 import ScrollVelocity from '@/components/common/ScrollVelocity';
 import type { ShopProduct } from '@/types/productData';
 import { useWindowWidth } from '@/hooks/useWindowsWidth';
-import { backendProducts } from '@/services/backend';
+import { backendProducts, backendCategories } from '@/services/backend';
 import { toShopProduct } from '@/utils/backendProductMapper';
 import { useToastStore } from '@/store/toastStore';
 import { ProductGridSkeleton } from '@/components/common/SkeletonLoader';
+import type { ListProductsParams } from '@/services/backend/products';
+import { apiFetch } from '@/services/apiClient';
+import RichTextRenderer from '@/components/common/RichTextRenderer';
 
 export default function Shop() {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
@@ -24,6 +27,37 @@ export default function Shop() {
   const { isDesktop } = useWindowWidth();
   const [isLoadingProducts, setIsLoadingProducts] = useState(true);
   const [products, setProducts] = useState<ShopProduct[]>([]);
+  const [categories, setCategories] = useState<string[]>(['All']);
+  const [pageContent, setPageContent] = useState({
+    headerImage: '/images/headers/shop-header.jpg',
+    introText: 'OUR PRODUCTS',
+    secondaryIntroTextMobile: 'The Tassel & Wicker signature baskets are inspired by the friendships and relationships that sustain us. We believe that when we give thoughtfully, we communicate presence, intention, and appreciation in ways words alone cannot.',
+    secondaryIntroTextDesktop: 'The Tassel & Wicker signature baskets are inspired by the friendships and relationships that sustain us. We believe that when we give thoughtfully, we communicate presence, intention, and appreciation in ways words alone cannot.',
+    scrollVelocityText: 'SHOP NOW • SHOP NOW • SHOP NOW • '
+  });
+
+  // Fetch page content
+  useEffect(() => {
+    const fetchContent = async () => {
+      try {
+        const res = await apiFetch<{ content: string }>('/api/content/shop');
+        if (res.content) {
+          const parsed = JSON.parse(res.content);
+          setPageContent(prev => ({
+            ...prev,
+            headerImage: parsed.headerImage || prev.headerImage,
+            introText: parsed.introText || prev.introText,
+            secondaryIntroTextMobile: parsed.secondaryIntroTextMobile || prev.secondaryIntroTextMobile,
+            secondaryIntroTextDesktop: parsed.secondaryIntroTextDesktop || prev.secondaryIntroTextDesktop,
+            scrollVelocityText: parsed.scrollVelocityText || prev.scrollVelocityText
+          }));
+        }
+      } catch (error) {
+        console.error('Failed to load page content', error);
+      }
+    };
+    fetchContent();
+  }, []);
 
   const handleAddToCart = (product: ShopProduct) => {
     const price = product.price ?? 0;
@@ -47,13 +81,61 @@ export default function Shop() {
     });
   };
 
+  // Fetch categories
+  useEffect(() => {
+    const loadCategories = async () => {
+      try {
+        const res = await backendCategories.listCategories();
+        if (res.items) {
+          const categoryNames = res.items.map(c => c.name).sort();
+          setCategories(['All', ...categoryNames]);
+        }
+      } catch (error) {
+        console.error('Failed to load categories', error);
+      }
+    };
+    loadCategories();
+  }, []);
+
+  // Fetch products when filters change
   useEffect(() => {
     let alive = true;
     const load = async () => {
       try {
         setIsLoadingProducts(true);
-        // Pull main products for the shop experience (baskets, custom, standalone mains)
-        const res = await backendProducts.listProducts({ page: 1, limit: 200, role: 'main' });
+
+        // Map filter state to API parameters
+        const params: ListProductsParams = {
+          page: 1,
+          limit: 200,
+          role: 'main' // Only fetch main products
+        };
+
+        // Category Filter
+        if (filters.category && filters.category !== 'All') {
+          params.category = filters.category;
+        }
+
+        // Price Filter
+        if (filters.price && filters.price !== 'All') {
+          switch (filters.price) {
+            case 'Free':
+              params.maxPrice = 0;
+              break;
+            case 'Under £200':
+              params.maxPrice = 200;
+              break;
+            case '£200 - £500':
+              params.minPrice = 200;
+              params.maxPrice = 500;
+              break;
+            case 'Over £500':
+              params.minPrice = 500;
+              break;
+          }
+        }
+
+        const res = await backendProducts.listProducts(params);
         if (!alive) return;
         setProducts((res.items || []).map((p) => toShopProduct(p)));
       } catch (e) {
@@ -62,56 +144,26 @@ export default function Shop() {
           title: 'Failed to load products',
           message: e instanceof Error ? e.message : 'Could not load products.',
         });
+        setProducts([]);
       } finally {
         if (alive) setIsLoadingProducts(false);
       }
     };
+
     load();
     return () => {
       alive = false;
     };
-  }, []);
+  }, [filters]);
 
-  const derivedCategories = ['All', ...Array.from(new Set(products.map(p => p.category)))];
-
-  const filteredProducts = useMemo(() => {
-    let filtered = products;
-    if (filters.category && filters.category !== 'All') {
-      filtered = filtered.filter(p => p.category === filters.category);
-    }
-
-    if (filters.price) {
-      filtered = filtered.filter((p) => {
-        const price = p.price ?? 0;
-        switch (filters.price) {
-          case 'Free':
-            if (price !== 0) return false;
-            break;
-          case 'Under $200':
-            if (!(price > 0 && price < 200)) return false;
-            break;
-          case '$200 - $500':
-            if (!(price >= 200 && price <= 500)) return false;
-            break;
-          case 'Over $500':
-            if (!(price > 500)) return false;
-            break;
-          default:
-            break;
-        }
-        return true;
-      });
-    }
-
-    return filtered;
-  }, [products, filters]);
+  const filteredProducts = products; // Direct assignment since we filter server-side now
 
   return (
     <div className="min-h-screen bg-white">
       <div className="relative h-screen w-full overflow-hidden bg-black">
         <div className="absolute inset-0 z-0">
           <Image
-            src="/images/headers/shop-header.jpg"
+            src={pageContent.headerImage}
             alt="Shop Header"
             fill
             className="object-cover"
@@ -137,14 +189,7 @@ export default function Shop() {
                 delay={0.2}
                 duration={1.2}
               >
-                OUR
-              </ScrollTextAnimation>
-              <ScrollTextAnimation
-                className="text-[39px] sm:text-5xl lg:text-[110px] font-extralight tracking-wide uppercase leading-none"
-                delay={0.2}
-                duration={1.2}
-              >
-                PRODUCTS
+                {pageContent.introText}
               </ScrollTextAnimation>
             </div>
             <div className="relative flex justify-center lg:justify-end">
@@ -155,7 +200,7 @@ export default function Shop() {
                 aria-label="Shop Now"
               >
                 <CircularText
-                  text="SHOP NOW • SHOP NOW • SHOP NOW • "
+                  text={pageContent.scrollVelocityText}
                   spinDuration={15}
                   onHover="speedUp"
                   className="w-[70px] h-[70px] text-[11px] leading-0.5 sm:w-[120px] sm:h-[120px] sm:text-[12px]"
@@ -179,16 +224,16 @@ export default function Shop() {
 
         {/* Mobile view - without line breaks, percentage width */}
         <div className="lg:hidden w-[88%] mx-auto">
-          <p className="text-[16px] sm:text-lg text-luxury-black font-extralight text-center">
-            The Tassel &amp; Wicker signature baskets are inspired by the friendships and relationships that sustain us. We believe that when we give thoughtfully, we communicate presence, intention, and appreciation in ways words alone cannot.
-          </p>
+          <div className="text-[16px] sm:text-lg text-luxury-black font-extralight text-center">
+            <RichTextRenderer content={pageContent.secondaryIntroTextMobile} />
+          </div>
         </div>
 
         {/* Desktop view - plain text, two separate paragraphs, percentage width, centered */}
         <div className="hidden lg:flex flex-col items-center justify-center w-[75%] mx-auto">
-          <p className="text-lg text-luxury-black font-extralight text-center mb-4">
-            The Tassel &amp; Wicker signature baskets are inspired by the friendships and relationships that sustain us. We believe that when we give thoughtfully, we communicate presence, intention, and appreciation in ways words alone cannot.
-          </p>
+          <div className="text-lg text-luxury-black font-extralight text-center mb-4">
+            <RichTextRenderer content={pageContent.secondaryIntroTextDesktop} />
+          </div>
         </div>
       </div>
 
@@ -208,7 +253,7 @@ export default function Shop() {
                 isOpen={isFilterOpen}
                 onClose={() => setIsFilterOpen(false)}
                 onFilterChange={(f) => { setFilters(f); }}
-                categories={derivedCategories}
+                categories={categories}
                 currentFilters={filters}
               />
             </div>

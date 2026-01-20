@@ -101,7 +101,11 @@ const ScrollTextAnimation = ({
                     ease: [0.25, 0.1, 0.25, 1]
                 } : { duration: 0, delay: 0 }}
             >
-                {children}
+                {typeof children === 'string' && /<[^>]+>/.test(children) ? (
+                    <span dangerouslySetInnerHTML={{ __html: children }} />
+                ) : (
+                    children
+                )}
             </motion.div>
         </div>
     );

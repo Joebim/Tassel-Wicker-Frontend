@@ -152,7 +152,7 @@ export default function About() {
     ourStoryImage: '/images/about/stacked-baskets.jpg',
     signature: 'Dee',
     signatureTitle: 'Founder, Tassel & Wicker',
-    builtForTitle: 'IT\'S THE THOUGHT GIFT THAT COUNTS',
+    builtForTitle: "IT'S THE <s>THOUGHT</s> GIFT THAT COUNTS",
     builtForVideos: ['/videos/VIDEO 1.mp4', '/videos/VIDEO 2.mp4', '/videos/VIDEO 3.mp4', '/videos/VIDEO 4.mp4'],
   };
 

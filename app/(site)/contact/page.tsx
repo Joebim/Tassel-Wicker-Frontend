@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { useToastStore } from '@/store/toastStore';
 import ScrollTextAnimation from '@/components/common/ScrollTextAnimation';
@@ -14,6 +14,31 @@ export default function Contact() {
     });
     const [isSubmitting, setIsSubmitting] = useState(false);
     const { addToast } = useToastStore();
+    const [pageContent, setPageContent] = useState({
+        headerImage: '/images/headers/contact-header.jpg',
+        title: 'CONTACT US',
+        subTitle: 'WE\'D LOVE TO HEAR FROM YOU'
+    });
+
+    useEffect(() => {
+        const fetchContent = async () => {
+            try {
+                const res = await apiFetch<{ content: string }>('/api/content/contact');
+                if (res.content) {
+                    const parsed = JSON.parse(res.content);
+                    setPageContent(prev => ({
+                        ...prev,
+                        headerImage: parsed.headerImage || prev.headerImage,
+                        title: parsed.title || prev.title,
+                        subTitle: parsed.subTitle || prev.subTitle
+                    }));
+                }
+            } catch (error) {
+                console.error('Failed to load page content', error);
+            }
+        };
+        fetchContent();
+    }, []);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -65,7 +90,7 @@ export default function Contact() {
             {/* Background Image */}
             <div className="absolute inset-0 z-0">
                 <Image
-                    src="/images/headers/contact-header.jpg"
+                    src={pageContent.headerImage}
                     alt="Contact Background"
                     fill
                     className="object-cover"
@@ -90,10 +115,10 @@ export default function Contact() {
                     {/* Header */}
                     <div className="flex flex-col items-center justify-center text-center mb-14 mt-25">
                         <ScrollTextAnimation className="text-white text-[36px] md:text-6xl font-extralight uppercase tracking-wide mb-4" delay={0.2} duration={1.2}>
-                            CONTACT US
+                            {pageContent.title}
                         </ScrollTextAnimation>
                         <p className="text-white/80 text-sm md:text-base font-extralight uppercase tracking-wide">
-                            WE&apos;D LOVE TO HEAR FROM YOU
+                            {pageContent.subTitle}
                         </p>
                     </div>
 

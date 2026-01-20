@@ -1,27 +1,39 @@
 'use client';
 
-import { useState, useMemo, useEffect, useCallback, Suspense } from 'react';
+import { useState, useEffect, useCallback, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { LuSearch, LuArrowLeft, LuX, LuFilter } from 'react-icons/lu';
 import LuxuryProductCard from '@/components/shop/LuxuryProductCard';
 import { useCartStore } from '@/store/cartStore';
 import { getDefaultImage, getDefaultPrice } from '@/utils/productHelpers';
 import type { ProductDataItem } from '@/types/productData';
-import { backendProducts } from '@/services/backend';
+import { backendProducts, backendCategories } from '@/services/backend';
 import { toProductDataItem } from '@/utils/backendProductMapper';
 import { useToastStore } from '@/store/toastStore';
 import { ProductGridSkeleton } from '@/components/common/SkeletonLoader';
+import type { ListProductsParams } from '@/services/backend/products';
+
+const priceRanges = ['All', 'Free', 'Under £200', '£200 - £500', 'Over £500'];
 
 function SearchContent() {
     const searchParams = useSearchParams();
     const router = useRouter();
     const [searchTerm, setSearchTerm] = useState(() => searchParams.get('search') || '');
     const [selectedCategory, setSelectedCategory] = useState<string>(() => searchParams.get('category') || 'All');
-    const [selectedPrice, setSelectedPrice] = useState<string>('All');
+    const [selectedPrice, setSelectedPrice] = useState<string>(() => {
+        // Try to reconstruct price string from URL params if possible, or default to All
+        // This is a simplification; ideally we'd parse min/max back to string or separate them.
+        // For this implementation, we will sync local state to URL conceptually but here we initialize simpler.
+        return 'All';
+    });
+
+    // We will parse URL params directly in the effect or use local state as source of truth.
+    // Let's use local state as the driver for UI, and sync to URL.
+
     const { addItem } = useCartStore();
 
     const updateQueryParams = useCallback(
-        (nextSearch: string, nextCategory: string) => {
+        (nextSearch: string, nextCategory: string, nextPrice: string) => {
             const params = new URLSearchParams();
             const trimmed = nextSearch.trim();
             if (trimmed) {
@@ -29,6 +41,9 @@ function SearchContent() {
             }
             if (nextCategory !== 'All') {
                 params.set('category', nextCategory);
+            }
+            if (nextPrice !== 'All') {
+                params.set('price', nextPrice);
             }
             const queryString = params.toString();
             router.push(queryString ? `/search?${queryString}` : '/search');
@@ -38,13 +53,57 @@ function SearchContent() {
 
     const [combinedProducts, setCombinedProducts] = useState<Array<ProductDataItem>>([]);
     const [isLoadingProducts, setIsLoadingProducts] = useState(true);
+    const [categories, setCategories] = useState<string[]>(['All']);
+
+    useEffect(() => {
+        const loadCategories = async () => {
+            try {
+                const res = await backendCategories.listCategories();
+                if (res.items) {
+                    const categoryNames = res.items.map(c => c.name).sort();
+                    setCategories(['All', ...categoryNames]);
+                }
+            } catch (error) {
+                console.error('Failed to load categories', error);
+            }
+        };
+        loadCategories();
+    }, []);
+
+    const getPriceParams = (priceRange: string) => {
+        switch (priceRange) {
+            case 'Free': return { maxPrice: 0 };
+            case 'Under £200': return { maxPrice: 200 };
+            // Handle both $ and £ for robustness if user didn't update everything
+            case 'Under $200': return { maxPrice: 200 };
+            case '£200 - £500': return { minPrice: 200, maxPrice: 500 };
+            case '$200 - $500': return { minPrice: 200, maxPrice: 500 };
+            case 'Over £500': return { minPrice: 500 };
+            case 'Over $500': return { minPrice: 500 };
+            default: return {};
+        }
+    };
 
     useEffect(() => {
         let alive = true;
         const load = async () => {
             try {
                 setIsLoadingProducts(true);
-                const res = await backendProducts.listProducts({ page: 1, limit: 500 });
+
+                const priceParams = getPriceParams(selectedPrice);
+                const queryParams: ListProductsParams = {
+                    page: 1,
+                    limit: 500,
+                    search: searchTerm,
+                    ...priceParams
+                };
+
+                if (selectedCategory !== 'All') {
+                    queryParams.category = selectedCategory;
+                }
+
+                const res = await backendProducts.listProducts(queryParams);
+
                 if (!alive) return;
                 // Map backend products into the UI product shape used across the shop/search pages.
                 setCombinedProducts((res.items || []).map((p) => toProductDataItem(p)));
@@ -54,88 +113,52 @@ function SearchContent() {
                     title: 'Failed to load products',
                     message: e instanceof Error ? e.message : 'Could not load products.',
                 });
+                setCombinedProducts([]);
             } finally {
                 if (alive) setIsLoadingProducts(false);
             }
         };
-        load();
-        return () => { alive = false; };
-    }, []);
+        // Debounce search slightly to avoid too many requests? 
+        // For now, simpler to just run on dependency change.
+        const timer = setTimeout(load, 300);
+        return () => {
+            alive = false;
+            clearTimeout(timer);
+        };
+    }, [searchTerm, selectedCategory, selectedPrice]);
 
-    // Get unique categories
-    const categories = useMemo(() => {
-        const uniqueCategories = Array.from(new Set(combinedProducts.map(p => p.category)));
-        return ['All', ...uniqueCategories];
-    }, [combinedProducts]);
+    // Products are now already filtered from backend
+    const filteredProducts = combinedProducts;
 
-    const priceRanges = ['All', 'Free', 'Under $200', '$200 - $500', 'Over $500'];
-
-    // Filter products based on search term and filters
-    const filteredProducts = useMemo(() => {
-        let filtered = combinedProducts;
-
-        // Apply search term filter
-        if (searchTerm.trim()) {
-            const term = searchTerm.toLowerCase().trim();
-            filtered = filtered.filter((product) => {
-                const matchesName = product.name.toLowerCase().includes(term);
-                const matchesDescription = product.description?.toLowerCase().includes(term);
-                const matchesCategory = product.category?.toLowerCase().includes(term);
-                return matchesName || matchesDescription || matchesCategory;
-            });
-        }
-
-        // Apply category filter
-        if (selectedCategory !== 'All') {
-            filtered = filtered.filter((product) => product.category === selectedCategory);
-        }
-
-        // Apply price filter
-        if (selectedPrice !== 'All') {
-            filtered = filtered.filter((product) => {
-                const price = 'variants' in product && product.variants && product.variants.length > 0
-                    ? getDefaultPrice(product as ProductDataItem)
-                    : product.price ?? 0;
-                switch (selectedPrice) {
-                    case 'Free':
-                        return price === 0;
-                    case 'Under $200':
-                        return price > 0 && price < 200;
-                    case '$200 - $500':
-                        return price >= 200 && price <= 500;
-                    case 'Over $500':
-                        return price > 500;
-                    default:
-                        return true;
-                }
-            });
-        }
-
-        return filtered;
-    }, [combinedProducts, searchTerm, selectedCategory, selectedPrice]);
-
-    // Keep local state in sync with URL params when navigation occurs
+    // Keep local state in sync with URL params when navigation occurs (back/forward)
     useEffect(() => {
         setSearchTerm(searchParams.get('search') || '');
-    }, [searchParams]);
+        const urlPrice = searchParams.get('price');
+        if (urlPrice && priceRanges.includes(urlPrice)) {
+            setSelectedPrice(urlPrice);
+        } else {
+            setSelectedPrice('All');
+        }
+    }, [searchParams]); // removed categories dependency to avoid loop
 
     useEffect(() => {
         const urlCategory = searchParams.get('category');
-        if (urlCategory && categories.includes(urlCategory)) {
+        // We accept the URL category even if not in the current 'derived' list to allow loading initial state correctly
+        if (urlCategory) {
             setSelectedCategory(urlCategory);
-        } else if (!urlCategory) {
+        } else {
             setSelectedCategory('All');
         }
-    }, [searchParams, categories]);
+    }, [searchParams]);
 
     const handleSearch = (e: React.FormEvent) => {
         e.preventDefault();
-        updateQueryParams(searchTerm, selectedCategory);
+        updateQueryParams(searchTerm, selectedCategory, selectedPrice);
     };
 
     const handleClearSearch = () => {
         setSearchTerm('');
-        updateQueryParams('', selectedCategory);
+        updateQueryParams('', selectedCategory, selectedPrice);
     };
 
     const handleAddToCart = (product: ProductDataItem) => {
@@ -158,7 +181,7 @@ function SearchContent() {
     const handleClearFilters = () => {
         setSelectedCategory('All');
         setSelectedPrice('All');
-        updateQueryParams(searchTerm, 'All');
+        updateQueryParams(searchTerm, 'All', 'All');
     };
 
     const hasActiveFilters = selectedCategory !== 'All' || selectedPrice !== 'All';
@@ -243,7 +266,7 @@ function SearchContent() {
                                             key={category}
                                             onClick={() => {
                                                 setSelectedCategory(category);
-                                                updateQueryParams(searchTerm, category);
+                                                updateQueryParams(searchTerm, category, selectedPrice);
                                             }}
                                             className={`w-full px-4 py-2 text-sm rounded-lg transition-all duration-200 text-left font-extralight uppercase ${selectedCategory === category
                                                 ? 'bg-brand-purple text-luxury-white'
@@ -265,7 +288,10 @@ function SearchContent() {
                                     {priceRanges.map((range) => (
                                         <button
                                             key={range}
-                                            onClick={() => setSelectedPrice(range)}
+                                            onClick={() => {
+                                                setSelectedPrice(range);
+                                                updateQueryParams(searchTerm, selectedCategory, range);
+                                            }}
                                             className={`w-full px-4 py-2 text-sm rounded-lg transition-all duration-200 text-left font-extralight uppercase ${selectedPrice === range
                                                 ? 'bg-brand-purple text-luxury-white'
                                                 : 'bg-luxury-warm-grey/10 text-luxury-charcoal hover:bg-luxury-warm-grey/20'

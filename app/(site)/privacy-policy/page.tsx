@@ -11,7 +11,39 @@ import { useContent } from '@/hooks/useContent';
 
 export default function PrivacyPolicy() {
     const { data: contentData, isLoading } = useContent('privacy-policy');
-    const content = contentData?.content || '';
+
+    // Parse content
+    const pageContent = (() => {
+        const defaultContent = {
+            headerImage: '/images/headers/privacy-policy-header.jpg',
+            title1: 'PRIVACY',
+            title2: 'POLICY',
+            body: ''
+        };
+
+        if (contentData?.content) {
+            try {
+                const parsed = JSON.parse(contentData.content);
+                // Check if it's our new structured format
+                if (typeof parsed === 'object' && parsed !== null) {
+                    return {
+                        headerImage: parsed.headerImage || defaultContent.headerImage,
+                        title1: parsed.title1 || defaultContent.title1,
+                        title2: parsed.title2 || defaultContent.title2,
+                        body: parsed.body || contentData.content // fallback to raw if body missing but valid json? unlikely but safe
+                    };
+                }
+            } catch {
+                // Not JSON, treat as body content
+                return {
+                    ...defaultContent,
+                    body: contentData.content
+                };
+            }
+        }
+        return defaultContent;
+    })();
+
     const documentUrl = contentData?.documentUrl || null;
 
     useEffect(() => {
@@ -112,7 +144,7 @@ export default function PrivacyPolicy() {
             <section className="relative h-screen w-full overflow-hidden bg-black">
                 <div className="absolute inset-0 z-0">
                     <Image
-                        src="/images/headers/privacy-policy-header.jpg"
+                        src={pageContent.headerImage}
                         alt="Privacy Policy"
                         fill
                         className="object-cover"
@@ -137,14 +169,14 @@ export default function PrivacyPolicy() {
                                 delay={0.2}
                                 duration={1.2}
                             >
-                                PRIVACY
+                                {pageContent.title1}
                             </ScrollTextAnimation>
                             <ScrollTextAnimation
                                 className="text-[39px] sm:text-5xl lg:text-[110px] font-extralight tracking-wide uppercase leading-none"
                                 delay={0.2}
                                 duration={1.2}
                             >
-                                POLICY
+                                {pageContent.title2}
                             </ScrollTextAnimation>
                         </div>
                         <div className="relative flex justify-center lg:justify-end">
@@ -185,8 +217,8 @@ export default function PrivacyPolicy() {
                             {documentUrl && (
                                 <DocumentViewerLink title="Privacy Policy Document" pageSlug="privacy-policy" />
                             )}
-                            {content ? (
-                                <RichTextRenderer content={content} />
+                            {pageContent.body ? (
+                                <RichTextRenderer content={pageContent.body} />
                             ) : (
                                 // Fallback to original content structure if API fails
                                 <div className="prose prose-lg max-w-none text-luxury-black leading-relaxed space-y-8">

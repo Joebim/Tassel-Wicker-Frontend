@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React from 'react';
 import { LuX, LuFilter } from 'react-icons/lu';
 
 interface FilterState {
@@ -21,42 +21,26 @@ const LuxuryFilter: React.FC<LuxuryFilterProps> = ({
     categories = ['All'],
     currentFilters = {}
 }) => {
-    const [selectedCategory, setSelectedCategory] = useState<string>(() => currentFilters.category || 'All');
-    const [selectedPrice, setSelectedPrice] = useState<string>(() => currentFilters.price || 'All');
+    const category = currentFilters.category || 'All';
+    const price = currentFilters.price || 'All';
 
-    const priceRanges = ['All', 'Free', 'Under $200', '$200 - $500', 'Over $500'];
+    const priceRanges = ['All', 'Free', 'Under £200', '£200 - £500', 'Over £500'];
 
-    // Update local state when currentFilters change - using ref to track previous values
-    const prevFiltersRef = useRef(currentFilters);
-    useEffect(() => {
-        if (prevFiltersRef.current.category !== currentFilters.category) {
-            setSelectedCategory(currentFilters.category || 'All');
-        }
-        if (prevFiltersRef.current.price !== currentFilters.price) {
-            setSelectedPrice(currentFilters.price || 'All');
-        }
-        prevFiltersRef.current = currentFilters;
-    }, [currentFilters]);
-
-    const handleCategorySelect = (category: string) => {
-        setSelectedCategory(category);
+    const handleCategorySelect = (newCategory: string) => {
         onFilterChange({
-            category: category === 'All' ? undefined : category,
-            price: selectedPrice === 'All' ? undefined : selectedPrice
-        });
-    };
-
-    const handlePriceSelect = (price: string) => {
-        setSelectedPrice(price);
-        onFilterChange({
-            category: selectedCategory === 'All' ? undefined : selectedCategory,
+            category: newCategory === 'All' ? undefined : newCategory,
             price: price === 'All' ? undefined : price
         });
     };
 
+    const handlePriceSelect = (newPrice: string) => {
+        onFilterChange({
+            category: category === 'All' ? undefined : category,
+            price: newPrice === 'All' ? undefined : newPrice
+        });
+    };
+
     const handleClearFilters = () => {
-        setSelectedCategory('All');
-        setSelectedPrice('All');
         onFilterChange({});
     };
 
@@ -83,16 +67,16 @@ const LuxuryFilter: React.FC<LuxuryFilterProps> = ({
                         Category
                     </label>
                     <div className="space-y-2">
-                        {categories.map((category) => (
+                        {categories.map((cat) => (
                             <button
-                                key={category}
-                                onClick={() => handleCategorySelect(category)}
-                                className={`w-full px-4 py-2 text-sm rounded-lg transition-all duration-200 text-left font-extralight uppercase ${selectedCategory === category
+                                key={cat}
+                                onClick={() => handleCategorySelect(cat)}
+                                className={`w-full px-4 py-2 text-sm rounded-lg transition-all duration-200 text-left font-extralight uppercase ${category === cat
                                     ? 'bg-brand-purple text-luxury-white'
                                     : 'bg-luxury-warm-grey/10 text-luxury-charcoal hover:bg-luxury-warm-grey/20'
                                     }`}
                             >
-                                {category}
+                                {cat}
                             </button>
                         ))}
                     </div>
@@ -108,7 +92,7 @@ const LuxuryFilter: React.FC<LuxuryFilterProps> = ({
                             <button
                                 key={range}
                                 onClick={() => handlePriceSelect(range)}
-                                className={`w-full px-4 py-2 text-sm rounded-lg transition-all duration-200 text-left font-extralight uppercase ${selectedPrice === range
+                                className={`w-full px-4 py-2 text-sm rounded-lg transition-all duration-200 text-left font-extralight uppercase ${price === range
                                     ? 'bg-brand-purple text-luxury-white'
                                     : 'bg-luxury-warm-grey/10 text-luxury-charcoal hover:bg-luxury-warm-grey/20'
                                     }`}
@@ -120,7 +104,7 @@ const LuxuryFilter: React.FC<LuxuryFilterProps> = ({
                 </div>
 
                 {/* Clear Filters Button */}
-                {(selectedCategory !== 'All' || selectedPrice !== 'All') && (
+                {(category !== 'All' || price !== 'All') && (
                     <div className="mt-6 pt-6 border-t border-luxury-warm-grey/20">
                         <button
                             onClick={handleClearFilters}

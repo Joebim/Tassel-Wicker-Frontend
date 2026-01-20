@@ -9,6 +9,7 @@ import { LuChevronDown } from 'react-icons/lu';
 import { contactService } from '@/services/contactService';
 import { useToastStore } from '@/store/toastStore';
 import { useWindowWidth } from '@/hooks/useWindowsWidth';
+import { apiFetch } from '@/services/apiClient';
 
 export default function CorporateBespoke() {
     const { isDesktop } = useWindowWidth();
@@ -20,10 +21,37 @@ export default function CorporateBespoke() {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const { addToast } = useToastStore();
 
+    const [pageContent, setPageContent] = useState({
+        headerImageDesktop: '/images/headers/corporate-bespoke-header.jpg',
+        headerImageMobile: '/images/headers/corporate-bespoke-header-mobile.jpg',
+        descriptionText: 'Transform ordinary gestures into memorable experiences with our corporate and bespoke collection. To explore this offering, get in touch with us by filling the form below.'
+    });
+
+    // Fetch page content
+    useEffect(() => {
+        const fetchContent = async () => {
+            try {
+                const res = await apiFetch<{ content: string }>('/api/content/corporate-bespoke');
+                if (res.content) {
+                    const parsed = JSON.parse(res.content);
+                    setPageContent(prev => ({
+                        ...prev,
+                        headerImageDesktop: parsed.headerImageDesktop || prev.headerImageDesktop,
+                        headerImageMobile: parsed.headerImageMobile || prev.headerImageMobile,
+                        descriptionText: parsed.descriptionText || prev.descriptionText
+                    }));
+                }
+            } catch (error) {
+                console.error('Failed to load page content', error);
+            }
+        };
+        fetchContent();
+    }, []);
+
     // Set image source based on screen size
     const heroImageSrc = isDesktop
-        ? '/images/headers/corporate-bespoke-header.jpg'
-        : '/images/headers/corporate-bespoke-header-mobile.jpg';
+        ? pageContent.headerImageDesktop
+        : pageContent.headerImageMobile;
 
     useEffect(() => {
         if (typeof window !== 'undefined') {
@@ -101,12 +129,12 @@ export default function CorporateBespoke() {
                         priority
                         sizes="100vw"
                         onError={(e) => {
-                          const target = e.target as HTMLImageElement;
-                          if (target.src && !target.src.includes('retry')) {
-                            setTimeout(() => {
-                              target.src = `${target.src}${target.src.includes('?') ? '&' : '?'}retry=${Date.now()}`;
-                            }, 1000);
-                          }
+                            const target = e.target as HTMLImageElement;
+                            if (target.src && !target.src.includes('retry')) {
+                                setTimeout(() => {
+                                    target.src = `${target.src}${target.src.includes('?') ? '&' : '?'}retry=${Date.now()}`;
+                                }, 1000);
+                            }
                         }}
                     />
                     <div className="absolute inset-0 bg-black opacity-50"></div>
@@ -167,8 +195,7 @@ export default function CorporateBespoke() {
                 <div className="max-w-4xl mx-auto px-6 sm:px-8 lg:px-12">
                     <motion.div variants={itemVariants} className="text-center mb-14">
                         <p className="text-lg md:text-xl text-luxury-charcoal font-extralight leading-relaxed">
-                            Transform ordinary gestures into memorable experiences with our corporate and bespoke collection.
-                            To explore this offering, get in touch with us by filling the form below.
+                            {pageContent.descriptionText}
                         </p>
                     </motion.div>
 

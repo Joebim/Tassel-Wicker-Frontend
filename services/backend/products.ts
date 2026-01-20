@@ -6,6 +6,17 @@ export type ListProductsParams = {
   limit?: number;
   search?: string;
   categoryId?: string;
+  category?: string; // Category name
+  minPrice?: number;
+  maxPrice?: number;
+  tags?: string; // Comma-separated tags
+  sort?:
+    | "newest"
+    | "oldest"
+    | "price_asc"
+    | "price_desc"
+    | "name_asc"
+    | "name_desc";
   type?: "basket" | "custom" | "single";
   role?: "main" | "sub";
   featured?: boolean;
@@ -26,6 +37,13 @@ export async function listProducts(params: ListProductsParams = {}) {
   if (params.limit) sp.set("limit", String(params.limit));
   if (params.search) sp.set("search", params.search);
   if (params.categoryId) sp.set("categoryId", params.categoryId);
+  if (params.category) sp.set("category", params.category);
+  if (params.minPrice !== undefined)
+    sp.set("minPrice", String(params.minPrice));
+  if (params.maxPrice !== undefined)
+    sp.set("maxPrice", String(params.maxPrice));
+  if (params.tags) sp.set("tags", params.tags);
+  if (params.sort) sp.set("sort", params.sort);
   if (params.type) sp.set("type", params.type);
   if (params.role) sp.set("role", params.role);
   if (params.featured !== undefined)
@@ -46,7 +64,7 @@ export async function getProduct(id: string, includeLinked = false) {
     {
       method: "GET",
       auth: false,
-    }
+    },
   );
 }
 
@@ -56,12 +74,3 @@ export async function listSingles() {
     auth: false,
   });
 }
-
-
-
-
-
-
-
-
-

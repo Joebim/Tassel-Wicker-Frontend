@@ -1,17 +1,18 @@
 'use client';
 
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo, Suspense } from 'react';
 import Link from 'next/link';
-import { LuFileText, LuShield, LuFileCheck, LuTruck, LuRotateCcw, LuInfo, LuExternalLink, LuVideo, LuImage, LuX, LuUpload } from 'react-icons/lu';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { LuFileText, LuShield, LuFileCheck, LuTruck, LuRotateCcw, LuInfo, LuExternalLink, LuVideo, LuImage, LuX, LuUpload, LuShoppingBag, LuBriefcase, LuMail } from 'react-icons/lu';
 import Image from 'next/image';
 import { apiFetch } from '@/services/apiClient';
 import { useToastStore } from '@/store/toastStore';
 import RichTextEditor from '@/components/admin/RichTextEditor';
-import FileUpload from '@/components/admin/FileUpload'; // Keep for specific non-media types if needed, or fallback
+
 import { MediaLibraryModal } from '@/components/admin/MediaLibraryModal';
 import type { UploadFile } from '@/types/upload';
 
-type ContentPage = 'about' | 'cookie-policy' | 'privacy-policy' | 'terms-of-service' | 'returns' | 'shipping';
+type ContentPage = 'about' | 'cookie-policy' | 'privacy-policy' | 'terms-of-service' | 'returns' | 'shipping' | 'shop' | 'corporate-bespoke' | 'contact';
 
 interface ContentData {
   id: string;
@@ -25,6 +26,9 @@ interface ContentData {
 
 const contentPages: Array<{ id: ContentPage; label: string; icon: React.ComponentType<{ size?: number }> }> = [
   { id: 'about', label: 'About Page', icon: LuInfo },
+  { id: 'shop', label: 'Shop Page', icon: LuShoppingBag },
+  { id: 'corporate-bespoke', label: 'Corporate & Bespoke', icon: LuBriefcase },
+  { id: 'contact', label: 'Contact Page', icon: LuMail },
   { id: 'cookie-policy', label: 'Cookie Policy', icon: LuFileText },
   { id: 'privacy-policy', label: 'Privacy Policy', icon: LuShield },
   { id: 'terms-of-service', label: 'Terms of Service', icon: LuFileCheck },
@@ -33,7 +37,24 @@ const contentPages: Array<{ id: ContentPage; label: string; icon: React.Componen
 ];
 
 export default function ContentManagement() {
-  const [selectedPage, setSelectedPage] = useState<ContentPage>('about');
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center text-luxury-cool-grey font-extralight">Loading editor...</div>}>
+      <ContentManagementContent />
+    </Suspense>
+  );
+}
+
+function ContentManagementContent() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
+  const selectedPage = useMemo<ContentPage>(() => {
+    const pageParam = searchParams.get('page');
+    // Check if the param is a valid ContentPage
+    const isValid = contentPages.some((p) => p.id === pageParam);
+    return isValid ? (pageParam as ContentPage) : 'about';
+  }, [searchParams]);
+
   const [content, setContent] = useState<string>('');
   const [documentUrl, setDocumentUrl] = useState<string>('');
   const [loading, setLoading] = useState(true);
@@ -124,7 +145,7 @@ export default function ContentManagement() {
           return (
             <div key={page.id} className="relative">
               <button
-                onClick={() => setSelectedPage(page.id)}
+                onClick={() => router.push(`/admin/content?page=${page.id}`)}
                 className={`w-full p-4 border rounded-lg transition-colors text-left ${isSelected
                   ? 'border-brand-purple bg-brand-purple/10 text-brand-purple'
                   : 'border-luxury-warm-grey/20 hover:border-brand-purple/40 text-luxury-black'
@@ -173,35 +194,31 @@ export default function ContentManagement() {
             onChange={setContent}
             onSelectMedia={handleOpenMediaLibrary}
           />
+        ) : selectedPage === 'shop' ? (
+          <ShopPageEditor
+            content={content}
+            onChange={setContent}
+            onSelectMedia={handleOpenMediaLibrary}
+          />
+        ) : selectedPage === 'corporate-bespoke' ? (
+          <CorporateBespokePageEditor
+            content={content}
+            onChange={setContent}
+            onSelectMedia={handleOpenMediaLibrary}
+          />
+        ) : selectedPage === 'contact' ? (
+          <ContactPageEditor
+            content={content}
+            onChange={setContent}
+            onSelectMedia={handleOpenMediaLibrary}
+          />
         ) : (
-          <div className="space-y-6">
-            <div>
-              <label className="block text-sm font-extralight uppercase tracking-wide text-luxury-black mb-2">
-                Content
-              </label>
-              <RichTextEditor value={content} onChange={setContent} />
-            </div>
-
-            {/* Document Upload */}
-            <div>
-              {/* 
-                 Keeping FileUpload for PDF as MediaLibraryModal is optimized for images.
-                 User said "Let all... use the upload modal" but practically PDF support in image grid is poor.
-                 I'll switch to Media Picker specific for Document if needed, but for now 
-                 I'll construct a MediaInput that uses the modal for consistency if possible, 
-                 or stick to FileUpload since it handles non-image types better currently.
-                 Actually, let's use the new MediaPicker component for consistency where applicable.
-               */}
-              <FileUpload
-                value={documentUrl}
-                onChange={setDocumentUrl}
-                type="file"
-                accept=".pdf,application/pdf"
-                label="Document (PDF)"
-                maxSizeMB={100}
-              />
-            </div>
-          </div>
+          <PolicyPageEditor
+            pageType={selectedPage}
+            content={content}
+            onChange={setContent}
+            onSelectMedia={handleOpenMediaLibrary}
+          />
         )}
 
         {/* Save Button */}
@@ -622,6 +639,445 @@ function AboutPageEditor({
               </div>
             </div>
           </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Shop Page Editor
+interface ShopPageFormData {
+  headerImage: string;
+  introText: string;
+  secondaryIntroTextMobile: string;
+  secondaryIntroTextDesktop: string;
+  scrollVelocityText: string;
+}
+
+function ShopPageEditor({
+  content,
+  onChange,
+  onSelectMedia,
+}: {
+  content: string;
+  onChange: (html: string) => void;
+  onSelectMedia: (cb: (url: string) => void) => void;
+}) {
+  const initialData = useMemo<ShopPageFormData>(() => {
+    if (content) {
+      try {
+        const parsed = JSON.parse(content);
+        return {
+          headerImage: parsed.headerImage || '',
+          introText: parsed.introText || '',
+          secondaryIntroTextMobile: parsed.secondaryIntroTextMobile || '',
+          secondaryIntroTextDesktop: parsed.secondaryIntroTextDesktop || '',
+          scrollVelocityText: parsed.scrollVelocityText || '',
+        };
+      } catch { }
+    }
+    return {
+      headerImage: '',
+      introText: '',
+      secondaryIntroTextMobile: '',
+      secondaryIntroTextDesktop: '',
+      scrollVelocityText: '',
+    };
+  }, [content]);
+
+  const [formData, setFormData] = useState(initialData);
+
+  useEffect(() => {
+    setFormData(initialData);
+  }, [initialData]);
+
+  const handleChange = (field: keyof ShopPageFormData, value: string) => {
+    const updated = { ...formData, [field]: value };
+    setFormData(updated);
+    onChange(JSON.stringify(updated));
+  };
+
+  return (
+    <div className="space-y-6">
+      <div className="border-l-4 border-brand-purple pl-4">
+        <h4 className="text-lg font-extralight uppercase text-luxury-black mb-4">Header Section</h4>
+        <MediaPicker
+          label="Header Image"
+          value={formData.headerImage}
+          onChange={(url) => handleChange('headerImage', url)}
+          onSelectMedia={onSelectMedia}
+        />
+        <div className="mt-4">
+          <label className="block text-sm font-extralight uppercase tracking-wide text-luxury-black mb-2">
+            Scrolling Velocity Text
+          </label>
+          <input
+            type="text"
+            value={formData.scrollVelocityText}
+            onChange={(e) => handleChange('scrollVelocityText', e.target.value)}
+            className="w-full px-4 py-2 border border-luxury-warm-grey/20 rounded-lg focus:outline-none focus:border-brand-purple/50 font-extralight"
+          />
+        </div>
+      </div>
+
+      <div className="border-l-4 border-brand-purple pl-4">
+        <h4 className="text-lg font-extralight uppercase text-luxury-black mb-4">Intro Section</h4>
+        <div className="space-y-4">
+          <div>
+            <label className="block text-sm font-extralight uppercase tracking-wide text-luxury-black mb-2">
+              Intro Text (Supports HTML for strikethrough etc)
+            </label>
+            <textarea
+              value={formData.introText}
+              onChange={(e) => handleChange('introText', e.target.value)}
+              rows={4}
+              className="w-full px-4 py-2 border border-luxury-warm-grey/20 rounded-lg focus:outline-none focus:border-brand-purple/50 font-extralight"
+              placeholder='e.g. IT&apos;S THE <s>THOUGHT</s> GIFT THAT COUNTS'
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-extralight uppercase tracking-wide text-luxury-black mb-2">
+              Secondary Text (Mobile)
+            </label>
+            <textarea
+              value={formData.secondaryIntroTextMobile}
+              onChange={(e) => handleChange('secondaryIntroTextMobile', e.target.value)}
+              rows={4}
+              className="w-full px-4 py-2 border border-luxury-warm-grey/20 rounded-lg focus:outline-none focus:border-brand-purple/50 font-extralight"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-extralight uppercase tracking-wide text-luxury-black mb-2">
+              Secondary Text (Desktop)
+            </label>
+            <textarea
+              value={formData.secondaryIntroTextDesktop}
+              onChange={(e) => handleChange('secondaryIntroTextDesktop', e.target.value)}
+              rows={4}
+              className="w-full px-4 py-2 border border-luxury-warm-grey/20 rounded-lg focus:outline-none focus:border-brand-purple/50 font-extralight"
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Corporate & Bespoke Page Editor
+interface CorporateBespokePageFormData {
+  headerImageDesktop: string;
+  headerImageMobile: string;
+  descriptionText: string;
+}
+
+function CorporateBespokePageEditor({
+  content,
+  onChange,
+  onSelectMedia,
+}: {
+  content: string;
+  onChange: (html: string) => void;
+  onSelectMedia: (cb: (url: string) => void) => void;
+}) {
+  const initialData = useMemo<CorporateBespokePageFormData>(() => {
+    if (content) {
+      try {
+        const parsed = JSON.parse(content);
+        return {
+          headerImageDesktop: parsed.headerImageDesktop || '',
+          headerImageMobile: parsed.headerImageMobile || '',
+          descriptionText: parsed.descriptionText || '',
+        };
+      } catch { }
+    }
+    return {
+      headerImageDesktop: '',
+      headerImageMobile: '',
+      descriptionText: '',
+    };
+  }, [content]);
+
+  const [formData, setFormData] = useState(initialData);
+
+  useEffect(() => {
+    setFormData(initialData);
+  }, [initialData]);
+
+  const handleChange = (field: keyof CorporateBespokePageFormData, value: string) => {
+    const updated = { ...formData, [field]: value };
+    setFormData(updated);
+    onChange(JSON.stringify(updated));
+  };
+
+  return (
+    <div className="space-y-6">
+      <div className="border-l-4 border-brand-purple pl-4">
+        <h4 className="text-lg font-extralight uppercase text-luxury-black mb-4">Header Images</h4>
+        <div className="space-y-4">
+          <MediaPicker
+            label="Desktop Header Image"
+            value={formData.headerImageDesktop}
+            onChange={(url) => handleChange('headerImageDesktop', url)}
+            onSelectMedia={onSelectMedia}
+          />
+          <MediaPicker
+            label="Mobile Header Image"
+            value={formData.headerImageMobile}
+            onChange={(url) => handleChange('headerImageMobile', url)}
+            onSelectMedia={onSelectMedia}
+          />
+        </div>
+      </div>
+
+      <div className="border-l-4 border-brand-purple pl-4">
+        <h4 className="text-lg font-extralight uppercase text-luxury-black mb-4">Content</h4>
+        <div>
+          <label className="block text-sm font-extralight uppercase tracking-wide text-luxury-black mb-2">
+            Description Text
+          </label>
+          <textarea
+            value={formData.descriptionText}
+            onChange={(e) => handleChange('descriptionText', e.target.value)}
+            rows={4}
+            className="w-full px-4 py-2 border border-luxury-warm-grey/20 rounded-lg focus:outline-none focus:border-brand-purple/50 font-extralight"
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Contact Page Editor
+interface ContactPageFormData {
+  headerImage: string;
+  title: string;
+  subTitle: string;
+}
+
+function ContactPageEditor({
+  content,
+  onChange,
+  onSelectMedia,
+}: {
+  content: string;
+  onChange: (html: string) => void;
+  onSelectMedia: (cb: (url: string) => void) => void;
+}) {
+  const initialData = useMemo<ContactPageFormData>(() => {
+    if (content) {
+      try {
+        const parsed = JSON.parse(content);
+        return {
+          headerImage: parsed.headerImage || '',
+          title: parsed.title || '',
+          subTitle: parsed.subTitle || '',
+        };
+      } catch { }
+    }
+    return {
+      headerImage: '',
+      title: '',
+      subTitle: '',
+    };
+  }, [content]);
+
+  const [formData, setFormData] = useState(initialData);
+
+  useEffect(() => {
+    setFormData(initialData);
+  }, [initialData]);
+
+  const handleChange = (field: keyof ContactPageFormData, value: string) => {
+    const updated = { ...formData, [field]: value };
+    setFormData(updated);
+    onChange(JSON.stringify(updated));
+  };
+
+  return (
+    <div className="space-y-6">
+      <div className="border-l-4 border-brand-purple pl-4">
+        <h4 className="text-lg font-extralight uppercase text-luxury-black mb-4">Header Image</h4>
+        <MediaPicker
+          label="Header Image"
+          value={formData.headerImage}
+          onChange={(url) => handleChange('headerImage', url)}
+          onSelectMedia={onSelectMedia}
+        />
+      </div>
+
+      <div className="border-l-4 border-brand-purple pl-4">
+        <h4 className="text-lg font-extralight uppercase text-luxury-black mb-4">Content</h4>
+        <div className="space-y-4">
+          <div>
+            <label className="block text-sm font-extralight uppercase tracking-wide text-luxury-black mb-2">
+              Title
+            </label>
+            <input
+              type="text"
+              value={formData.title}
+              onChange={(e) => handleChange('title', e.target.value)}
+              className="w-full px-4 py-2 border border-luxury-warm-grey/20 rounded-lg focus:outline-none focus:border-brand-purple/50 font-extralight uppercase"
+              placeholder="e.g. CONTACT US"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-extralight uppercase tracking-wide text-luxury-black mb-2">
+              Subtitle
+            </label>
+            <input
+              type="text"
+              value={formData.subTitle}
+              onChange={(e) => handleChange('subTitle', e.target.value)}
+              className="w-full px-4 py-2 border border-luxury-warm-grey/20 rounded-lg focus:outline-none focus:border-brand-purple/50 font-extralight uppercase"
+              placeholder="e.g. WE'D LOVE TO HEAR FROM YOU"
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Policy Page Editor (Privacy, Terms, Cookies, etc.)
+interface PolicyPageFormData {
+  headerImage: string;
+  headerImageDesktop: string;
+  headerImageMobile: string;
+  title1: string;
+  title2: string;
+  body: string;
+}
+
+function PolicyPageEditor({
+  pageType,
+  content,
+  onChange,
+  onSelectMedia,
+}: {
+  pageType: ContentPage;
+  content: string;
+  onChange: (html: string) => void;
+  onSelectMedia: (cb: (url: string) => void) => void;
+}) {
+  const initialData = useMemo<PolicyPageFormData>(() => {
+    if (content) {
+      try {
+        const parsed = JSON.parse(content);
+        // If parsed is string, it might be old plain HTML content
+        if (typeof parsed === 'string') {
+          return {
+            headerImage: '',
+            headerImageDesktop: '',
+            headerImageMobile: '',
+            title1: '',
+            title2: '',
+            body: parsed
+          }
+        }
+        return {
+          headerImage: parsed.headerImage || '',
+          headerImageDesktop: parsed.headerImageDesktop || '',
+          headerImageMobile: parsed.headerImageMobile || '',
+          title1: parsed.title1 || '',
+          title2: parsed.title2 || '',
+          body: parsed.body || '',
+        };
+      } catch {
+        // If parse fails, assume it's plain HTML
+        return {
+          headerImage: '',
+          headerImageDesktop: '',
+          headerImageMobile: '',
+          title1: '',
+          title2: '',
+          body: content
+        };
+      }
+    }
+    return {
+      headerImage: '',
+      headerImageDesktop: '',
+      headerImageMobile: '',
+      title1: '',
+      title2: '',
+      body: '',
+    };
+  }, [content]);
+
+  const [formData, setFormData] = useState(initialData);
+
+  useEffect(() => {
+    setFormData(initialData);
+  }, [initialData]);
+
+  const handleChange = (field: keyof PolicyPageFormData, value: string) => {
+    const updated = { ...formData, [field]: value };
+    setFormData(updated);
+    onChange(JSON.stringify(updated));
+  };
+
+  const isTerms = pageType === 'terms-of-service';
+
+  return (
+    <div className="space-y-6">
+      <div className="border-l-4 border-brand-purple pl-4">
+        <h4 className="text-lg font-extralight uppercase text-luxury-black mb-4">Header & Titles</h4>
+        {isTerms ? (
+          <div className="space-y-4">
+            <MediaPicker
+              label="Desktop Header Image"
+              value={formData.headerImageDesktop}
+              onChange={(url) => handleChange('headerImageDesktop', url)}
+              onSelectMedia={onSelectMedia}
+            />
+            <MediaPicker
+              label="Mobile Header Image"
+              value={formData.headerImageMobile}
+              onChange={(url) => handleChange('headerImageMobile', url)}
+              onSelectMedia={onSelectMedia}
+            />
+          </div>
+        ) : (
+          <MediaPicker
+            label="Header Image"
+            value={formData.headerImage}
+            onChange={(url) => handleChange('headerImage', url)}
+            onSelectMedia={onSelectMedia}
+          />
+        )}
+
+        <div className="grid grid-cols-2 gap-4 mt-4">
+          <div>
+            <label className="block text-sm font-extralight uppercase tracking-wide text-luxury-black mb-2">
+              Title Part 1
+            </label>
+            <input
+              type="text"
+              value={formData.title1}
+              onChange={(e) => handleChange('title1', e.target.value)}
+              className="w-full px-4 py-2 border border-luxury-warm-grey/20 rounded-lg focus:outline-none focus:border-brand-purple/50 font-extralight uppercase"
+              placeholder="e.g. PRIVACY"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-extralight uppercase tracking-wide text-luxury-black mb-2">
+              Title Part 2
+            </label>
+            <input
+              type="text"
+              value={formData.title2}
+              onChange={(e) => handleChange('title2', e.target.value)}
+              className="w-full px-4 py-2 border border-luxury-warm-grey/20 rounded-lg focus:outline-none focus:border-brand-purple/50 font-extralight uppercase"
+              placeholder="e.g. POLICY"
+            />
+          </div>
+        </div>
+      </div>
+
+      <div className="border-l-4 border-brand-purple pl-4">
+        <h4 className="text-lg font-extralight uppercase text-luxury-black mb-4">Policy Content</h4>
+        <div>
+          <RichTextEditor value={formData.body} onChange={(val) => handleChange('body', val)} />
         </div>
       </div>
     </div>

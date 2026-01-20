@@ -107,9 +107,9 @@ export default function ToteBagDetail() {
                                 dangerouslySetInnerHTML={{ __html: product.description }}
                             />
                             {/* Pre-order note for branded tote bag */}
-                            <p className="text-luxury-cool-grey leading-relaxed font-extralight italic mt-4">
+                            {/* <p className="text-luxury-cool-grey leading-relaxed font-extralight italic mt-4">
                                 PRE-ORDER NOTE: This piece is available for pre-order. Orders placed on or after our launch date, December 15th, will begin shipping from January 22nd, 2026. Thank you for your patience.
-                            </p>
+                            </p> */}
                         </div>
 
                         <button
