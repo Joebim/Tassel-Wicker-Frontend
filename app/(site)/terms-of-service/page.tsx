@@ -23,6 +23,7 @@ export default function TermsOfService() {
             title2: 'OF SERVICE',
             body: ''
         };
+        
 
         if (contentData?.content) {
             try {
